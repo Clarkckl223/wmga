@@ -1,40 +1,88 @@
 rules_version = '2';
 // 围棋复盘本的 Firestore 规则：复制全部内容，贴到 Firebase 控制台 → Firestore Database → 规则 → 发布
+// 身份：accounts/{uid}.role = pending（等批准的老师）/ teacher / admin / student / revoked / denied
 service cloud.firestore {
   match /databases/{database}/documents {
-    function authed() { return request.auth != null; }
+    function signed() { return request.auth != null; }
     function small() {
       return !('sgf' in request.resource.data) || (request.resource.data.sgf is string && request.resource.data.sgf.size() < 900000);
     }
+    function acctPath(uid) { return /databases/$(database)/documents/accounts/$(uid); }
+    function hasAcct() { return signed() && exists(acctPath(request.auth.uid)); }
+    function me() { return get(acctPath(request.auth.uid)).data; }
+    function isAdmin() {
+      return signed() && request.auth.token.email == 'clarkckl223@gmail.com' && request.auth.token.email_verified == true;
+    }
+    function isTeacher() { return isAdmin() || (hasAcct() && me().role in ['teacher', 'admin']); }
+    function isStudent() { return hasAcct() && me().role == 'student'; }
+    function stu() { return get(/databases/$(database)/documents/students/$(me().sid)).data; }
     function metaPath(gid) { return /databases/$(database)/documents/games/$(gid)/layers/meta; }
-    // 班级的设定（meta）、练习册（b_…）和内建练习册的修改（x_…）：建立班级的老师（Google 账号）才能改
+    function ownsClass(gid) {
+      return isTeacher() && exists(metaPath(gid)) && get(metaPath(gid)).data.get('owner', '') == request.auth.uid;
+    }
+    function inClass(gid) { return isStudent() && gid in stu().get('gids', []); }
+    // 班级设定（meta）、练习册（b_…）、内建练习册的修改（x_…）：只有建立班级的老师能改
+    function teacherDoc(name) { return name == 'meta' || name.matches('b_.*') || name.matches('x_.*'); }
     function teacherOk(gid) {
       return !exists(metaPath(gid))
         || !('owner' in get(metaPath(gid)).data)
         || get(metaPath(gid)).data.owner == request.auth.uid;
     }
-    function teacherDoc(name) { return name == 'meta' || name.matches('b_.*') || name.matches('x_.*'); }
 
+    // ---- 账号 ----
+    match /accounts/{uid} {
+      allow get: if signed() && (request.auth.uid == uid || isTeacher());
+      allow list: if isAdmin();
+      allow create: if signed() && (
+        (request.auth.uid == uid && request.resource.data.role == 'pending')
+        || (request.auth.uid == uid && request.resource.data.role == 'admin' && isAdmin())
+        || (isTeacher() && request.resource.data.role == 'student'));
+      allow update: if isAdmin()
+        || (request.auth.uid == uid && request.resource.data.role == resource.data.role)
+        || (isTeacher() && resource.data.role == 'student' && request.resource.data.role in ['student', 'revoked']);
+      allow delete: if false;
+    }
+    // 用户名 → 登录用的电邮（登录前要查，所以登录前的匿名连线也能读单一个，不能列出）
+    match /logins/{u} {
+      allow get: if signed();
+      allow list: if false;
+      allow create, update: if isTeacher();
+      allow delete: if false;
+    }
+    // 学生：在哪些班、每班的纪录文件
+    match /students/{sid} {
+      allow get: if isTeacher() || (isStudent() && me().sid == sid);
+      allow list: if false;
+      allow create, update: if isTeacher();
+      allow delete: if false;
+    }
+
+    // ---- 棋谱分享、线上对弈、家里电脑（不是班级）：维持原来的做法 ----
     match /games/{gid} {
-      allow read: if authed();
-      allow create, update: if authed() && small();
+      allow read: if signed() && (!gid.matches('cls_.*') || ownsClass(gid) || inClass(gid) || isAdmin());
+      allow create, update: if signed() && small();
       allow delete: if false;
 
       match /layers/{name} {
-        allow read: if authed();
-        allow create, update: if authed() && small()
-          && (!gid.matches('cls_.*') || !teacherDoc(name) || teacherOk(gid))
-          && (!(gid.matches('cls_.*') && name == 'meta') || request.resource.data.get('owner', null) == null && !exists(metaPath(gid))
-              || request.resource.data.get('owner', null) == request.auth.uid);
+        // 不是班级：登录（含匿名）就可以
+        allow read: if signed() && !gid.matches('cls_.*');
+        allow create, update: if signed() && small() && !gid.matches('cls_.*');
+        // 班级：老师、这班的学生、管理员可以读
+        allow read: if signed() && gid.matches('cls_.*') && (ownsClass(gid) || inClass(gid) || isAdmin()
+          || (name == 'meta' && isTeacher()));
+        // 班级设定和练习册：建立班级的老师
+        allow create, update: if signed() && small() && gid.matches('cls_.*') && teacherDoc(name) && isTeacher() && teacherOk(gid)
+          && (name != 'meta' || request.resource.data.get('owner', null) == request.auth.uid);
+        // 学生纪录（u_…）：老师，或学生自己那一个
+        allow create, update: if signed() && small() && gid.matches('cls_.*') && !teacherDoc(name)
+          && (ownsClass(gid) || (inClass(gid) && stu().get('docs', {}).get(gid, '') == name));
         allow delete: if false;
       }
 
-      // 学生密码的「钥匙」：只能用名字取，不能列出、不能改
+      // 旧版学生密码的「钥匙」（已停用，只留着读）
       match /keys/{k} {
-        allow get: if authed();
-        allow list: if false;
-        allow create: if authed() && gid.matches('cls_.*') && k.size() < 120;
-        allow update, delete: if false;
+        allow get: if signed();
+        allow list, create, update, delete: if false;
       }
     }
   }

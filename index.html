@@ -5638,11 +5638,19 @@ let acct=null; // 目前登录的账号：{uid, role, name, ...}
 const authDb=async()=>{await Shared.db();return firebase.firestore()};
 const authUid=()=>{const u=firebase.auth&&firebase.apps.length&&firebase.auth().currentUser;return u&&!u.isAnonymous?u:null};
 const userKey=s=>String(s||'').trim().toLowerCase().replace(/[^a-z0-9_.-]/g,'');
-function authRole(){const L=tsLogin();if(L&&L.role==='student')return'stu';if(acct&&(acct.role==='teacher'||acct.role==='admin'))return acct.role==='admin'?'adm':'tea';if(L&&L.role==='teacher')return'tea';return prefs.authGuest?'guest':'none'}
+function authRole(){const L=tsLogin();if(acct&&acct.role==='student'&&L)return'stu';if(acct&&(acct.role==='teacher'||acct.role==='admin'))return acct.role==='admin'?'adm':'tea';return prefs.authGuest?'guest':'none'}
 function authBodyCls(){const r=authRole();for(const c of['guest','stu','tea','adm','none'])document.body.classList.toggle('r-'+c,r===c);document.body.classList.toggle('stu',r==='stu')}
 async function authLoadAcct(){const u=authUid();if(!u){acct=null;return null}const db=await authDb(),d=await db.collection('accounts').doc(u.uid).get();acct=d.exists?{uid:u.uid,...d.data()}:{uid:u.uid,role:null};return acct}
-async function authInit(){ // 打开网页时：之前登录过就接回来
-  try{await Shared.db();await authLoadAcct();if(acct&&acct.role==='student'&&!tsLogin())await authStudentEnter();if(acct&&(acct.role==='teacher'||acct.role==='admin')&&!tsLogin())await authTeacherEnter()}catch(e){console.warn('auth',e)}
+async function authInit(){ // 打开网页时：之前登录过就接回来；旧版的登录（班级代码＋密码）不再算数
+  try{await Shared.db();await authLoadAcct();const u=authUid(),old=tsStore.login;
+    if(u&&acct&&!acct.role)await authAfterTeacher(); // 以前用 Google 登录过的老师：第一次自动建账号（管理员的电邮直接是管理员）
+    const isT=acct&&(acct.role==='teacher'||acct.role==='admin'),isS=acct&&acct.role==='student';
+    if(old&&((old.role==='teacher'&&!isT)||(old.role==='student'&&!isS)||(old.role==='student'&&isS&&!old.sid))){
+      if(old.role==='teacher'&&isT){}else{delete tsStore.login;tsSave()}}
+    if(old&&old.role==='teacher'&&isT&&!(acct.classes||[]).includes(old.cls)){ // 旧版老师登录的那班：如果是自己建立的，自动接回
+      try{const m=await TsCloud.meta(old.cls);if(m&&(!m.owner||m.owner===acct.uid)){if(!m.owner){const mm={...m};delete mm.owner;delete mm.th;await TsCloud.set(old.cls,'meta',mm,{owner:acct.uid})}
+        const db=await authDb();await db.collection('accounts').doc(acct.uid).update({classes:firebase.firestore.FieldValue.arrayUnion(old.cls)});await authLoadAcct()}}catch(e){console.warn('claim',e)}}
+    if(isS)await authStudentEnter(tsLogin()&&('cls_'+tsLogin().cls));else if(isT)await authTeacherEnter(tsLogin()&&tsLogin().cls)}catch(e){console.warn('auth',e)}
   authBodyCls();if(curMode()==='home')renderHome()}
 
 /* ---- 学生 ---- */

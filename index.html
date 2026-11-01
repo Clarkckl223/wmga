@@ -331,6 +331,28 @@ aside{display:flex;flex-direction:column;gap:14px;min-width:0}
 body.stu .tonly{display:none!important}
 body.r-guest #aiToggle,body.r-guest #revToggle,body.r-guest #trainToggle,body.r-guest #revBox,body.r-guest .noguest{display:none!important}
 .authcard{max-width:460px;margin:20px auto;padding:20px}.authcard h2{margin:0 0 12px}.authcard .stack input{height:38px;border:1px solid var(--line);border-radius:6px;padding:0 10px;background:var(--bg);color:var(--ink)}
+/* 主页 */
+.hbrand{display:flex;align-items:center;gap:12px;justify-content:center;margin:18px 0 0}.hbrand b{display:block;font-family:var(--f-display);font-size:1.4rem}.hbrand span{color:var(--muted);font-size:.85rem}
+.hlogo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#1f2a2e,#2F6B5A);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.05rem;letter-spacing:-2px}
+.hhero{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:22px 24px;border-radius:16px;background:linear-gradient(120deg,var(--accent-soft),var(--panel));border:1px solid var(--line);margin-top:6px}
+.hgreet{font-family:var(--f-display);font-size:1.6rem;font-weight:700}.hmeta{display:flex;gap:8px;align-items:center;margin-top:6px;color:var(--muted);font-size:.9rem;flex-wrap:wrap}
+.hchip{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:600}.hact{display:flex;gap:8px;flex-wrap:wrap}
+.hstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.hstats div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.hstats b{display:block;font-family:var(--f-display);font-size:1.35rem}.hstats span{color:var(--muted);font-size:.8rem}
+.hguest{margin:12px 2px 0}
+.hsec{margin-top:22px}.hsec h3{margin:0 0 10px;font-size:.8rem;letter-spacing:.14em;color:var(--muted);font-weight:600}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.hcard{--c:#2F6B5A;display:flex;align-items:center;gap:14px;padding:16px;border-radius:14px;border:1px solid var(--line);background:var(--panel);text-align:left;cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s}
+.hcard:hover{transform:translateY(-2px);border-color:var(--c);box-shadow:0 6px 18px rgba(0,0,0,.12)}
+.s-play .hcard{--c:#B5452B}.s-class .hcard{--c:#2E5E8A}
+.hic{flex:none;width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;background:color-mix(in srgb,var(--c) 16%,transparent)}
+.htx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.htx b{font-size:1.08rem}.htx small{color:var(--muted);font-size:.84rem;line-height:1.45}
+.harr{color:var(--muted);font-size:1.4rem}
+@media (max-width:520px){.hhero{padding:16px}.hgreet{font-size:1.3rem}.hgrid{grid-template-columns:1fr}.hstats b{font-size:1.1rem}}
+/* 不需要棋盘时不显示 */
+body.ts-idle .players,body.ts-idle .board-wrap,body.ts-idle #revDots,body.ts-idle .nav,body.ts-idle .tools,body.ts-idle #vars,body.ts-idle #judgeBar,body.ts-idle #aiBar{display:none!important}
+body.pick main{display:none!important}body.pick .app{grid-template-columns:minmax(0,1fr)}body.pick aside{max-width:860px;width:100%;margin:0 auto}body.pick aside>section:not(:last-of-type){display:none!important}
+body.pick .list{max-height:none}
 </style>
 
 <div class="app">
@@ -973,6 +995,312 @@ const EN={
 '应氏规则：和中国规则一样数活子和地，白贴 8 点；平分时黑胜（让子棋白胜）。':'Ing rules: count stones and territory like Chinese rules, White gets 8 points; ties go to Black (White in handicap games).',
 '结果已写入：{0}':'Result saved: {0}',
 '还没标出任何死子。如果棋局还没下完，数出来的结果会不准。':'No dead stones marked yet. If the game isn’t finished, the count won’t be accurate.',
+'{0}常犯的错：{1}。':'{0} often: {1}.'
+,'{0} {1} 次':'{0} ×{1}'
+,'显示':'Show'
+,'小朋友':'Kids'
+,'完整':'Full'
+,'棋盘下面的形势线：◆ 好手，● 要改进的一手。点一下，右边会说明。':'The line under the board: ◆ good move, ● move to improve. Tap one to see the note on the right.'
+,'记到我的复盘统计':'Add to my review stats'
+,'记到我的复盘统计：':'Add to my review stats:'
+,'我执黑':'I was Black'
+,'我执白':'I was White'
+,'记到学生名下…':'Add to a student…'
+,'班级里还没有学生。':'No students in this class yet.'
+,'记到学生名下：':'Add to student:'
+,'他执黑':'Played Black'
+,'他执白':'Played White'
+,'这一方没有分析到的棋':'No analysed moves for this side'
+,'已记到 {0} 名下':'Added to {0}'
+,'没有上传，请检查网络':'Not uploaded. Check your connection.'
+,'还没有复盘纪录。整盘分析完成后，在分析结果下面按「记到…」。':'No review records yet. After a full-game review, press “Add to…” below the results.'
+,'共 {0} 盘，平均每手损失 {1} 目。':'{0} games, average loss {1} points per move.'
+,'最近 5 盘和之前差不多（{0} 目）。':'The last 5 games are about the same ({0} points).'
+,'最近 5 盘进步了：每手损失 {0} → {1} 目。':'Improving over the last 5 games: loss per move {0} → {1}.'
+,'最近 5 盘退步了：每手损失 {0} → {1} 目。':'Slipping over the last 5 games: loss per move {0} → {1}.'
+,'问题手最常见的下法：{0}':'Most common in mistakes: {0}'
+,'执':'Colour'
+,'每手损失':'Loss / move'
+,'主要错误':'Main mistakes'
+,'全班最常犯的错：{0}':'Class’s most common mistakes: {0}'
+,'{0} {1} 次（{2} 人）':'{0} ×{1} ({2} students)'
+,'可以更好':'Could be better'
+,'【{0}】下得好！':'Nice 【{0}】!'
+,'和 AI 想的一样，好棋！':'Same as the AI — good move!'
+,'这手【{0}】可以下得更好：':'This 【{0}】 could be better: '
+,'这手【{0}】不太好：':'This 【{0}】 isn’t good: '
+,'这手可以下得更好：':'This move could be better: '
+,'这手不太好：':'This move isn’t good: '
+,'下完自己只剩一口气，会被对方吃掉。':'After it you have only one liberty and can be captured.'
+,'AI 有更好的下法。':'The AI has a better move.'
+,'AI 推荐 {0}【{1}】。':'AI suggests {0} 【{1}】.'
+,'AI 推荐 {0}。':'AI suggests {0}.'
+,'AI 推荐':'AI suggestion'
+,'先下 {0}【{1}】，接下来的变化可以用滚轮或 ← → 一手一手看。':'Play {0} 【{1}】 first; step through the line with the mouse wheel or ← →.'
+,'先下 {0}，接下来的变化可以用滚轮或 ← → 一手一手看。':'Play {0} first; step through the line with the mouse wheel or ← →.'
+,'回到实战':'Back to the game'
+,'下面的形势线：◆ 好手，● 要改进的一手。点一下就跳过去。':'Line below: ◆ good move, ● move to improve. Tap to jump there.'
+,'（损失 {0} 目）':'(loses {0} points)'
+,'看 AI 的下法':'See the AI’s line'
+,'报告设定':'Report settings'
+,'要改进的手':'Moves to improve'
+,'好手标准':'Good-move standard'
+,'宽松':'Easy'
+,'标准':'Normal'
+,'严格':'Strict'
+,'只看':'Show'
+,'双方':'Both'
+,'恢复默认':'Reset'
+,'设为全班默认':'Set as class default'
+,'已设为全班默认':'Saved as class default'
+,'没有存到，请检查网络':'Not saved. Check your connection.'
+,'存不进去：{0}':'Couldn’t save: {0}'
+,'，{0} 个读不出来':', {0} unreadable'
+,'请填好班级名称':'Enter a class name'
+,'老师账号要先由管理员批准':'A teacher account must be approved by the admin first'
+,'学生账号':'Student accounts'
+,'我的班级':'My classes'
+,'管理':'Admin'
+,'管理员':'Admin'
+,'没有登录：题目纪录只存在这台设备（{0} 分）':'Not signed in: records stay on this device ({0} pts)'
+,'还没有班级。先建立一个。':'No classes yet. Create one first.'
+,'班级名称，例如：周六初级班':'Class name, e.g. Saturday beginners'
+,'建立':'Create'
+,'接回旧班级（以前用 Google 建立的）':'Reconnect an old class (created with Google)'
+,'接回':'Reconnect'
+,'{0} 的学生账号':'Student accounts of {0}'
+,'用户名':'Username'
+,'旧纪录，还没有账号':'Old record, no account yet'
+,'重发密码':'New password'
+,'建立学生账号':'Create student accounts'
+,'一行一个名字。名字和旧纪录一样的，会自动接上旧纪录。用户名会自动产生，也可以写「名字,用户名」。':'One name per line. Names matching an old record are linked to it. Usernames are generated automatically, or write “name,username”.'
+,'例如：\n陈小明\n林阿华,ahua':'e.g.\nTan Xiao Ming\nLim Ah Hua,ahua'
+,'建立并打印登录卡':'Create & print login cards'
+,'加入别班的学生':'Add a student from another class'
+,'他的用户名':'Their username'
+,'加入这班':'Add to this class'
+,'等待批准的老师':'Teachers waiting for approval'
+,'读取中…':'Loading…'
+,'批准':'Approve'
+,'拒绝':'Reject'
+,'没有等待批准的老师。':'No teachers waiting.'
+,'重新整理':'Refresh'
+,'请回到主页登录：学生用老师给的用户名和密码；老师用 Google 或电邮。':'Sign in from the home page: students use the username and password from their teacher; teachers use Google or email.'
+,'去登录':'Sign in'
+,'常犯的错':'Common mistakes'
+,'我的复盘统计':'My review stats'
+,'{0} 的复盘统计':'{0}’s review stats'
+,'家长报告（最近 30 天）':'Parent report (last 30 days)'
+,'已批准':'Approved'
+,'已拒绝':'Rejected'
+,'这个班级不是用你这个账号建立的':'This class wasn’t created with this account'
+,'已接回班级 {0}':'Reconnected class {0}'
+,'请输入学生名字':'Enter student names'
+,'建立了 {0} 个账号':'Created {0} accounts'
+,'再点一次确认（旧密码会失效）':'Tap again to confirm (the old password will stop working)'
+,'已重发 {0} 的登录资料':'New login issued for {0}'
+,'{0} 已加入这班':'{0} added to this class'
+,'请先请家长看「私隐说明」，再勾选同意':'Ask a parent to read the privacy notice, then tick to agree'
+,'{0}这块活了（AI 判断活棋 {1}%）':'{0} group is alive (AI: {1}% alive)'
+,'{0}这块死了（AI 判断活棋 {1}%）':'{0} group is dead (AI: {1}% alive)'
+,'{0}这块还不确定（AI 判断活棋 {1}%）':'{0} group is unsettled (AI: {1}% alive)'
+,'AI 推荐 {0}，这样下比较不好。':'AI suggests {0}; this move is worse.'
+,'也可以；AI 首选 {0}。':'Also fine; the AI’s first choice is {0}.'
+,'这手之后：':'After this move: '
+,'19 路 {0}':'19×19 {0}'
+,'13 路 {0}':'13×13 {0}'
+,'还没有考':'Not taken yet'
+,'这段时间还没有复盘纪录。':'No review records in this period.'
+,'平均每手损失 {0} 目。':'Average loss {0} points per move.'
+,'平均每手损失 {0} 目，比之前 30 天（{1} 目）进步了！':'Average loss {0} points per move — better than the 30 days before ({1})!'
+,'平均每手损失 {0} 目，之前 30 天是 {1} 目，要再加油。':'Average loss {0} points per move; it was {1} in the 30 days before. Keep working!'
+,'平均每手损失 {0} 目，和之前 30 天差不多。':'Average loss {0} points per move, about the same as the 30 days before.'
+,'{0} 的学习报告':'Learning report: {0}'
+,'老师：{0}':'Teacher: {0}'
+,'最近 30 天一览':'Last 30 days'
+,'复盘的对局':'Games reviewed'
+,'这段时间答对的题':'Problems solved'
+,'累计 {0} 题':'{0} in total'
+,'进步情况':'Progress'
+,'「每手损失」是 AI 算出来的：每一手比 AI 推荐的下法少了几目，越低表示下得越好。':'“Loss per move” is measured by the AI: how many points each move gives up compared with the AI’s choice. Lower is better.'
+,'接下来要加强的地方':'What to work on next'
+,'这段时间没有足够的复盘纪录。':'Not enough review records in this period.'
+,'老师的话':'Teacher’s comments'
+,'（老师可以在这里写评语，再打印或存成 PDF）':'(Write your comments here, then print or save as PDF)'
+,'打印 / 存成 PDF':'Print / save as PDF'
+,'请允许弹出视窗':'Please allow pop-ups'
+,'请输入用户名和密码':'Enter your username and password'
+,'没有这个用户名':'No such username'
+,'这个账号已经停用，请问老师':'This account is no longer active. Ask your teacher.'
+,'找不到学生资料':'Student record not found'
+,'这个电邮已经注册过，请直接登录':'This email is already registered. Please sign in.'
+,'密码至少 6 个字':'Password must be at least 6 characters'
+,'电邮格式不对':'Invalid email'
+,'电邮或密码不对':'Wrong email or password'
+,'用户名 {0} 已被用了':'Username {0} is taken'
+,'这位学生还没有新账号':'This student has no account yet'
+,'登录卡':'Login cards'
+,'剪开发给学生。第一次登录后可以自己改密码。':'Cut out and hand to students. They can change the password after first sign-in.'
+,'（已接上旧纪录）':'(linked to old record)'
+,'密码':'Password'
+,'请先登录':'Please sign in first'
+,'请登出再登入一次，然后马上改密码':'Sign out and in again, then change the password right away'
+,'老师账号审核中':'Teacher account pending'
+,'{0}，你的老师账号已经送出，等管理员批准后就可以开班。':'{0}, your teacher account has been submitted. You can create classes once the admin approves it.'
+,'重新检查':'Check again'
+,'欢迎来到黑白思弈 · 围棋学堂':'Welcome to WMGA Weiqi Academy'
+,'先试用':'Try it'
+,'用户名和密码由老师给你。忘记密码请问老师。':'Your teacher gives you a username and password. Forgot it? Ask your teacher.'
+,'私隐说明（请家长看）':'Privacy notice (for parents)'
+,'用 Google 账号登录 / 注册':'Sign in / register with Google'
+,'或者用电邮：':'Or use email:'
+,'电邮':'Email'
+,'密码（至少 6 个字）':'Password (at least 6 characters)'
+,'老师名字（第一次注册才要填）':'Teacher name (first registration only)'
+,'注册新老师账号':'Register as a new teacher'
+,'新老师账号要由管理员（槟州围棋协会）批准后才能开班。':'New teacher accounts must be approved by the admin (Penang Weiqi Association) before creating classes.'
+,'不登录也可以：下棋、记谱、下载棋谱、做内建的题目。复盘分析、班级、作业要登录才能用。':'Without signing in you can play, record games, download SGF and solve built-in problems. Review, classes and homework need an account.'
+,'开始试用':'Start'
+,'新密码（至少 6 个字）':'New password (at least 6 characters)'
+,'密码改好了':'Password changed'
+,'请填老师名字':'Enter the teacher’s name'
+,'试用中（没有登录）':'Trying it out (not signed in)'
+,'改密码':'Change password'
+,'做题中：题目存在练习册里':'Solving: problems are stored in the book'
+,'漏看：没有提子':'Missed: a capture'
+,'漏看：被叫吃没有逃':'Missed: escaping from atari'
+,'漏看：没有补断点':'Missed: fixing a cutting point'
+,'漏看：没有做眼':'Missed: making an eye'
+,'漏看：没有破眼':'Missed: destroying an eye'
+,'征子不成立':'Ladder doesn’t work'
+,'钻进对方的虎口':'Played into a tiger’s mouth'
+,'紧了自己的气':'Filled own liberty'
+,'团子（方块愚形）':'Dumpling shape'
+,'二路爬太多':'Crawling on the 2nd line'
+,'死活出错':'Life & death error'
+,'放过对方的弱棋':'Let a weak group live'
+,'救不该救的子（该弃就弃）':'Saved stones that should be given up'
+,'去攻强棋（攻弱不攻强）':'Attacked a strong group'
+,'下在已经定型的地方（太小）':'Played in a settled area (too small)'
+,'往棋子多的地方挤（应该走宽处）':'Crowded play (go to open areas)'
+,'往低处钻（一、二路）':'Too low (1st/2nd line)'
+,'空三角（愚形）':'Empty triangle'
+,'没提子':'No capture'
+,'没逃子':'No escape'
+,'没补断':'Cut not fixed'
+,'没做眼':'No eye'
+,'没破眼':'Eye not broken'
+,'钻虎口':'Tiger’s mouth'
+,'紧自己气':'Own liberty'
+,'团子':'Dumpling'
+,'二路爬':'2nd-line crawl'
+,'死活':'Life & death'
+,'放过弱棋':'Let it live'
+,'救死子':'Saved dead stones'
+,'攻强棋':'Attacked strength'
+,'下太小':'Too small'
+,'往挤处':'Crowded'
+,'走低位':'Too low'
+,'空三角':'Empty triangle'
+,'【提子】吃掉 {0} 颗，干净利落！':'【Capture】 took {0} stones — clean!'
+,'【征子】成立，对方的子跑不掉了！':'【Ladder】 works — the stones can’t escape!'
+,'【叫吃】时机很好，对方只剩一口气。':'【Atari】 at the right time — one liberty left.'
+,'【逃子】把被叫吃的子救出来了。':'【Escape】 saved the stones in atari.'
+,'【长气】让这块棋的气变多，对杀更有把握。':'【Extend】 gave the group more liberties for the fight.'
+,'【连接】把棋子连成一块，变得更强。':'【Connect】 joined the stones into a stronger group.'
+,'【断】把对方切开，对方要分开照顾。':'【Cut】 split the opponent into two groups.'
+,'【做眼】这块棋更安全了。':'【Eye】 — the group is safer now.'
+,'【破眼】让对方更难做活。':'【Eye-breaking】 makes it harder for them to live.'
+,'这里本来可以【提子】，吃掉对方的子。':'You could have 【captured】 here.'
+,'自己的子被叫吃了，要先逃出来。':'Your stones were in atari — escape first.'
+,'有断点没补，对方可以把你切断。':'A cutting point was left open.'
+,'这块棋需要先做眼。':'This group needs an eye first.'
+,'这时候应该破对方的眼。':'Destroy the opponent’s eye here.'
+,'这个征子征不到，对方会逃出来，反而留下断点。':'This ladder fails: they escape and you are left with cutting points.'
+,'下进对方的虎口，马上会被提掉。':'Playing into a tiger’s mouth gets captured at once.'
+,'这手让自己那块棋的气变少了。':'This move reduced your own group’s liberties.'
+,'四颗子挤成方块，效率很低。':'Four stones in a square — very inefficient.'
+,'一直在二路爬，越爬越亏。':'Crawling along the 2nd line keeps losing.'
+,'下完之后，自己的棋子会被吃掉。':'After this, your stones get captured.'
+,'放过了对方快要死的棋。':'Let the opponent’s dying group live.'
+,'这些棋子已经救不回来了，应该放弃。':'These stones can’t be saved — give them up.'
+,'对方那块棋很强，攻击它没有用。':'That group is strong; attacking it doesn’t help.'
+,'这里已经差不多定型了，太小。':'This area is almost settled — too small.'
+,'这里棋子太多了，应该下在宽的地方。':'Too many stones here — play in open space.'
+,'下在一、二路太低了。':'The 1st/2nd line is too low.'
+,'形成空三角，形状不好。':'An empty triangle — bad shape.'
+,'多做死活题，下棋时先看自己的棋有几口气、有没有眼。':'Do more life-and-death problems; check your liberties and eyes during games.'
+,'看到对方的弱棋要追着攻，不要轻易放过。':'Chase the opponent’s weak groups; don’t let them off.'
+,'学会弃子：救不回来的子就放弃，去下别的大地方。':'Learn to sacrifice: give up lost stones and play big points.'
+,'攻击对方的弱棋，对方很强的棋不要去碰。':'Attack weak groups; leave strong ones alone.'
+,'下每一手前想一想：哪里最大？已经定型的地方先不要下。':'Before each move ask: where is biggest? Skip settled areas.'
+,'布局时往宽的地方下，不要挤在棋子多的地方。':'In the opening, play in open areas, not crowded ones.'
+,'布局多下在三、四线，一、二路太低。':'In the opening, use the 3rd and 4th lines; 1st and 2nd are too low.'
+,'注意棋形，少走空三角这类效率低的形状。':'Watch your shape; avoid inefficient shapes like empty triangles.'
+,'每一手先看看：有没有可以吃的子？':'Each move, first check: can I capture something?'
+,'自己的子被叫吃时，先想办法逃出来。':'When your stones are in atari, try to escape first.'
+,'看到自己的断点要先补好。':'Fix your cutting points.'
+,'自己的棋有危险时，先做眼。':'When your group is in danger, make eyes first.'
+,'对方要做眼时，抢先破眼。':'When the opponent tries to make eyes, destroy them first.'
+,'下征子前，先看看征子的路上有没有对方的子。':'Before a ladder, check its path for the opponent’s stones.'
+,'不要下进对方的虎口。':'Don’t play into a tiger’s mouth.'
+,'注意不要紧自己的气。':'Don’t fill your own liberties.'
+,'少走方块愚形，让棋子分开一点效率更高。':'Avoid square shapes; spread your stones out.'
+,'不要一直在二路爬，适当时候要跳出来或脱先。':'Don’t keep crawling on the 2nd line; jump out or play elsewhere.'
+,'收集什么：学生的名字（可以用昵称）、做题纪录、对局和复盘的统计数字、认证结果。不收集电话、地址、照片。':'What we collect: student name (a nickname is fine), problem records, game and review statistics, certification results. No phone numbers, addresses or photos.'
+,'存在哪里：Google 的 Firebase 服务（服务器可能在马来西亚以外）。棋谱本身存在这台设备，或你自己的 Google Drive。':'Where: Google Firebase (servers may be outside Malaysia). Game records stay on this device or in your own Google Drive.'
+,'谁看得到：只有同一个班级的老师。排行榜上同学只看到名字和分数。':'Who can see it: only the class teacher. Classmates see only names and points on the leaderboard.'
+,'用来做什么：只用来教学：让老师知道孩子的进度和常犯的错。不会卖给别人，也不放广告。':'What for: teaching only — so the teacher knows the child’s progress and common mistakes. Never sold, no ads.'
+,'怎样删除：请老师把学生「移出班级」，或联络老师要求删除全部纪录。':'Deleting: ask the teacher to remove the student from the class, or to delete all records.'
+,'密码：由老师发给学生，登录后可以自己改；密码由 Google 加密保存，没有人看得到。':'Password: given by the teacher, can be changed after signing in; stored encrypted by Google — nobody can see it.'
+,'批准老师账号':'Approve teacher accounts'
+,'征子':'Ladder'
+,'叫吃':'Atari'
+,'逃子':'Escape'
+,'长气':'Extend (liberties)'
+,'连接':'Connect'
+,'断':'Cut'
+,'冲':'Push through'
+,'扳':'Hane'
+,'虎':'Tiger’s mouth'
+,'尖':'Diagonal'
+,'跳':'Jump'
+,'飞':'Knight’s move'
+,'立':'Descend'
+,'爬':'Crawl'
+,'顶':'Bump'
+,'碰':'Contact'
+,'做眼':'Make eye'
+,'破眼':'Break eye'
+,'送吃':'Self-atari'
+,'长':'Extend'
+,'AI 逐手算整盘棋，画出胜率曲线，列出好手、恶手（各最多 10 手，好学的优先）和「最该记住的 3 件事」。分析结果跟着棋谱同步到其他设备；连接 Drive 时报告也会存进 Drive。和 AI 下完会自动分析。':'The AI checks every move, draws the win-rate graph, lists good moves and mistakes, and the “3 things to remember”. Results sync with the game; with Drive connected the report is saved there too. Games against the AI are reviewed automatically.'
+,'很深 256 次':'Very deep 256'
+,'最深 1000 次':'Deepest 1000'
+,'早安':'Good morning'
+,'午安':'Good afternoon'
+,'晚上好':'Good evening'
+,'夜深了':'Late night'
+,'，{0}':', {0}'
+,'试用中':'Guest'
+,'积分':'Points'
+,'升级赛级位（19 路）':'Ladder rank (19×19)'
+,'棋力认证':'Certification'
+,'试用中：可以下棋、记谱、下载棋谱、做内建题目。登录后才有复盘分析、班级和作业。':'Guest mode: play, record, download SGF and solve built-in problems. Sign in for review, classes and homework.'
+,'学习':'LEARN'
+,'对弈':'PLAY'
+,'班级与设定':'CLASS & SETTINGS'
+,'死活题、手筋题、作业、闯关':'Life & death, tesuji, homework, challenges'
+,'打开棋谱、AI 分析、找出好手和要改进的手':'Open games, AI analysis, good moves and moves to improve'
+,'和 AI 下、升级赛、线上对弈、棋力认证':'Play the AI, ladder, online games, certification'
+,'自己摆一盘棋，记下来、下载':'Record a game and download it'
+,'排行榜、作业、学生账号、报告':'Leaderboard, homework, student accounts, reports'
+,'复盘':'Review'
+,'下棋':'Play'
+,'记谱':'Record'
+,'AI 网络、家里电脑、Google Drive、声音':'AI network, home PC, Google Drive, sound'
+,'下次直接进上次用的功能':'Next time, open where I left off'
+
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -2742,7 +3070,7 @@ function fixFoxSgf(t){
   // 野狐写法 KM[375] = 贴 3¾ 子 = 7.5 目
   return String(t).replace(/KM\[375\]/,'KM[7.5]').replace(/KM\[650\]/,'KM[6.5]');
 }
-function openRoot(r,{id=null,driveId=null}={}){
+function openRoot(r,{id=null,driveId=null}={}){document.body.classList.remove('pick');
   if(!id){
     const key=gameKey(r);
     const hit=Object.entries(store.games).find(([,g])=>g.key===key);
@@ -4706,6 +5034,7 @@ const curMode=()=>document.body.dataset.mode||'review';
 function setMode(m){
   if(curMode()===m)return;const prev=curMode();document.body.dataset.mode=m;
   if(m!=='home'){homePref.last=m;homeSave()}
+  if(m!=='review')document.body.classList.remove('pick');layoutCls(m);
   if(prev==='ts'&&m!=='ts'&&!$('#tsBox').hidden)tsClosePanel();
   if(m==='home'){renderHome();window.scrollTo(0,0)}
   $('#homeBtn').hidden=m==='home';
@@ -4713,6 +5042,8 @@ function setMode(m){
   else if(m!=='play'&&m!=='record'&&G&&G.id==='__blank')restoreLast();
   render();
 }
+function layoutCls(m){m=m||curMode(); // 不需要棋盘时就不显示棋盘
+  document.body.classList.toggle('ts-idle',m==='ts'&&!(typeof ts!=='undefined'&&ts)&&!(typeof tsView!=='undefined'&&(tsView==='solve'||tsView==='edit')))}
 function blankBoard(){ // 下棋、记谱：先显示空棋盘（不存进棋谱库），按「开始」才建立新棋谱
   if(G&&G.id==='__blank'){const n=sizeOf(G.root);if(n===ng.size)return}
   const r=parseSGF(`(;GM[1]FF[4]SZ[${ng.size||19}])`);G={id:'__blank',root:r};cur=r;if(scoring)stopScoring();if(train)stopTrain();
@@ -4724,30 +5055,38 @@ function goHome(){
   if(vs&&vs.over)vsStop();  if(ts)tsExit();if(!$('#tsBox').hidden)tsClosePanel();if(!$('#olBox').hidden)olPanelClose();closeNew();if(rev&&!rev.running)revClose();
   setMode('home');
 }
-const HOME_CARDS=[
-  ['ts','🧩','做题','死活题、手筋题、闯关测验'],
-  ['review','📖','复盘','打开棋谱、写评论、AI 分析和整盘分析'],
-  ['play','⚔️','下棋','和 AI 下、升级赛、线上对弈、棋力认证、AI 对战'],
-  ['record','✍️','记谱','自己摆一盘棋，记下来'],
-  ['class','🏫','班级','学生登录、老师管理、排行榜'],
-  ['prefs','⚙️','设置','AI 网络、家里电脑、Google Drive、声音'],
-  ['admin','🛡️','管理','批准老师账号']];
+const HOME_CARDS=[ // [代号, 图示, 名称, 说明, 分组]
+  ['ts','🧩','做题','死活题、手筋题、作业、闯关','learn'],
+  ['review','📖','复盘','打开棋谱、AI 分析、找出好手和要改进的手','learn'],
+  ['play','⚔️','下棋','和 AI 下、升级赛、线上对弈、棋力认证','play'],
+  ['record','✍️','记谱','自己摆一盘棋，记下来、下载','play'],
+  ['class','🏫','班级','排行榜、作业、学生账号、报告','class'],
+  ['admin','🛡️','管理','批准老师账号','class'],
+  ['prefs','⚙️','设置','AI 网络、家里电脑、Google Drive、声音','class']];
 const HOME_ROLE={guest:['ts','play','record','prefs'],stu:['ts','review','play','record','class','prefs'],tea:['ts','review','play','record','class','prefs'],adm:['ts','review','play','record','class','prefs','admin']};
+const HOME_SEC=[['learn','学习'],['play','对弈'],['class','班级与设定']];
+function homeGreet(){const h=new Date().getHours();return h<5?T('夜深了'):h<12?T('早安'):h<18?T('午安'):T('晚上好')}
 function renderHome(){
   const el=$('#homeBox');if(!el)return;authBodyCls();const L=tsLogin&&tsLogin(),role=authRole();
-  if(role==='none'||(acct&&acct.role==='pending')){el.innerHTML=authHtml();return}
-  const show=HOME_ROLE[role]||HOME_ROLE.guest;
-  el.innerHTML=authBar()+`<div class="homegrid">${HOME_CARDS.filter(c=>show.includes(c[0])).map(([k,ic,t,d])=>`<button class="homecard" data-h="${k}"><span class="ic">${ic}</span><b>${T(t)}</b><span>${T(d)}</span></button>`).join('')}</div>
-    <div class="row homefoot">
-    <label class="chk" style="display:flex;gap:6px;align-items:center;margin-left:auto"><input type="checkbox" id="homeSkip"${homePref.skip?' checked':''}> ${T('下次直接进上次用的功能')}</label></div>`;
-  $('#homeSkip').onchange=e=>{homePref.skip=e.target.checked;homeSave()};
+  if(role==='none'||(acct&&acct.role==='pending')){el.innerHTML=`<div class="hbrand"><div class="hlogo">●○</div><div><b>${T('黑白思弈 · 围棋学堂')}</b><span>Weiqi &amp; Mind Game Academy</span></div></div>`+authHtml();return}
+  const show=HOME_ROLE[role]||HOME_ROLE.guest,nm=role==='guest'?'':(L&&L.name)||(acct&&acct.name)||'';
+  const rl={stu:T('学生'),tea:T('老师'),adm:T('管理员'),guest:T('试用中')}[role];
+  let h=`<div class="hhero"><div class="hhl"><div class="hgreet">${homeGreet()}${nm?T('，{0}',tsE(nm)):''}</div><div class="hmeta"><span class="hchip">${rl}</span>${L&&L.clsName?`<span>${tsE(L.clsName)}</span>`:''}</div></div><div class="hact">`+
+    (role==='guest'?`<button class="btn pri" data-au="tologin">${T('登录')}</button>`:`${role==='stu'?`<button class="btn" data-au="pw">${T('改密码')}</button>`:''}<button class="btn" data-au="logout">${T('登出')}</button>`)+`</div></div>`;
+  if(role==='stu'){const lv=typeof ladOf==='function'?ladOf(19).lv:null,me=tsCloud&&L&&tsCloud.users[L.doc],cert=me&&(me.cert19||me.cert13);
+    h+=`<div class="hstats"><div><b>${(L&&L.pts)||0}</b><span>${T('积分')}</span></div><div><b>${lv?lvName(lv):'—'}</b><span>${T('升级赛级位（19 路）')}</span></div><div><b>${cert?lvName(cert):'—'}</b><span>${T('棋力认证')}</span></div></div>`}
+  if(role==='guest')h+=`<p class="note hguest">${T('试用中：可以下棋、记谱、下载棋谱、做内建题目。登录后才有复盘分析、班级和作业。')}</p>`;
+  for(const[sec,title]of HOME_SEC){const cs=HOME_CARDS.filter(c=>c[4]===sec&&show.includes(c[0]));if(!cs.length)continue;
+    h+=`<div class="hsec s-${sec}"><h3>${T(title)}</h3><div class="hgrid">${cs.map(([k,ic,t,d])=>`<button class="hcard" data-h="${k}"><span class="hic">${ic}</span><span class="htx"><b>${T(t)}</b><small>${T(d)}</small></span><span class="harr">›</span></button>`).join('')}</div></div>`}
+  h+=`<div class="row homefoot"><label class="chk" style="display:flex;gap:6px;align-items:center;margin-left:auto"><input type="checkbox" id="homeSkip"${homePref.skip?' checked':''}> ${T('下次直接进上次用的功能')}</label></div>`;
+  el.innerHTML=h;$('#homeSkip').onchange=e=>{homePref.skip=e.target.checked;homeSave()};
 }
 function homeGo(k){
   if(k==='admin'){setMode('ts');tsView='admin';tsOpenPanel();return}
   if(k==='ts'){setMode('ts');if(tsView==='login'||tsView==='rank')tsView='home';tsOpenPanel();return}
   if(k==='class'){setMode('ts');tsView=tsLogin()?'rank':'login';tsOpenPanel();if(tsLogin())tsRefreshCloud().then(renderTs);return}
-  if(k==='review'){setMode('review');const t=document.querySelector('.tab[data-tab="lib"]');if(t)t.click();return}
-  if(k==='prefs'){setMode('review');const t=document.querySelector('.tab[data-tab="prefs"]');if(t){t.click();t.scrollIntoView({block:'nearest',behavior:'smooth'})}return}
+  if(k==='review'){setMode('review');document.body.classList.add('pick');const t=document.querySelector('.tab[data-tab="lib"]');if(t)t.click();return}
+  if(k==='prefs'){setMode('review');document.body.classList.add('pick');const t=document.querySelector('.tab[data-tab="prefs"]');if(t){t.click();t.scrollIntoView({block:'nearest',behavior:'smooth'})}return}
   if(k==='play'){setMode('play');return}
   if(k==='record'){setMode('record');ng.opp='self';ngSave();openNew();return}
 }
@@ -5124,7 +5463,7 @@ function tsOpenPanel(){if(typeof setMode==='function'&&curMode()!=='ts')setMode(
   renderTs();if(tsLogin())tsRefreshCloud().then(renderTs);$('#tsBox').scrollIntoView({block:'nearest',behavior:'smooth'})}
 function tsClosePanel(){if(ts)tsExit();$('#tsBox').hidden=true;$('#tsToggle').setAttribute('aria-pressed','false')}
 const tsStars=lv=>'★'.repeat(+lv||1);
-function renderTs(){tsRoleCls();
+function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
   const el=$('#tsBody');if(!el||$('#tsBox').hidden)return;const L=tsLogin();let h='';
   const role=authRole(),isAdm=role==='adm',cs=(L&&L.classes)||[];
   const sel=cs.length>1?`<select id="tsClsSel">${cs.map(c=>`<option value="${c.cls}"${c.cls===L.cls?' selected':''}>${tsE(c.name)}</option>`).join('')}</select>`:L?tsE(L.clsName||''):'';
@@ -5624,7 +5963,7 @@ const TS_PRIVACY=['收集什么：学生的名字（可以用昵称）、做题�
   '谁看得到：只有同一个班级的老师。排行榜上同学只看到名字和分数。',
   '用来做什么：只用来教学：让老师知道孩子的进度和常犯的错。不会卖给别人，也不放广告。',
   '怎样删除：请老师把学生「移出班级」，或联络老师要求删除全部纪录。',
-  '密码：4 位数密码只用来登录，系统只保存加密后的结果。'];
+  '密码：由老师发给学生，登录后可以自己改；密码由 Google 加密保存，没有人看得到。'];
 function tsRoleCls(){const L=tsLogin();document.body.classList.toggle('stu',!!(L&&L.role==='student'))}
 
 /* ===================== 账号：老师、学生、管理员 =====================
@@ -5911,7 +6250,7 @@ $('#komiIn').addEventListener('input',e=>{const v=parseFloat(e.target.value);if(
 $('#scoreWrite').onclick=()=>{if(!scoring)return;snap();if(typeof markInfo==='function')markInfo();const re=scoreRE();root().props.RE=[re];
   const ru={cn:'Chinese',jp:'Japanese',ing:'Ing'}[scoring.rule];root().props.RU=[ru];root().props.KM=[String(scoring.komi)];
   renderInfo();changed(false);render();flash(T('结果已写入：{0}',resultText(re)))};
-$('#langBtn').onclick=()=>{LANG=LANG==='en'?'zh':'en';prefs.lang=LANG;try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(e){}applyStatic();$('#shareStatus').textContent='';renderWho();renderTree();render();renderLib();Drive.ui()};
+$('#langBtn').onclick=()=>{LANG=LANG==='en'?'zh':'en';prefs.lang=LANG;try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(e){}applyStatic();$('#shareStatus').textContent='';renderWho();renderTree();render();renderLib();Drive.ui();if(curMode()==='home')renderHome();if(!$('#tsBox').hidden)renderTs()};
 $('#numToggle').onclick=e=>{showNums=!showNums;e.currentTarget.setAttribute('aria-pressed',showNums);render()};
 $('#vars').onclick=e=>{const b=e.target.closest('button');if(!b)return;cur._sel=+b.dataset.i;go(cur.children[+b.dataset.i])};
 let cmtSnapT=null,cmtSnapped=false;

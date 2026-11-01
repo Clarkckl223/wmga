@@ -1,8 +1,10 @@
-# 围棋复盘本 · Go Review Notebook
+# 黑白思弈 · 围棋学堂 · WMGA Weiqi Academy
+
+黑白思弈馆（Weiqi & Mind Game Academy）的围棋教学网页：复盘、做题、下棋、上课、棋力认证。
 
 在浏览器里复盘围棋的工具，电脑、Android、iPhone、iPad 都能用，也可以装到桌面当 App 用。
 
-**打开使用：** https://clarkckl223.github.io/go-review/
+**打开使用：** https://clarkckl223.github.io/wmga/
 
 *English summary below.*
 
@@ -29,6 +31,12 @@
 - 「整盘分析」：AI 把每一手都算一遍，画出胜率和目数曲线，统计双方平均损失、和 AI 首选的吻合率，列出恶手、大恶手和中文说明（方向错误、次序错误、哪块棋变死等）
   - 每手计算次数：本机 1 / 16 / 64 / 256 / 1000 次，家里电脑 50 / 200 / 800 / 2000 / 5000 次，也可以自订次数，会显示预计时间
   - 失误会标出类型：死活出错、放过对方的弱棋、救不该救的子、去攻强棋、下在已经定型的地方、往棋子多的地方挤、往低处钻、空三角（AI 推荐或官子阶段的空三角不算）；总评列出双方最常犯的错
+  - 「小朋友」显示（10 级以下的学生自动用，也可以切换「完整」）：每个好棋、问题手认出下法（提子、叫吃、征子、逃子、长气、连接、断、冲、扳、虎、尖、跳、飞、做眼、破眼、送吃……），用一句话说明，要改进的手再告诉你 AI 推荐哪里；棋盘下面的形势线（◆ 好手、● 要改进的手）点一下就跳过去；按「看 AI 的下法」才进入 AI 推荐的变化，滚轮和 ← → 在变化里走，按「回到实战」或 Esc 回来；分析打开时，滚轮只走实战，不会跑进分支
+  - 「报告设定」：好手、要改进的手各显示几手（0～30）、好手标准（宽松／标准／严格）、只看黑或白；老师可以「设为全班默认」。15 级以下的学生默认用更温和的说法（「可以更好」），好手 15、要改进 5
+  - 还会认出：漏看（没提子、没逃子、没补断点、没做眼、没破眼）、征子不成立、钻虎口、紧自己的气、团子、二路爬太多
+  - 登录班级后，分析结果下面可以「记到我的复盘统计」（学生）或「记到学生名下」（老师）：只上传统计数字（每手损失、各类失误次数），每人留最近 30 盘；老师在全班记录看到每人最常犯的错、全班最常犯的前 3 类，点「详细」看长条图、进步趋势和每盘纪录；学生在排行榜下面看到自己的统计
+  - 老师在学生「详细」里可以开「家长报告（最近 30 天）」：复盘盘数、进步情况、要加强的地方和建议、老师的话，可打印或存成 PDF
+  - 学生登录时看不到家里电脑等老师用的设定；第一次加入班级要家长同意「私隐说明」
   - 可以把分析写进棋谱（作者为「AI」的评论、恶手记号和 AI 推荐的变化），或下载报告（HTML，可打印或存成 PDF）
 - 「设置」可以选 AI 网络：轻量 b10（12 MB，用显卡）或强力 b18（30 MB，新一代网络，用 CPU）
 - 「新对局」：7、9、13、19 路棋盘，可以让子、设贴目
@@ -107,9 +115,9 @@
 
 ## English
 
-**Go Review Notebook** is a browser-based Go (weiqi / baduk) review tool. It works on desktop, Android, iPhone and iPad, and can be installed as an app.
+**WMGA Weiqi Academy** (by Weiqi & Mind Game Academy) is a browser-based Go (weiqi / baduk) review tool. It works on desktop, Android, iPhone and iPad, and can be installed as an app.
 
-**Use it:** https://clarkckl223.github.io/go-review/
+**Use it:** https://clarkckl223.github.io/wmga/
 
 **Reviewing games**
 - Open SGF files, or load a game straight from a Fox Weiqi share page.
@@ -148,3 +156,12 @@
 - goscorer (MIT) by David J Wu.
 - TensorFlow.js (Apache 2.0).
 - Move sounds from MultiGo 4.
+
+## 账号（老师、学生、管理员）
+
+- 打开网页先看到登录页：「学生登录」「老师登录」「先试用」
+- **先试用**（不登录）：下棋、记谱、下载棋谱、内建题目；复盘分析、班级、作业要登录
+- **老师**：用 Google 或电邮＋密码注册，管理员批准后才能开班；「我的班级」可以建新班、接回旧班级（输入旧班级代码）
+- **学生**：账号由老师建立（「学生账号」→ 一行一个名字 → 自动产生用户名和密码，打印登录卡）；名字和旧纪录一样的会自动接上；忘记密码由老师「重发密码」；一个学生可以在好几班
+- **管理员**：clarkckl223@gmail.com（用这个 Google 账号登录），在「管理」批准新老师
+- 第一次设定：Firebase 控制台 → Authentication → 登录方式 → 开启「电子邮件/密码」；再把 `firestore.rules` 贴到 Firestore 规则并发布

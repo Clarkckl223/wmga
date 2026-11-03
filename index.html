@@ -1510,6 +1510,12 @@ const EN={
 ,'红点可以拖动对准角落。点交叉点可以改：空 → 黑 → 白。':'Drag the red dots onto the corners. Tap a point to change: empty → black → white.'
 ,'已自动找到格线。点交叉点可以改：空 → 黑 → 白。':'Grid found automatically. Tap a point to change: empty → black → white.'
 ,'拍下下完的棋盘，算出黑白各几子、谁赢（9、13、19 路）':'Photograph a finished board to count both sides and see who won (9, 13, 19)'
+,'回到第 {0} 题（看答案、试下）':'Back to problem {0} (answer, try moves)'
+,'你已经答对这题。可以按「看答案」或「试下」研究。':'You already solved this one. Use "Answer" or "Try moves" to study it.'
+,'回头看第 {0} 题':'Reviewing problem {0}'
+,'继续作业':'Continue homework'
+,'作业本':'Homework'
+,'可以按「看答案」或「试下」研究这题。':'Use "Answer" or "Try moves" to study this one.'
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -5650,7 +5656,7 @@ function tsOpen(bookId,idx){
   if(judging){judging=false;$('#judgeToggle').setAttribute('aria-pressed','false')}tool='play';
   const p=b.problems[idx];let r;try{r=parseSGF(p.sgf)}catch(e){flash(T('这一题读不出来'));return}
   G={id:'__ts',root:r};cur=r;const n=sizeOf(r);
-  Object.assign(ts,{mode:'solve',bookId,idx,pid:tsPid(b,p),prob:p,node:r,tries:0,solved:false,shown:false,busy:false,wrong:null,msg:'',gained:0,t0:performance.now(),ms:0,over:false,trial:false,full:!(b.view||p.view)&&(tsStore.modeOf||{})[bookId]==='full',view:!!(b.view||p.view),quiz:!(b.view||p.view)&&!!(tsQuiz&&tsQuiz.bookId===bookId&&tsQuiz.list[tsQuiz.k]===idx)});tsTickStart();
+  Object.assign(ts,{mode:'solve',prevSolved:null,noAuto:false,winTok:0,hwBack:false,bookId,idx,pid:tsPid(b,p),prob:p,node:r,tries:0,solved:false,shown:false,busy:false,wrong:null,msg:'',gained:0,t0:performance.now(),ms:0,over:false,trial:false,full:!(b.view||p.view)&&(tsStore.modeOf||{})[bookId]==='full',view:!!(b.view||p.view),quiz:!(b.view||p.view)&&!!(tsQuiz&&tsQuiz.bookId===bookId&&tsQuiz.list[tsQuiz.k]===idx)});tsTickStart();
   tsCrop=p.cap?null:tsCropOf(r,n);if(p.cap)capReset();tsView='solve';document.body.classList.add('is-ts');renderTree();render();renderTs();
 }
 function tsExit(){ // 回到原来的棋谱
@@ -5680,7 +5686,10 @@ function tsFail(msg){ts.tries++;ts.msg=msg;ts.ok=false;
   renderTs();render();tsRecord(false);
   if(ts.quiz&&ts.over){tsQuizNext(false);return}
   setTimeout(()=>{if(ts&&!ts.solved&&!ts.shown&&!ts.over){ts.wrong=null;ts.msg='';tsReset()}},1400)}
-async function tsWin(note){ts.solved=true;ts.ms=Math.round(performance.now()-ts.t0);ts.msg=(note?note+' ':'')+T('用时 {0}',tsFmt(ts.ms));const g=await tsRecord(true);ts.gained=g;renderTs();render();if(bzOn())bzNext(true);else if(ts.quiz)tsQuizNext(true)}
+async function tsWin(note){ts.solved=true;ts.ms=Math.round(performance.now()-ts.t0);ts.msg=(note?note+' ':'')+T('用时 {0}',tsFmt(ts.ms));const g=await tsRecord(true);ts.gained=g;renderTs();render();if(bzOn())bzNext(true);else if(ts.quiz)tsQuizNext(true);else tsAutoNext()}
+function tsAutoNext(){ // 答对后自动跳下一题（检定考试、闯关、限时、回头看题时不跳）
+  if(!ts||ts.exam||ts.noAuto||ts.fromQuiz||ts.fromBz)return;const b=tsBook(ts.bookId),i=ts.idx;if(!b||i>=b.problems.length-1)return;
+  const tok=ts.winTok=Math.random();setTimeout(()=>{if(!ts||ts.winTok!==tok||ts.idx!==i||!ts.solved||tsView!=='solve'||ts.trial)return;tsOpen(b.id,i+1);if(ts){ts.prevSolved=i;renderTs()}},1300)}
 function tsShow(){ // 看答案：慢慢摆出第一条正解
   if(!ts||ts.solved)return;if(ts.prob&&ts.prob.cap)return capShow();ts.shown=true;tsReset();ts.shown=true;const path=[];
   (function find(nd,acc){if(path.length)return;for(const c of nd.children){const a=acc.concat(c);if(tsVerdict(c)==='right'&&!c.children.length){path.push(...a);return}find(c,a)}})(G.root,[]);
@@ -5821,8 +5830,10 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
   }else if(tsView==='solve'&&ts){
     const b=tsBook(ts.bookId),p=ts.prob,col=nextColor(G.root);
     h=`<div class="row" style="align-items:center">${ts.fromQuiz?`<button class="btn pri" data-a="quizres">← ${T('回到结果')}</button>`:''}<button class="btn" data-a="back">← ${tsE(b?b.title:'')}</button><span>${T('第 {0} / {1} 题',ts.idx+1,b?b.problems.length:0)} · ${tsE(p.title)} · <span class="stars">${tsStars(p.level)}</span></span></div>`;
+    if(ts.hwBack&&tsQuiz&&tsQuiz.mode==='hw')h=`<div class="row" style="align-items:center"><b>${T('作业本')}</b><span>${T('回头看第 {0} 题',ts.idx+1)}</span><button class="btn pri" data-a="hwresume" style="margin-left:auto">${T('继续作业')} →</button></div>`;
     if(ts.fromBz)h=`<div class="row"><button class="btn pri" data-a="bzres">← ${T('回到结果')}</button><span>${T('第 {0} 题',ts.idx+1)}</span></div>`;
     if(bzOn())h=bzHead();else if(ts.quiz)h=`<div class="row" style="align-items:center"><b>${T('闯关测验')}</b><span>${T('第 {0} / {1} 题',tsQuiz.k+1,tsQuiz.list.length)} · ${T('答对 {0}',tsQuiz.res.filter(x=>x.ok).length)} · <span class="stars">${tsStars(p.level)}</span></span><button class="btn" data-a="quitquiz" style="margin-left:auto">${T('放弃')}</button></div>`;
+    if(ts.prevSolved!=null&&(!ts.quiz||tsQuiz&&tsQuiz.mode==='hw'))h+=`<div class="row"><button class="btn" data-a="prevrev">← ${T('回到第 {0} 题（看答案、试下）',ts.prevSolved+1)}</button></div>`;
     h+=`<p class="tsq"><span class="dot ${col==='B'?'b':'w'}"></span> ${tsE((p.cap?T('黑先：吃掉有 △ 的白棋（最少 {0} 手）',p.cap.k):tsNote(G.root))||(col==='B'?T('黑先'):T('白先')))} <code class="tsclock" id="tsClock"></code></p>`;
     if(ts.view){const c=cur===G.root?'':tsViewNote(cur);h+=`<div class="tsview">${c?tsE(c).replace(/\n/g,'<br>'):`<span class="note" style="margin:0">${cur===G.root?T('按「下一手」一步一步看。'):T('（这一手没有说明）')}</span>`}</div>`;
       h+=`<div class="row"><button class="btn" data-a="vstart">⏮</button><button class="btn" data-a="vprev"${cur===G.root?' disabled':''}>◀ ${T('上一手')}</button><button class="btn pri" data-a="vnext"${cur.children.length?'':' disabled'}>${T('下一手')} ▶</button>${cur.children.length>1?cur.children.map((c,i)=>`<button class="btn" data-a="vvar" data-i="${i}">${T('变化 {0}',String.fromCharCode(65+i))}${/【AI/.test((c.props.C||[''])[0])?' AI':''}</button>`).join(''):''}</div>`;
@@ -5831,9 +5842,10 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
     if(ts.trial){h+=`<p class="big">${ts.busy?T('AI 思考中…'):T('试下模式：黑白都由你摆，不算答题。')}</p><div class="row"><button class="btn" data-a="tback"${cur===ts.trialBase?' disabled':''}>◀ ${T('退一手')}</button><button class="btn" data-a="tclear">${T('清除')}</button><button class="btn" data-a="tai"${ts.busy?' disabled':''}>${T('AI 应一手')}</button><button class="btn pri" data-a="tend">${T('回到做题')}</button></div>`;
       el.innerHTML=h+(tsMsg?`<p class="status">${tsE(tsMsg)}</p>`:'');tsMsg='';return}
     if(ts.full&&!ts.solved)h+=`<p class="note" style="margin:0">${T('进阶：黑白双方都由你摆，摆出双方最强的应对。')}</p>`;
-    const cls=ts.solved?'ok':ts.msg&&!ts.shown?'no':'';
+    const cls=ts.solved?'ok':ts.msg&&!ts.shown&&!ts.noAuto?'no':'';
     h+=`<p class="big ${cls}">${ts.solved?T('答对了！')+' '+tsE(ts.msg)+(ts.gained?' '+T('+{0} 分',ts.gained):''):ts.busy?T('对方应…'):tsE(ts.msg||T('在棋盘上点出你的答案。'))}</p>`;
     if(!ts.quiz)h+=`<div class="row"><button class="btn" data-a="trial"${ts.busy?' disabled':''}>${T('试下')}</button><button class="btn" data-a="redo">${T('重做')}</button><button class="btn" data-a="show"${ts.solved?' disabled':''}>${T('看答案')}</button><button class="btn" data-a="prev"${ts.idx<=0?' disabled':''}>${T('上一题')}</button><button class="btn pri" data-a="next"${!b||ts.idx>=b.problems.length-1?' disabled':''}>${T('下一题')}</button>${tsCanEdit(b)?`<button class="btn" data-a="editp">${T('修改这题')}</button><button class="btn warn" data-a="delp">${T('删除这题')}</button>`:''}${L&&L.role==='student'?`<button class="btn" data-a="report">${T('这题有问题')}</button>`:''}${(ts.solved||ts.shown)?`<button class="btn" data-a="vview">${T('看解说')}</button><button class="btn" data-a="back">${T('回练习册')}</button><button class="btn" data-a="gohome">🏠 ${T('回主页')}</button>`:''}${tsCanEdit(b)?`<button class="btn" data-a="aiexp">${T('AI 解说')}</button>`:''}</div>`;
+    if(ts.hwBack)h=h.replace(/<button class="btn( pri)?" data-a="(prev|next)"[^>]*>[^<]*<\/button>/g,''); // 作业中回头看：只能按「继续作业」回去
     if(ts.reporting)h+=`<div class="row"><span>${T('哪里有问题？')}</span>${[['ans',T('答案不对')],['pos',T('题目摆错了')],['hard',T('太难／看不懂')]].map(([w,l])=>`<button class="btn" data-a="sendrep" data-w="${w}">${l}</button>`).join('')}</div>`;
   }else if(tsView==='edit'&&ts){
     const setup=ts.phase==='setup';
@@ -5926,6 +5938,8 @@ async function tsAct(e){
     case'quiz':tsQuizStart(tsQuizDone&&tsView==='quizEnd'?tsQuizDone.bookId:tsBookId,'quiz');break;
     case'hw':tsQuizStart(tsQuizDone&&tsView==='quizEnd'?tsQuizDone.bookId:tsBookId,'hw');break;
     case'qreview':{const q=tsQuizDone,i=+t.dataset.i;if(!q)break;tsBookId=q.bookId;tsOpen(q.bookId,q.list[i]);if(ts){ts.fromQuiz=true;if(!q.res[i].ok){ts.shown=false}renderTs()}break}
+    case'hwresume':{const q=tsQuiz;if(q)tsOpen(q.bookId,q.list[q.k]);break}
+    case'prevrev':{const i=ts.prevSolved,bid=ts.bookId,hw=!!(ts.quiz&&tsQuiz&&tsQuiz.mode==='hw');tsOpen(bid,i);if(ts){ts.noAuto=true;ts.hwBack=hw;const lg=tsLogEntry(ts.pid);ts.msg=lg&&lg.ok?T('你已经答对这题。可以按「看答案」或「试下」研究。'):T('可以按「看答案」或「试下」研究这题。');renderTs()}break}
     case'quizres':tsExit();tsView='quizEnd';renderTs();break;
     case'bmode':(tsStore.modeOf=tsStore.modeOf||{})[tsBookId]=t.dataset.m;tsSave();renderTs();break;
     case'trial':ts.trial=true;ts.trialBase=cur;ts.wrong=null;render();renderTs();break;
@@ -6137,7 +6151,7 @@ function tsQuizStart(bookId,mode){const b=tsBook(bookId);if(!b||!b.problems.leng
   for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]]}
   tsQuiz={bookId,mode:mode||'quiz',list:idx.slice(0,10),k:0,res:[]};tsOpen(bookId,tsQuiz.list[0])}
 function tsQuizNext(ok){const q=tsQuiz;if(!q||q.moving)return;q.moving=true;q.res.push({ok,tries:ts.tries,ms:ok?ts.ms:Math.round(performance.now()-ts.t0),pid:ts.pid});
-  setTimeout(()=>{q.moving=false;if(tsQuiz!==q)return;q.k++;if(q.k<q.list.length){tsOpen(q.bookId,q.list[q.k]);return}
+  setTimeout(()=>{q.moving=false;if(tsQuiz!==q)return;q.k++;if(q.k<q.list.length){tsOpen(q.bookId,q.list[q.k]);if(ts&&q.mode==='hw'){ts.prevSolved=q.list[q.k-1];renderTs()}return}
     tsQuiz=null;const ok=q.res.filter(x=>x.ok).length,n=q.res.length,ms=q.res.reduce((a,x)=>a+x.ms,0),r=ok/n;
     q.grade=r>=0.9?'S':r>=0.7?'A':r>=0.5?'B':'C';q.gain=q.mode==='hw'?(ok===n?10:0):q.grade==='S'?20:q.grade==='A'?10:0;tsQuizDone=q;
     const W=tsStore.wrong=tsStore.wrong||{};q.res.forEach(x=>{if(!x.ok&&x.pid){const[bid]=x.pid.split(':');W[x.pid]={b:q.bookId==='__wrong'?(W[x.pid]||{}).b||bid:bid,n:0,t:Date.now()}}});

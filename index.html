@@ -5941,6 +5941,7 @@ function tsNormalize(r){let changed=false;const only=nd=>!['B','W','AB','AW','AE
   const strip=t=>{let b=t;for(let i=0;i<5;i++){const b2=b.replace(TS_LEAD,'');if(b2===b)break;b=b2}return b.replace(/^\s*(RIGHT|WRONG)\s*/,'').trim()};
   const tag=(ch,text)=>{ // 对错标在这条变化的最后一手（走到底才揭晓），讲解也放在那里
     const v=TS_WR.test(text)?'WRONG ':TS_RT.test(text)?'RIGHT ':'',body=strip(text);if(!v&&!body)return;changed=true;
+    if(!v){const own=((ch.props.C||[''])[0]||'').trim(),m=own.match(/^\s*(RIGHT|WRONG)\s*/);ch.props.C=[((m?m[0]:'')+[text.trim(),own.replace(/^\s*(RIGHT|WRONG)\s*/,'')].filter(Boolean).join('\n')).trim()];return} // 没有对错的讲解：留在下一手，位置不变
     for(const lf of leaves(ch)){const own=((lf.props.C||[''])[0]||'').replace(/^\s*(RIGHT|WRONG)\s*/,'').trim();lf.props.C=[(v+[body,own].filter(Boolean).join(' ')).trim()]}};
   const fix=(ch,text)=>{if(only(ch)&&ch.children.length){changed=true;const t=((text?text+'\n':'')+((ch.props.C||[''])[0]||'')).trim();return ch.children.flatMap(g=>fix(g,t))}
     if(text)tag(ch,text);return[ch]};

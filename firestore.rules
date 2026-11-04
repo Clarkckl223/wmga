@@ -58,15 +58,17 @@ service cloud.firestore {
     }
 
     // ---- 棋谱分享、线上对弈、家里电脑（不是班级）：维持原来的做法 ----
+    // wmga_global：内建练习册的「全站原版」修改，大家都能读，只有管理员能改
     match /games/{gid} {
       allow read: if signed() && (!gid.matches('cls_.*') || ownsClass(gid) || inClass(gid) || isAdmin());
-      allow create, update: if signed() && small();
+      allow create, update: if signed() && small() && gid != 'wmga_global';
       allow delete: if false;
 
       match /layers/{name} {
         // 不是班级：登录（含匿名）就可以
         allow read: if signed() && !gid.matches('cls_.*');
-        allow create, update: if signed() && small() && !gid.matches('cls_.*');
+        allow create, update: if signed() && small() && !gid.matches('cls_.*') && gid != 'wmga_global';
+        allow create, update: if gid == 'wmga_global' && isAdmin() && small();
         // 班级：老师、这班的学生、管理员可以读
         allow read: if signed() && gid.matches('cls_.*') && (ownsClass(gid) || inClass(gid) || isAdmin()
           || (name == 'meta' && isTeacher()));

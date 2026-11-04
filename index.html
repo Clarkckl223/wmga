@@ -5937,11 +5937,13 @@ function tsSplitSgf(text){ // 一个文件里可能有很多盘（题库常见�
 const TS_WR=/wrong\s*branch|错误变化|錯誤變化|失败图|失敗圖|^\s*(wrong|错误|錯誤|失败|失敗)\b/i,TS_RT=/correct\s*branch|right\s*branch|正确变化|正確變化|正解|^\s*(correct|right|正确|正確)\b/i;
 const TS_LEAD=/^\s*((wrong|correct|right)(\s*branch)?\s*\d*|错误变化|錯誤變化|正确变化|正確變化|正解|正确|正確|错误|錯誤|失败图?|失敗圖?)\s*\d*\s*[/／:：\-]?\s*/i;
 function tsNormalize(r){let changed=false;const only=nd=>!['B','W','AB','AW','AE'].some(k=>nd.props[k]);
+  const leaves=nd=>nd.children.length?nd.children.flatMap(leaves):[nd];
+  const strip=t=>{let b=t;for(let i=0;i<5;i++){const b2=b.replace(TS_LEAD,'');if(b2===b)break;b=b2}return b.replace(/^\s*(RIGHT|WRONG)\s*/,'').trim()};
+  const tag=(ch,text)=>{ // 对错标在这条变化的最后一手（走到底才揭晓），讲解也放在那里
+    const v=TS_WR.test(text)?'WRONG ':TS_RT.test(text)?'RIGHT ':'',body=strip(text);if(!v&&!body)return;changed=true;
+    for(const lf of leaves(ch)){const own=((lf.props.C||[''])[0]||'').replace(/^\s*(RIGHT|WRONG)\s*/,'').trim();lf.props.C=[(v+[body,own].filter(Boolean).join(' ')).trim()]}};
   const fix=(ch,text)=>{if(only(ch)&&ch.children.length){changed=true;const t=((text?text+'\n':'')+((ch.props.C||[''])[0]||'')).trim();return ch.children.flatMap(g=>fix(g,t))}
-    const own=((ch.props.C||[''])[0]||'').trim();if(text||TS_WR.test(own)&&!/^\s*WRONG/.test(own)||TS_RT.test(own)&&!/^\s*RIGHT/.test(own)){const full=((text?text+'\n':'')+own).trim(),v=TS_WR.test(full)?'WRONG ':TS_RT.test(full)?'RIGHT ':'';
-      let body=full;for(let i=0;i<5;i++){const b2=body.replace(TS_LEAD,'');if(b2===body)break;body=b2}body=body.replace(/^\s*(RIGHT|WRONG)\s*/,'').trim();
-      const nv=(v+body).trim();if(nv)ch.props.C=[nv];else delete ch.props.C;if(v||text)changed=true}
-    return[ch]};
+    if(text)tag(ch,text);return[ch]};
   (function walk(nd){const kids=[];for(const c of nd.children)kids.push(...fix(c,''));kids.forEach(k=>k.parent=nd);nd.children=kids;nd.children.forEach(walk)})(r);return changed}
 function tsVerdict(nd){const c=(nd.props.C||[''])[0];
   if(/RIGHT|正解|正确|Correct/i.test(c))return'right';if(/WRONG|失败|错误|Wrong/i.test(c))return'wrong';return nd.children.length?'':'right'}
@@ -5988,7 +5990,7 @@ function tsClick(x,y){
 }
 // 失败图：把题目里这条错误变化接着摆出来（对方怎么应、为什么不行），停在那里让学生看清楚
 const tsSleep=ms=>new Promise(r=>setTimeout(r,ms));
-async function tsFailLine(start){
+async function tsFailLine(start){if(!ts.node.children.length){let x=ts.node;while(x.parent&&x.parent!==G.root)x=x.parent;start=x} // 走到底才揭晓：失败图从这次的第一手开始编号
   const path=[];for(let x=ts.node;x&&x!==start.parent;x=x.parent)path.unshift(x);ts.refPath=path;ts.busy=true;renderTs();render();
   let nd=ts.node;const fast=bzOn();
   for(let k=0;!fast&&k<8&&nd.children.length;k++){await tsSleep(ts.quiz?450:750);if(!ts||ts.node!==nd)return;const c=nd.children[0];cur=c;ts.node=c;path.push(c);nd=c;soundFor(c);render()}

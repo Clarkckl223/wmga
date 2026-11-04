@@ -1724,6 +1724,13 @@ const EN={
 ,'错的变化：把对方的应手也摆出来，再按「这条是错的」，并在「这一手的说明」写原因。学生下错时会看到整个失败图和这段说明。':'Wrong lines: also play the opponent’s refutation, press "This line is wrong" and write the reason in "Note for this move". Students who play it will see the whole failure line and the note.'
 ,'已标为错误。请在「这一手的说明」写原因，学生下错时会看到。':'Marked wrong. Write the reason in "Note for this move"; students will see it.'
 ,'错':'Wrong'
+,'第 {0}/{1} 条变化':'line {0}/{1}'
+,'失败：':'Fails: '
+,'结果：':'Result: '
+,'扑':'throw-in'
+,'{0}只剩一口气':'{0} has one liberty left'
+,'棋':' stones'
+,'全部重新解说':'Re-explain all'
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -6165,7 +6172,7 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
     if(b.builtin&&tsIsAdm())h+=b.ghidden?`<div class="row" style="align-items:center"><span class="note" style="margin:0;color:var(--bad,#C0392B)">${T('这本已经整本删除，只有管理员看得到。')}</span><button class="btn pri" data-a="gunhide">${T('恢复这本（全站）')}</button></div>`
       :`<div class="row"><button class="btn warn" data-a="ghide">${T('整本删除（全站）')}</button><span class="note" style="margin:0">${T('所有人都看不到这本；以后可以再恢复。')}</span></div>`;
     if(b.builtin&&b.problems.length&&!b.cap)h+=`<div class="row"><button class="btn" data-a="copybook">${tsIsT()?T('复制到班级练习册'):T('复制到我的练习册')}</button>${(tsScope(b)==='global'?b.hasGFix:b.hasFix&&tsIsT())?`<button class="btn warn" data-a="restorebook">${tsScope(b)==='global'?T('恢复内建原版（取消全站修改）'):T('恢复原版（取消班级修改）')}</button>`:''}</div>`;
-    if(b.problems.length&&ed)h+=`<div class="row"><button class="btn" data-a="aiexpbook">${T('整本 AI 解说')}</button><span class="note" style="margin:0">${T('家里电脑在线时用它算，比较快、比较准。')}</span></div>`;
+    if(b.problems.length&&ed)h+=`<div class="row"><button class="btn" data-a="aiexpbook">${T('整本 AI 解说')}</button><button class="btn" data-a="aiexpbookall">${T('全部重新解说')}</button><span class="note" style="margin:0">${T('家里电脑在线时用它算，比较快、比较准。')}</span></div>`;
     if(b.problems.length&&!b.view&&!b.cap){const fm=(tsStore.modeOf||{})[b.id]==='full';h+=`<div class="row" style="align-items:center"><span>${T('做题方式')}</span><span class="seg"><button data-a="bmode" data-m="normal" aria-pressed="${!fm}">${T('一般')}</button><button data-a="bmode" data-m="full" aria-pressed="${fm}">${T('进阶（黑白都自己摆）')}</button></span></div>`}
     if(b.problems.length&&!b.view&&!b.cap){const qb=(tsStore.quizBest||{})[b.id];h+=`<div class="row" style="align-items:center"><button class="btn pri" data-a="hw">${T('作业本（随机 {0} 题）',Math.min(10,b.problems.length))}</button><button class="btn" data-a="quiz">${T('闯关模式（{0} 题）',Math.min(10,b.problems.length))}</button><label>${T('限时')} <select id="tsLimit">${[['0',T('不限')],['30',T('30 秒')],['60',T('60 秒')],['auto',T('按难度')]].map(([v,l])=>`<option value="${v}"${String(tsStore.limit||'0')===v?' selected':''}>${l}</option>`).join('')}</select></label>${qb?`<span class="note" style="margin:0">${T('最好成绩：{0}/{1}，{2}',qb.ok,qb.n,tsFmt(qb.ms))}</span>`:''}</div>`}
     if(b.problems.length&&!b.view)h+=`<div class="row" style="align-items:center"><button class="btn" data-a="bzbook">⏱ ${T('限时挑战')}</button>${bzSecSel()}<span class="note" style="margin:0">${T('答错扣 2 秒')}</span></div>`;
@@ -6317,7 +6324,7 @@ async function tsAct(e){
     case'vvar':{const c=cur.children[+t.dataset.i];if(c){cur=c;soundFor(c);render();renderTs()}break}
     case'aiexp':await busy(async()=>{const b=tsWork(tsBook(ts.bookId)),i=ts.idx,p=b.problems[i];const ns=await tsAiExplain(p.sgf,!!(b.view||p.view),m=>{t.textContent=m});
       if(!ns){tsMsg=T('这题没有可以分析的手');return}b.problems[i]={...p,sgf:ns};await tsSaveBook(b);tsOpen(ts.bookId,i);ts.view=true;cur=G.root;render();tsMsg=T('AI 解说已写好。')});break;
-    case'aiexpbook':await busy(async()=>{const b=tsWork(tsBook(tsBookId));let done=0,k=0;for(let i=0;i<b.problems.length;i++){const p=b.problems[i];if(/【AI】/.test(p.sgf))continue;
+    case'aiexpbook':case'aiexpbookall':await busy(async()=>{const b=tsWork(tsBook(tsBookId)),all=a==='aiexpbookall';let done=0,k=0;for(let i=0;i<b.problems.length;i++){const p=b.problems[i];if(!all&&/【AI】/.test(p.sgf))continue;
       const ns=await tsAiExplain(p.sgf,!!(b.view||p.view),m=>{t.textContent=T('第 {0}/{1} 题：',i+1,b.problems.length)+m});if(ns){b.problems[i]={...p,sgf:ns};done++;if(++k%3===0)await tsSaveBook(b)}}
       await tsSaveBook(b);tsMsg=T('整本解说完成：写好 {0} 题。',done)});break;
     case'copybook':await busy(async()=>{const b=tsBook(tsBookId),nb=tsNewBook();nb.title=b.title+T('（副本）');nb.problems=b.problems.map(p=>({id:p.id,title:p.title,level:p.level,sgf:p.sgf}));await tsSaveBook(nb);tsBookId=nb.id;tsMsg=T('已复制，可以随意修改。')});break;
@@ -6572,7 +6579,8 @@ function tsRoles(r,n){ // 谁要活（防守方），谁要杀（进攻方）
   const pl=nextColor(r),op=pl==='B'?'W':'B',xg=tsXG(r),q=(r.props.C||[''])[0];
   if(xg)return xg.goal==='live'?{def:pl,att:op,t:xg.t}:{def:op,att:pl,t:xg.t};
   if(/先.*(杀|死)|白死|黑死|kill/i.test(q)){const dead=/黑死/.test(q)?'B':/白死/.test(q)?'W':op;return{def:dead,att:dead==='B'?'W':'B'}}
-  if(/活|live/i.test(q))return{def:pl,att:op};
+  if(/活|live|连接|渡|逃|救|connect|escape|save/i.test(q))return{def:pl,att:op}; // 做活、连接、渡过、逃出：要保住的是下的那一方
+  if(/吃|capture/i.test(q))return{def:op,att:pl};
   let nb=0,nw=0;const st=computeState(r,n);for(const row of st.g)for(const v of row){if(v===1)nb++;if(v===2)nw++}
   return nb>=nw?{def:'W',att:'B'}:{def:'B',att:'W'};
 }
@@ -6595,38 +6603,45 @@ function tsTargetStones(nd,n,roles,crop){ // 要看死活的那块棋（在 nd �
     return best||[]}
   const[s0]=seeds,x=s0%n,y=(s0/n)|0;return groupOf(st.g,x,y,n).stones.map(([a,b])=>b*n+a);
 }
-async function tsAiExplain(sgf,addVars,onMsg){
-  const r=parseSGF(sgf);tsClean(r);(function w(nd){if(nd.props.C)nd.props.C=[nd.props.C[0].replace(/\n?【AI[^】]*】[^\n]*/g,'').trim()].filter(Boolean);if(nd.props.C&&!nd.props.C.length)delete nd.props.C;nd.children=nd.children.filter(c=>!c._ai&&!/^【AI 推荐】/.test((c.props.C||[''])[0]));nd.children.forEach(w)})(r);
-  const line=[r];let nd=r;while(nd.children.length){nd=nd.children[0];line.push(nd)}if(line.length<2)return null;
-  const n=sizeOf(r),crop=tsCropOf(r,n),roles=crop?tsRoles(r,n):null;
-  // 分析用的棋盘：加上死活题框；只准下题目那一块
-  let ar=r,aline=line,allow=null;
-  if(crop){const fr=tsFrame(r,n,crop,roles.att);if(fr){ar=fr;aline=[fr];let q=fr;while(q.children.length){q=q.children[0];aline.push(q)}}
-    allow=new Uint8Array(n*n);const[x0,y0,x1,y1]=crop;for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)allow[y*n+x]=1}
-  const my={visits:prefs.tsExpVisits||32,rows:new Array(line.length).fill(null),own:new Array(line.length).fill(null),allow,i:0,stop:false,mode:'deep',forced:true,pc:null};
-  if(rev&&rev.running)throw new Error(T('整盘分析还在跑，请等它完成'));const oldRev=rev;rev=null;
-  G0push(ar);try{
-    if(await tsPcOnline()){onMsg&&onMsg(T('家里电脑分析中…'));await revStartPC(my,aline,n)}
-    else{onMsg&&onMsg(T('这台设备分析中…'));await revLocal(my,aline,n)}
-  }finally{G0pop();rev=oldRev}
-  const rows=my.rows,gtp=p=>p<0?T('停一手'):pcGtp(p,n),add=(nd,t)=>{const c=(nd.props.C||[''])[0];nd.props.C=[(c?c+'\n':'')+'【AI】'+t]};
-  const defName=roles&&(roles.def==='B'?T('黑棋'):T('白棋')),sgn=roles&&(roles.def==='B'?1:-1);
-  const status=k=>{if(!roles||!my.own[k])return null;const ts=tsTargetStones(line[k],n,roles,crop);if(!ts.length)return-1;let s=0;ts.forEach(p=>s+=my.own[k][p]);return s/ts.length*sgn};
+async function tsAiExplain(sgf,addVars,onMsg){ // 每一条变化（正解和失败图）都分析：每一手写上术语、气、AI 的看法；走到底写成功或失败的原因
+  const r=parseSGF(sgf);tsClean(r);tsNormalize(r);
+  (function w(nd){if(nd.props.C)nd.props.C=[nd.props.C[0].replace(/\n?【AI[^】]*】[^\n]*/g,'').trim()].filter(Boolean);if(nd.props.C&&!nd.props.C.length)delete nd.props.C;nd.children=nd.children.filter(c=>!c._ai&&!/^【AI 推荐】/.test((c.props.C||[''])[0]));nd.children.forEach(w)})(r);
+  const paths=[];(function f(nd,idx){if(!nd.children.length){if(idx.length)paths.push(idx);return}nd.children.forEach((c,i)=>f(c,idx.concat(i)))})(r,[]);
+  if(!paths.length)return null;paths.splice(12);
+  const n=sizeOf(r),crop=tsCropOf(r,n),roles=crop?tsRoles(r,n):null,fr=crop?tsFrame(r,n,crop,roles.att):null;
+  let allow=null;if(crop){allow=new Uint8Array(n*n);const[x0,y0,x1,y1]=crop;for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)allow[y*n+x]=1}
+  if(rev&&rev.running)throw new Error(T('整盘分析还在跑，请等它完成'));
+  const pcOn=await tsPcOnline(),gtp=p=>p<0?T('停一手'):pcGtp(p,n),add=(nd,t)=>{const c=(nd.props.C||[''])[0];nd.props.C=[(c?c+'\n':'')+'【AI】'+t]};
+  const defName=roles&&(roles.def==='B'?T('黑棋'):T('白棋')),sgn=roles&&(roles.def==='B'?1:-1),colName=c=>c==='B'?T('黑'):T('白');
   const say=v=>v==null?'':v>0.5?T('{0}这块活了（AI 判断活棋 {1}%）',defName,Math.round((v+1)*50)):v<-0.5?T('{0}这块死了（AI 判断活棋 {1}%）',defName,Math.round((v+1)*50)):T('{0}这块还不确定（AI 判断活棋 {1}%）',defName,Math.round((v+1)*50));
-  for(let k=1;k<line.length;k++){const a=rows[k-1],b=rows[k],m=moveOf(line[k]);if(!a||!b||!m)continue;
-    const p=revPt(line[k],n),best=a.b&&a.b[0];
-    if(crop&&roles){ // 死活题：用这块棋的死活来说明
-      const s0=status(k-1),s1=status(k),forDef=m[0]===roles.def,worse=s0!=null&&s1!=null?(forDef?s0-s1:s1-s0):0;
-      let t=p===best?T('AI 也选这里。'):worse>0.3?T('AI 推荐 {0}，这样下比较不好。',gtp(best)):T('也可以；AI 首选 {0}。',gtp(best));
-      if(s1!=null)t+=' '+T('这手之后：')+say(s1)+'。';add(line[k],t);
-      if(addVars&&p!==best&&worse>0.3&&a.pv&&a.pv.length&&best!=null&&best>=0){let par=line[k-1],c=m[0];a.pv.slice(0,6).forEach((q,i)=>{const ch={props:{[c]:[q<0?'':xyToPt(q%n,(q/n)|0)]},children:[],parent:par,_ai:1};if(i===0)ch.props.C=['【AI 推荐】'];par.children.push(ch);par=ch;c=c==='B'?'W':'B'})}
-      continue}
-    const sg=m[0]==='B'?1:-1,loss=Math.max(0,sg*(a.l-b.l));
-    if(p===best)add(line[k],T('AI 也选这里。'));
-    else if(loss<1.5)add(line[k],T('也可以；AI 首选 {0}（只差 {1} 目）。',gtp(best),loss.toFixed(1)));
-    else{add(line[k],T('AI 推荐 {0}，这手大约亏 {1} 目。',gtp(best),loss.toFixed(1)));
-      if(addVars&&a.pv&&a.pv.length&&best!=null&&best>=0){let par=line[k-1],c=m[0];a.pv.slice(0,6).forEach((q,i)=>{const ch={props:{[c]:[q<0?'':xyToPt(q%n,(q/n)|0)]},children:[],parent:par,_ai:1};if(i===0)ch.props.C=['【AI 推荐】'];par.children.push(ch);par=ch;c=c==='B'?'W':'B'})}}}
-  const z=addVars&&!crop&&rows[line.length-1];if(z){const lead=z.l,who=lead>=0?T('黑'):T('白');add(line[line.length-1],T('最后局面：{0}领先约 {1} 目（{0}胜率 {2}%）。',who,Math.abs(lead).toFixed(1),Math.round((lead>=0?z.w:1-z.w)*100)))}
+  // 术语和气：例如「白2 扑，黑棋只剩一口气」
+  const termText=(nd,k,ok)=>{const m=moveOf(nd),p=revPt(nd,n);if(!m||p==null||p<0)return'';const c=m[0]==='B'?1:2,g=computeState(nd.parent,n).g,t=goTerm(g,n,p,c);
+    let w=t&&t.t?(t.t==='送吃'?(ok?T('扑'):T('送吃')):T(t.t)):'';const h=computeState(nd,n).g,x=p%n,y=(p/n)|0,opp=3-c;let lib='';
+    if(h[y][x]===c){const seen=new Set();for(const[a,b2]of nb4(x,y,n))if(h[b2][a]===opp&&!seen.has(b2*n+a)){const G=goGroup(h,n,a,b2);G.stones.forEach(s=>seen.add(s));if(G.libs.size===1){lib=T('{0}只剩一口气',colName(opp===1?'B':'W')+T('棋'));break}}
+      if(!lib&&goGroup(h,n,x,y).libs.size===1)lib=T('{0}只剩一口气',colName(m[0])+T('棋'))}
+    return w||lib?colName(m[0])+k+' '+[w,lib].filter(Boolean).join('，')+'。':''};
+  const done=new Set();let pi=0;
+  for(const idx of paths){pi++;const line=[r],aline=[fr||r];let a1=r,a2=fr||r;for(const i of idx){a1=a1.children[i];a2=a2.children[i];line.push(a1);aline.push(a2)}
+    const my={visits:prefs.tsExpVisits||32,rows:new Array(line.length).fill(null),own:new Array(line.length).fill(null),allow,i:0,stop:false,mode:'deep',forced:true,pc:null};
+    onMsg&&onMsg((pcOn?T('家里电脑分析中…'):T('这台设备分析中…'))+(paths.length>1?' '+T('第 {0}/{1} 条变化',pi,paths.length):''));
+    const oldRev=rev;rev=null;G0push(aline[0]);try{if(pcOn)await revStartPC(my,aline,n);else await revLocal(my,aline,n)}finally{G0pop();rev=oldRev}
+    const rows=my.rows,status=k=>{if(!roles||!my.own[k])return null;const t=tsTargetStones(line[k],n,roles,crop);if(!t.length)return-1;let s=0;t.forEach(p=>s+=my.own[k][p]);return s/t.length*sgn};
+    const wrongPath=line.some(nd=>nd!==r&&/^\s*(WRONG|失败|错误)/i.test((nd.props.C||[''])[0]))||tsVerdict(line[line.length-1])==='wrong';
+    for(let k=1;k<line.length;k++){if(done.has(line[k]))continue;done.add(line[k]);const a=rows[k-1],b2=rows[k],m=moveOf(line[k]);if(!a||!b2||!m)continue;
+      const p=revPt(line[k],n),best=a.b&&a.b[0],last=k===line.length-1;let t=termText(line[k],k,!wrongPath);
+      if(crop&&roles){const s0=status(k-1),s1=status(k),forDef=m[0]===roles.def,worse=s0!=null&&s1!=null?(forDef?s0-s1:s1-s0):0;
+        t+=p===best?T('AI 也选这里。'):worse>0.3?T('AI 推荐 {0}，这样下比较不好。',gtp(best)):T('也可以；AI 首选 {0}。',gtp(best));
+        if(s1!=null&&!last)t+=' '+T('这手之后：')+say(s1)+'。';
+        if(last&&s1!=null)t+=' '+(wrongPath?T('失败：'):T('结果：'))+say(s1)+'。';
+        add(line[k],t);
+        if(addVars&&p!==best&&worse>0.3&&a.pv&&a.pv.length&&best!=null&&best>=0){let par=line[k-1],c=m[0];a.pv.slice(0,6).forEach((q,i)=>{const ch={props:{[c]:[q<0?'':xyToPt(q%n,(q/n)|0)]},children:[],parent:par,_ai:1};if(i===0)ch.props.C=['【AI 推荐】'];par.children.push(ch);par=ch;c=c==='B'?'W':'B'})}
+        continue}
+      const sg=m[0]==='B'?1:-1,loss=Math.max(0,sg*(a.l-b2.l));
+      if(p===best)t+=T('AI 也选这里。');else if(loss<1.5)t+=T('也可以；AI 首选 {0}（只差 {1} 目）。',gtp(best),loss.toFixed(1));
+      else{t+=T('AI 推荐 {0}，这手大约亏 {1} 目。',gtp(best),loss.toFixed(1));
+        if(addVars&&a.pv&&a.pv.length&&best!=null&&best>=0){let par=line[k-1],c=m[0];a.pv.slice(0,6).forEach((q,i)=>{const ch={props:{[c]:[q<0?'':xyToPt(q%n,(q/n)|0)]},children:[],parent:par,_ai:1};if(i===0)ch.props.C=['【AI 推荐】'];par.children.push(ch);par=ch;c=c==='B'?'W':'B'})}}
+      if(last&&!crop){const z=rows[k],lead=z.l,who=lead>=0?T('黑'):T('白');t+=' '+T('最后局面：{0}领先约 {1} 目（{0}胜率 {2}%）。',who,Math.abs(lead).toFixed(1),Math.round((lead>=0?z.w:1-z.w)*100))}
+      add(line[k],t)}}
   (function w(x){delete x._ai;x.children.forEach(w)})(r);
   return toSGF(r);
 }

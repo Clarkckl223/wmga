@@ -6081,7 +6081,7 @@ async function tsEditSave(){
 }
 async function tsImport(files,bookId){
   const b=tsWork(tsBook(bookId));if(!tsCanEdit(b))return;let added=0,bad=0;
-  for(const f of files){const text=await f.text();for(const s of tsSplitSgf(text)){try{const r=parseSGF(s);if(!r.props.AB&&!r.props.AW){bad++;continue}tsNormalize(r);
+  for(const f of files){const text=await sgfText(f);for(const s of tsSplitSgf(text)){try{const r=parseSGF(s);if(!r.props.AB&&!r.props.AW){bad++;continue}tsNormalize(r);
     if(!r.props.PL){const m=r.children[0]&&moveOf(r.children[0]);r.props.PL=[m?m[0]:'B']}
     // 只有一条主线、没有任何标记的题：主线最后一手算正解
     let has=false;(function w(nd){if(/RIGHT|正解|正确|Correct/i.test((nd.props.C||[''])[0]))has=true;nd.children.forEach(w)})(r);
@@ -7297,7 +7297,6 @@ function authHtml(){
     <p class="note">${T('新老师账号要由管理员（槟州围棋协会）批准后才能开班。')}</p></div>`;
   else h+=`<p>${T('不登录也可以：下棋、记谱、下载棋谱、做内建的题目。复盘分析、班级、作业要登录才能用。')}</p><button class="btn pri" data-au="guest">${T('开始试用')}</button>`;
   return h+(authMsg?`<p class="status">${tsE(authMsg)}</p>`:'')+`</div>`;
-  if(r==='tea'||r==='adm'){el.insertAdjacentHTML('beforeend',certSetHtml());el.onchange=certSetChange}
 }
 async function authAct(e){const b=e.target.closest('[data-au]');if(!b||authBusy)return;const a=b.dataset.au;
   if(a==='tab'){authTab=b.dataset.t;authMsg='';renderHome();return}
@@ -7317,7 +7316,6 @@ function authBar(){ // 首页上方：谁登录了
   if(r==='guest')return`<div class="row homefoot"><span class="note" style="margin:0">${T('试用中（没有登录）')}</span><button class="btn" data-au="tologin" style="margin-left:auto">${T('登录')}</button></div>`;
   const who=L?`${tsE(L.name)}（${r==='stu'?T('学生'):r==='adm'?T('管理员'):T('老师')}）${L.clsName?' · '+tsE(L.clsName):''}`:`${tsE(acct&&acct.name||'')}（${r==='adm'?T('管理员'):T('老师')}）`;
   return`<div class="row homefoot"><span class="note" style="margin:0">${who}</span><span style="margin-left:auto"></span>${r==='stu'?`<button class="btn" data-au="pw">${T('改密码')}</button>`:''}<button class="btn" data-au="logout">${T('登出')}</button></div>`;
-  if(r==='tea'||r==='adm'){el.insertAdjacentHTML('beforeend',certSetHtml());el.onchange=certSetChange}
 }
 
 function renderAcctSet(){ // 设置页最上面：语言、账号

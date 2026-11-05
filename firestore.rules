@@ -57,6 +57,15 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ---- 申请：老师的新文件夹、上载全站的练习册；管理员审核 ----
+    match /reqs/{id} {
+      allow create: if signed() && small() && request.resource.data.uid == request.auth.uid && request.resource.data.status == 'pending';
+      allow get, list: if isAdmin() || (signed() && resource.data.uid == request.auth.uid);
+      allow update: if isAdmin() || (signed() && small() && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == resource.data.uid && request.resource.data.status == resource.data.status);
+      allow delete: if isAdmin();
+    }
+
     // ---- 棋谱分享、线上对弈、家里电脑（不是班级）：维持原来的做法 ----
     // wmga_global：内建练习册的「全站原版」修改，大家都能读，只有管理员能改
     match /games/{gid} {
@@ -75,9 +84,10 @@ service cloud.firestore {
         // 班级设定和练习册：建立班级的老师
         allow create, update: if signed() && small() && gid.matches('cls_.*') && teacherDoc(name) && isTeacher() && teacherOk(gid)
           && (name != 'meta' || request.resource.data.get('owner', null) == request.auth.uid);
-        // 学生纪录（u_…）：老师，或学生自己那一个
+        // 学生纪录（u_…）和学生分享给老师的练习册（u_…_b_…）：老师，或学生自己的
         allow create, update: if signed() && small() && gid.matches('cls_.*') && !teacherDoc(name)
-          && (ownsClass(gid) || (inClass(gid) && stu().get('docs', {}).get(gid, '') == name));
+          && (ownsClass(gid) || (inClass(gid) && (stu().get('docs', {}).get(gid, '') == name
+              || (stu().get('docs', {}).get(gid, '') != '' && name.matches(stu().get('docs', {}).get(gid, '') + '_b_.*')))));
         allow delete: if false;
       }
 

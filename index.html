@@ -1927,6 +1927,11 @@ const EN={
 ,"请输入名字":"Enter a name"
 ,"预设密码":"Default password"
 ,"（已删除）":"(deleted)"
+,"已自动找到棋盘（{0} 路）。":"Board found automatically ({0}×{0})."
+,"红点可以拖动对准角落（会出现放大镜）。点交叉点可以改：空 → 黑 → 白。":"Drag the red dots onto the corners (a magnifier appears). Tap a point to change it: empty → black → white."
+,"自动找角":"Find corners"
+,"找不到棋盘，请自己点四个角":"Board not found; please tap the four corners"
+,"；{0} 个没把握（黄色圈），请看一下":"; {0} uncertain (yellow circles), please check"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -5471,7 +5476,7 @@ function picStepAt(i,j){const[nc,nr]=picDims(),p=picPt(i,j),q=picPt(i<nc-1?i+1:i
 function picBg(){const P=picP,{cv}=P,w=cv.width,h=cv.height,g=P.g,[nc,nr]=picDims(),v=[];
   for(let j=0;j+1<nr;j++)for(let i=0;i+1<nc;i++){const[x,y]=picPt(i+.5,j+.5),a=picAt(g,w,h,x,y);if(a!=null)v.push(a)}v.sort((a,b)=>a-b);return v[v.length>>1]||150}
 function picRead(){ // 每个交叉点：分成黑子、白子、空
-  const P=picP,{cv}=P,w=cv.width,h=cv.height,g=P.g||(P.g=picGray(cv.getContext('2d'),w,h)),[nc,nr]=picDims();if(P.mode==='photo')picSetH();
+  const P=picP,{cv}=P,w=cv.width,h=cv.height,g=P.g||(P.g=picGray(cv.getContext('2d'),w,h)),[nc,nr]=picDims();if(P.mode==='photo'){picSetH();if(picReadColor())return}P.unsure=null;
   const mean=(cx,cy,r)=>{let a=0,k=0;for(let y=Math.round(cy-r);y<=cy+r;y++)for(let x=Math.round(cx-r);x<=cx+r;x++){if(x<0||y<0||x>=w||y>=h||(x-cx)**2+(y-cy)**2>r*r)continue;a+=g[y*w+x];k++}return k?a/k:null};
   const gbg=picBg(),out=[];P.feat=[];
   for(let j=0;j<nr;j++){const row=[],fr=[];for(let i=0;i<nc;i++){
@@ -5506,7 +5511,7 @@ function picLoad(file,cb){const url=URL.createObjectURL(file),img=new Image();im
     const sc=Math.min(1,PIC_MAX/Math.max(img.width,img.height)),cv=document.createElement('canvas');cv.width=Math.round(img.width*sc);cv.height=Math.round(img.height*sc);cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);cb(img,cv)};
   img.onerror=()=>flash(T('读不出这张图片'));img.src=url}
 function picNew(img,cv,purpose){picP={img,cv,mode:'auto',purpose:purpose||'ts',corners:[],cols:purpose==='score'?19:10,rows:purpose==='score'?19:10,corner:'tl',H:null};
-  const ok=picDetect();if(purpose==='score'){const[nc,nr]=ok?picDims():[0,0];if(!(ok&&picP.corner==='full'&&nc===nr&&[9,13,19].includes(nc))){picP.mode='photo';picP.stones=null}}
+  const ok=picDetect();if(purpose==='score'){const[nc,nr]=ok?picDims():[0,0];if(!(ok&&picP.corner==='full'&&nc===nr&&[9,13,19].includes(nc))){picP.mode='photo';picP.stones=null;if(picAutoCorners())picRead()}}
   else if(!ok){picP.mode='photo';picP.stones=null}}
 function picOpen(file,opt){opt=opt||{};picLoad(file,(img,cv)=>{
   if(opt.purpose!=='score'){const parts=picSplit(cv);if(parts.length>=2||opt.fromBook){picMultiOpen(img,cv,parts.length?parts:[cv],opt.bookId||(ts&&ts.bookId));return}}
@@ -5515,15 +5520,15 @@ function picUi(){
   let o=$('#picBox');if(!o){o=document.createElement('div');o.id='picBox';o.className='picbox';document.body.appendChild(o)}
   const P=picP,photo=P.mode==='photo',need=photo&&P.corners.length<4,score=P.purpose==='score';
   const cn={tl:T('左上角'),tr:T('右上角'),bl:T('左下角'),br:T('右下角'),full:T('整个棋盘')};
-  const tip=photo?(need?T('依序点棋盘最外圈格线的四个角：左上 → 右上 → 右下 → 左下（已点 {0} 个）。',P.corners.length):T('红点可以拖动对准角落。点交叉点可以改：空 → 黑 → 白。')):T('已自动找到格线。点交叉点可以改：空 → 黑 → 白。');
+  const tip=photo?(need?T('依序点棋盘最外圈格线的四个角：左上 → 右上 → 右下 → 左下（已点 {0} 个）。',P.corners.length):(P.auto?T('已自动找到棋盘（{0} 路）。',P.cols)+' ':'')+T('红点可以拖动对准角落（会出现放大镜）。点交叉点可以改：空 → 黑 → 白。')):T('已自动找到格线。点交叉点可以改：空 → 黑 → 白。');
   const sizeSeg=`<span class="seg" id="picSize">${[9,13,19].map(k=>`<button data-sz="${k}" aria-pressed="${P.cols===k&&P.rows===k}">${T('{0} 路',k)}</button>`).join('')}</span>`;
-  let cnt='';if(P.stones){let b=0,w=0;P.stones.forEach(r=>r.forEach(v=>{if(v===1)b++;if(v===2)w++}));cnt=T('认出 {0} 颗黑子、{1} 颗白子',b,w)}
+  let cnt='';if(P.stones){cnt=picCountText()}
   o.innerHTML=`<div class="picin"><div class="score-head"><b>${score?T('拍照数子'):T('图片变题目')}</b><span>${tip}</span></div>
     <div class="picwrap"><canvas id="picCv"></canvas></div>
     <div class="score-opts">${cnt?`<span class="note" style="margin:0">${cnt}</span>`:''}
       ${score&&photo?`<span>${T('棋盘')}</span>${sizeSeg}`:''}
       ${photo&&!score?`<label>${T('横向几条线')} <input id="picCols" type="number" min="3" max="19" value="${P.cols}" style="width:4em"></label><label>${T('纵向几条线')} <input id="picRows" type="number" min="3" max="19" value="${P.rows}" style="width:4em"></label>`:''}
-      ${photo?`<button class="btn" data-i="reset">${T('重点四个角')}</button>`:''}
+      ${photo&&score?`<button class="btn" data-i="auto">${T('自动找角')}</button>`:''}${photo?`<button class="btn" data-i="reset">${T('重点四个角')}</button>`:''}
       ${score?'':`<span>${T('这是棋盘的')}</span><select id="picCorner">${Object.keys(cn).map(k=>`<option value="${k}"${k===P.corner?' selected':''}>${cn[k]}</option>`).join('')}</select>`}
       <button class="btn" data-i="mode">${photo?T('改用截图模式'):T('认错了？改用照片模式')}</button></div>
     <div class="row"><button class="btn pri" data-i="ok"${P.stones?'':' disabled'}>${score?T('开始数子'):picMulti?T('完成'):T('用这个')}</button><button class="btn" data-i="cancel">${picMulti?T('返回'):T('取消')}</button></div></div>`;
@@ -5535,18 +5540,19 @@ function picBind(o){const P=picP,cv=$('#picCv');cv.style.touchAction='none';
     if(P.mode==='photo'){if(P.corners.length<4){P.corners.push([x,y]);P.drag=P.corners.length-1;P.mouse=[x,y];cv.setPointerCapture(e.pointerId);picDraw();return}
       let k=-1,bd=1e9;P.corners.forEach(([a,b],i)=>{const d=Math.hypot(a-x,b-y);if(d<bd){bd=d;k=i}});if(bd<near){P.drag=k;P.mouse=[x,y];cv.setPointerCapture(e.pointerId);picDraw();return}}
     if(!P.stones)return;const[nc,nr]=picDims();let bi=-1,bj=-1,bd=1e9;for(let j=0;j<nr;j++)for(let i=0;i<nc;i++){const[px,py]=picPt(i,j),d=(px-x)**2+(py-y)**2;if(d<bd){bd=d;bi=i;bj=j}}
-    if(bi>=0){P.stones[bj][bi]=(P.stones[bj][bi]+1)%3;picDraw();picCount()}};
-  cv.onpointermove=e=>{if(P.drag==null)return;const[x,y]=pos(e);P.corners[P.drag]=[x,y];P.mouse=[x,y];if(P.corners.length===4)picSetH();picDraw()};
+    if(bi>=0){P.stones[bj][bi]=(P.stones[bj][bi]+1)%3;if(P.unsure)P.unsure[bj][bi]=0;picDraw();picCount()}};
+  cv.onpointermove=e=>{if(P.drag==null)return;const[x,y]=pos(e);P.corners[P.drag]=[x,y];P.auto=false;P.mouse=[x,y];if(P.corners.length===4)picSetH();picDraw()};
   cv.onpointerup=cv.onpointercancel=()=>{if(P.drag==null)return;P.drag=null;P.mouse=null;if(P.corners.length===4){picRead();picUi()}else picUi()};
   o.onclick=e=>{const b=e.target.closest('[data-i],[data-sz]');if(!b)return;
-    if(b.dataset.sz){P.cols=P.rows=+b.dataset.sz;if(P.corners.length===4)picRead();picUi();return}
+    if(b.dataset.sz){const n=+b.dataset.sz;P.cols=P.rows=n;if(P.auto&&picAutoCorners(n))picRead();else if(P.corners.length===4)picRead();picUi();return}
     const a=b.dataset.i;
-    if(a==='cancel'){if(picMulti){picMultiUi();return}picClose()}else if(a==='ok'){if(picMulti){picMultiSave();return}picApply()}else if(a==='reset'){P.corners=[];P.stones=null;P.H=null;picUi()}
+    if(a==='cancel'){if(picMulti){picMultiUi();return}picClose()}else if(a==='ok'){if(picMulti){picMultiSave();return}picApply()}else if(a==='reset'){P.corners=[];P.stones=null;P.H=null;P.auto=false;P.unsure=null;picUi()}else if(a==='auto'){if(picAutoCorners())picRead();else flash(T('找不到棋盘，请自己点四个角'));picUi()}
     else if(a==='mode'){if(P.mode==='photo'){if(!picDetect())flash(T('找不到格线，请用照片模式'))}else{P.mode='photo';P.corners=[];P.stones=null;P.H=null}picUi()}};
   const sel=$('#picCorner');if(sel)sel.onchange=()=>{P.corner=sel.value};
   const ci=$('#picCols'),ri=$('#picRows');if(ci)ci.onchange=()=>{P.cols=Math.max(3,Math.min(19,+ci.value||10));if(P.corners.length===4)picRead();picDraw()};if(ri)ri.onchange=()=>{P.rows=Math.max(3,Math.min(19,+ri.value||10));if(P.corners.length===4)picRead();picDraw()};
 }
-function picCount(){const el=document.querySelector('#picBox .score-opts .note');if(!el||!picP.stones)return;let b=0,w=0;picP.stones.forEach(r=>r.forEach(v=>{if(v===1)b++;if(v===2)w++}));el.textContent=T('认出 {0} 颗黑子、{1} 颗白子',b,w)}
+function picCountText(){let b=0,w=0,u=0;picP.stones.forEach((r,j)=>r.forEach((v,i)=>{if(v===1)b++;if(v===2)w++;if(picP.unsure&&picP.unsure[j][i])u++}));return T('认出 {0} 颗黑子、{1} 颗白子',b,w)+(u?T('；{0} 个没把握（黄色圈），请看一下',u):'')}
+function picCount(){const el=document.querySelector('#picBox .score-opts .note');if(!el||!picP.stones)return;el.textContent=picCountText()}
 function picDraw(){
   const P=picP,cv=$('#picCv');if(!cv)return;cv.width=P.cv.width;cv.height=P.cv.height;const c=cv.getContext('2d');c.drawImage(P.cv,0,0);const u=Math.max(cv.width,cv.height)/700;
   if(P.mode==='photo'){if(P.corners.length===4&&P.H){const[nc,nr]=picDims();c.strokeStyle='rgba(231,76,60,.75)';c.lineWidth=1.2*u;c.beginPath();
@@ -5555,7 +5561,8 @@ function picDraw(){
   if(P.stones&&P.drag==null){const[nc,nr]=picDims();
     for(let j=0;j<nr;j++)for(let i=0;i<nc;i++){const[x,y]=picPt(i,j),v=P.stones[j][i],s=picStepAt(i,j);c.lineWidth=2*u;
       if(v){c.strokeStyle=v===1?'#E74C3C':'#2E86DE';c.beginPath();c.arc(x,y,s*.38,0,7);c.stroke();c.fillStyle=v===1?'rgba(0,0,0,.55)':'rgba(255,255,255,.7)';c.fill()}
-      else{c.fillStyle='rgba(46,204,113,.9)';c.fillRect(x-2*u,y-2*u,4*u,4*u)}}}
+      else{c.fillStyle='rgba(46,204,113,.9)';c.fillRect(x-2*u,y-2*u,4*u,4*u)}
+      if(P.unsure&&P.unsure[j][i]){c.strokeStyle='#F1C40F';c.lineWidth=3*u;c.beginPath();c.arc(x,y,s*.5,0,7);c.stroke()}}}
   if(P.mouse){ // 放大镜：手指旁边放大三倍
     const[mx,my]=P.mouse,R=70*u,Z=3,bx=mx<cv.width/2?cv.width-R*2-10*u:10*u,by=10*u;
     c.save();c.beginPath();c.rect(bx,by,R*2,R*2);c.clip();c.drawImage(P.cv,mx-R/Z,my-R/Z,R*2/Z,R*2/Z,bx,by,R*2,R*2);c.restore();
@@ -5607,6 +5614,112 @@ function picScoreApply(){const P=picP,{n,B,W}=picStonesSgf();
   const r=parseSGF(`(;GM[1]FF[4]CA[UTF-8]SZ[${n}]KM[${n===19?7.5:5.5}]RU[Chinese]XP[1]DT[${new Date().toISOString().slice(0,10)}]GN[${T('拍照数子')}])`);if(B.length)r.props.AB=B;if(W.length)r.props.AW=W;
   const id=newId();store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};picClose();
   setMode('review');document.body.classList.remove('pick');if(scoring)stopScoring();openRoot(r,{id});startScoring()}
+
+/* ---- 照片数子：看颜色认棋子、自动找角、自动判断几路 ----
+   棋盘（木、绒布、黄板）有颜色，棋子（黑、白）几乎没有颜色：先看「颜色像不像棋盘」分有没有棋子，再看亮度分黑白。
+   影子只会让颜色变暗，不会改变颜色的比例，所以用 r:g:b 的比例来比。 */
+function picRGB(){const P=picP;if(!P.rgb)P.rgb=P.cv.getContext('2d').getImageData(0,0,P.cv.width,P.cv.height).data;return P.rgb}
+function picBoardMask(){ // 像棋盘的像素：暖色（橘、黄、木色）而且有一点颜色
+  const P=picP,d=picRGB(),w=P.cv.width,h=P.cv.height,S=Math.max(2,Math.round(Math.max(w,h)/400)),W=Math.ceil(w/S),H=Math.ceil(h/S),m=new Uint8Array(W*H);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=((y*S)*w+x*S)*4,r=d[i],g=d[i+1],b=d[i+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b),c=mx-mn;
+    if(c<35||mx<70||r<b||r+0<g*0.85)continue;let hu=mx===r?((g-b)/c)*60:mx===g?(2+(b-r)/c)*60:(4+(r-g)/c)*60;if(hu<0)hu+=360;if(hu>=8&&hu<=72)m[y*W+x]=1}
+  return{m,W,H,S}}
+function picLargest(m,W,H){const lab=new Int32Array(W*H).fill(-1);let best=-1,bn=0,id=0;const st=[];
+  for(let s=0;s<W*H;s++){if(!m[s]||lab[s]>=0)continue;let n=0;st.push(s);lab[s]=id;while(st.length){const p=st.pop();n++;const x=p%W,y=(p/W)|0;
+      for(const q of[x>0?p-1:-1,x<W-1?p+1:-1,y>0?p-W:-1,y<H-1?p+W:-1])if(q>=0&&m[q]&&lab[q]<0){lab[q]=id;st.push(q)}}
+    if(n>bn){bn=n;best=id}id++}
+  const o=new Uint8Array(W*H);for(let i=0;i<W*H;i++)o[i]=lab[i]===best?1:0;return{m:o,n:bn}}
+function picFitLine(pts,tol){ // RANSAC：pts=[[t,v]]，回传 v=a*t+b（大部分点都在线上）
+  if(pts.length<6)return null;let best=null,bc=-1;const N=pts.length;
+  for(let k=0;k<300;k++){const p=pts[(Math.random()*N)|0],q=pts[(Math.random()*N)|0];if(Math.abs(p[0]-q[0])<N*0.05)continue;const a=(q[1]-p[1])/(q[0]-p[0]),b=p[1]-a*p[0];let c=0;for(const r of pts)if(Math.abs(a*r[0]+b-r[1])<=tol)c++;if(c>bc){bc=c;best=[a,b]}}
+  if(!best)return null;const inl=pts.filter(r=>Math.abs(best[0]*r[0]+best[1]-r[1])<=tol);let st=0,sv=0,stt=0,stv=0;for(const[t,v]of inl){st+=t;sv+=v;stt+=t*t;stv+=t*v}const n=inl.length,den=n*stt-st*st;
+  return den?[(n*stv-st*sv)/den,(sv*stt-st*stv)/den]:best}
+function picBoardQuad(){ // 棋盘（板子）的四个角
+  const{m:m0,W,H,S}=picBoardMask();const{m,n}=picLargest(m0,W,H);if(n<W*H*0.08)return null;
+  let y0=H,y1=0,x0=W,x1=0;for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(m[y*W+x]){if(y<y0)y0=y;if(y>y1)y1=y;if(x<x0)x0=x;if(x>x1)x1=x}
+  const L=[],R=[],T=[],B=[];
+  for(let y=y0;y<=y1;y++){let a=-1,b=-1;for(let x=0;x<W;x++)if(m[y*W+x]){if(a<0)a=x;b=x}if(a>=0){L.push([y,a]);R.push([y,b])}}
+  for(let x=x0;x<=x1;x++){let a=-1,b=-1;for(let y=0;y<H;y++)if(m[y*W+x]){if(a<0)a=y;b=y}if(a>=0){T.push([x,a]);B.push([x,b])}}
+  const tol=Math.max(2,W/150),l=picFitLine(L,tol),r=picFitLine(R,tol),t=picFitLine(T,tol),b=picFitLine(B,tol);if(!l||!r||!t||!b)return null;
+  const X=(v,h)=>{ // v：x=a*y+b（直的边）；h：y=c*x+d（横的边）
+    const x=(v[0]*h[1]+v[1])/(1-v[0]*h[0]),y=h[0]*x+h[1];return[x*S+S/2,y*S+S/2]};
+  return[X(l,t),X(r,t),X(r,b),X(l,b)]}
+function picWarp(quad,N,un,pb){ // 把四边形拉成 N×N：o 亮度、bd「像不像棋盘的颜色」（1 = 像）
+  const P=picP,d=picRGB(),w=P.cv.width,h=P.cv.height,H=picHomo([[0,0],[N-1,0],[N-1,N-1],[0,N-1]],quad),[a,b,c,e,f,g,k,l]=H,o=new Float32Array(N*N),bd=new Uint8Array(N*N);
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){const z=k*x+l*y+1,X=Math.round((a*x+b*y+c)/z),Y=Math.round((e*x+f*y+g)/z);if(X<0||Y<0||X>=w||Y>=h){o[y*N+x]=255;continue}const i=(Y*w+X)*4,s=d[i]+d[i+1]+d[i+2]+1;o[y*N+x]=s/3;
+    if(un){const q=((d[i]/s-1/3)*un[0]+(d[i+1]/s-1/3)*un[1]+(d[i+2]/s-1/3)*un[2])/pb;bd[y*N+x]=q>0.5?1:0}}
+  return{o,bd,H}}
+function picBoardColor(quad){ // 板子的颜色（r:g:b 比例）：四边形里面像棋盘的像素
+  const{m,W,H,S}=picBoardMask(),d=picRGB(),w=picP.cv.width,cs=[[],[],[]];
+  for(let y=0;y<H;y+=2)for(let x=0;x<W;x+=2)if(m[y*W+x]){const i=((y*S)*w+x*S)*4,s=d[i]+d[i+1]+d[i+2]+1;cs[0].push(d[i]/s);cs[1].push(d[i+1]/s);cs[2].push(d[i+2]/s)}
+  const bc=cs.map(a=>{a.sort((p,q)=>p-q);return a[a.length>>1]||1/3}),u=bc.map(v=>v-1/3),pb=Math.hypot(...u)||1;return{un:u.map(v=>v/pb),pb}}
+function picGridIn(quad,forceN){ // 在板子里面找格线：细细的暗线（棋子是一大片暗，不算）
+  const N=900,bc=picBoardColor(quad),{o,bd,H}=picWarp(quad,N,bc.un,bc.pb),cx=new Float32Array(N),cy=new Float32Array(N),D=3;
+  // 两边都要是棋盘的颜色：两颗白子中间的缝不算格线
+  for(let y=D;y<N-D;y++)for(let x=D;x<N-D;x++){const v=o[y*N+x];
+    if(bd[y*N+x-D]&&bd[y*N+x+D]&&Math.min(o[y*N+x-D],o[y*N+x+D])-v>12)cx[x]++;
+    if(bd[(y-D)*N+x]&&bd[(y+D)*N+x]&&Math.min(o[(y-D)*N+x],o[(y+D)*N+x])-v>12)cy[y]++}
+  const lat=prof=>{const pk=picPeaks(prof);if(!pk)return null;const st=pk.step;let ph=pk.pos[0];while(ph-st>=0)ph-=st;const pos=[];for(let x=ph;x<N;x+=st)pos.push(x);
+    const val=pos.map(x=>{let m=0;for(let d=-2;d<=2;d++)m=Math.max(m,prof[Math.round(x)+d]||0);return m});return{st,pos,val}};
+  const LX=lat(cx),LY=lat(cy);if(!LX||!LY)return null;picP.dbgLat={LX,LY};
+  // 几路：9、13、19 各试一次。格线里面每条都要有证据；多算进去的（板子边缘的空白）证据很少，会被扣分
+  const win=(L,n)=>{if(L.pos.length<n)return null;const top=[...L.val].sort((a,b)=>b-a).slice(0,9),c=0.3*top[top.length>>1];let best=-1e9,bk=0;
+    for(let k=0;k+n<=L.pos.length;k++){let s=0;for(let i=k;i<k+n;i++)s+=Math.min(L.val[i],top[0])-c;if(s>best){best=s;bk=k}}return{s:best/c,k:bk}};
+  let bn=null,bs=-1e9;for(const n of forceN?[forceN]:[9,13,19]){const a=win(LX,n),b=win(LY,n);if(!a||!b)continue;if(a.s+b.s>bs){bs=a.s+b.s;bn={n,kx:a.k,ky:b.k}}}
+  if(!bn)return{n:null};const n=bn.n,xs=LX.pos.slice(bn.kx,bn.kx+n),ys=LY.pos.slice(bn.ky,bn.ky+n);
+  const mp=(x,y)=>{const[a,b,c,e,f,g,k,l]=H,z=k*x+l*y+1;return[(a*x+b*y+c)/z,(e*x+f*y+g)/z]};
+  return{n,corners:[mp(xs[0],ys[0]),mp(xs[xs.length-1],ys[0]),mp(xs[xs.length-1],ys[ys.length-1]),mp(xs[0],ys[ys.length-1])]}}
+function picAutoCorners(forceN){ // 成功：设好四个角和几路，回传 true
+  const P=picP;try{const q=picBoardQuad();if(!q)return false;let g=picGridIn(q,forceN);if(!g||!g.n)return false;
+    // 再找一次：这次只拉格线附近（外面多半格），板子厚度、边框不会影响格子的间距
+    for(let k=0;k<2;k++){const n=g.n,H=picHomo([[0,0],[n-1,0],[n-1,n-1],[0,n-1]],g.corners),[a,b,c,e,f,gg,kk,l]=H,mp=(x,y)=>{const z=kk*x+l*y+1;return[(a*x+b*y+c)/z,(e*x+f*y+gg)/z]};
+      const m=0.6,q2=[mp(-m,-m),mp(n-1+m,-m),mp(n-1+m,n-1+m),mp(-m,n-1+m)],g2=picGridIn(q2,n);if(!g2||!g2.n)break;g=g2}
+    P.corners=g.corners;P.cols=P.rows=g.n;P.auto=true;picSetH();return true}catch(e){console.warn(e);return false}}
+function picReadColor(){ // 照片模式：每个交叉点分成黑子、白子、空；P.unsure 记下没把握的点
+  const P=picP,d=picRGB(),w=P.cv.width,h=P.cv.height,[nc,nr]=picDims();picSetH();
+  const samp=(cx,cy,r)=>{const R=[],G=[],B=[];const st=Math.max(1,Math.round(r/6));for(let y=Math.round(cy-r);y<=cy+r;y+=st)for(let x=Math.round(cx-r);x<=cx+r;x+=st){if(x<0||y<0||x>=w||y>=h||(x-cx)**2+(y-cy)**2>r*r)continue;const i=(y*w+x)*4;R.push(d[i]);G.push(d[i+1]);B.push(d[i+2])}
+    if(!R.length)return null;const md=a=>{a.sort((p,q)=>p-q);return a[a.length>>1]};const r0=md(R),g0=md(G),b0=md(B),s=r0+g0+b0+1;return{V:s/3,c:[r0/s,g0/s,b0/s],C:Math.max(r0,g0,b0)-Math.min(r0,g0,b0)}};
+  // 棋盘本身的颜色：格子中央，挑颜色最鲜艳的一半
+  const cells=[];for(let j=0;j+1<nr;j++)for(let i=0;i+1<nc;i++){const[x,y]=picPt(i+.5,j+.5),s=picStepAt(i,j),v=samp(x,y,s*.12);if(v)cells.push(v)}
+  cells.sort((a,b)=>b.C-a.C);const top=cells.slice(0,Math.max(4,cells.length>>1));
+  const bc=[0,1,2].map(k=>{const a=top.map(v=>v.c[k]).sort((p,q)=>p-q);return a[a.length>>1]}),u=bc.map(v=>v-1/3),pb=Math.hypot(...u);
+  if(pb<0.035){P.unsure=null;return false} // 棋盘几乎没有颜色（白色、灰色板）：用原来的方法
+  const un=u.map(v=>v/pb);let f=[];
+  const lineness=(cx,cy,r)=>{ // 空的交叉点看得到格线（十字），棋子盖住就看不到
+    const a=[];for(let y=Math.round(cy-r);y<=cy+r;y++)for(let x=Math.round(cx-r);x<=cx+r;x++){if(x<0||y<0||x>=w||y>=h||(x-cx)**2+(y-cy)**2>r*r)continue;const i=(y*w+x)*4;a.push(d[i]+d[i+1]+d[i+2])}
+    if(!a.length)return 0;const s=[...a].sort((p,q)=>p-q),md=s[s.length>>1];return a.filter(v=>v<md*0.85).length/a.length};
+  // 棋子比棋盘高，照片又常常斜斜地拍：棋子看起来会整片往同一个方向偏。先找出偏多少，再到偏过去的地方看
+  let off=(i,j)=>[0,0];
+  const feats=()=>{f=[];for(let j=0;j<nr;j++){const row=[];for(let i=0;i<nc;i++){const[oi,oj]=off(i,j),[x,y]=picPt(i+oi,j+oj),s=picStepAt(i,j),v=samp(x,y,s*.28)||{V:0,c:[1/3,1/3,1/3],C:0};
+    const q=((v.c[0]-1/3)*un[0]+(v.c[1]-1/3)*un[1]+(v.c[2]-1/3)*un[2])/pb;row.push({...v,q,ln:lineness(x,y,s*.18)})}f.push(row)}};
+  feats();
+  { // 有把握的棋子：在附近 0.6 格里找「和棋盘颜色不一样」的像素，算中心偏了多少
+    const pts=[];for(let j=0;j<nr;j++)for(let i=0;i<nc;i++){const v=f[j][i];if(v.q>0.15||v.V>=120&&v.q>0.05)continue;
+      const blk=v.V<110;let sx=0,sy=0,k=0;for(let dj=-0.6;dj<=0.6;dj+=0.1)for(let di=-0.6;di<=0.6;di+=0.1){if(di*di+dj*dj>0.36)continue;const[x,y]=picPt(i+di,j+dj),X=Math.round(x),Y=Math.round(y);if(X<0||Y<0||X>=w||Y>=h)continue;
+        const t=(Y*w+X)*4,r0=d[t],g0=d[t+1],b0=d[t+2],sm=r0+g0+b0+1,V=sm/3,q=((r0/sm-1/3)*un[0]+(g0/sm-1/3)*un[1]+(b0/sm-1/3)*un[2])/pb;
+        if(q<0.3&&(blk?V<110:V>=150)){sx+=di;sy+=dj;k++}}
+      if(k>20)pts.push([i,j,sx/k,sy/k])}
+    if(pts.length>=8){const fit=c=>{ // 偏移 = a + b·i + c·j（照片的透视：离中心越远偏越多）
+        const A=[[0,0,0],[0,0,0],[0,0,0]],B=[0,0,0];for(const p of pts){const x=[1,p[0],p[1]];for(let r=0;r<3;r++){B[r]+=x[r]*p[c];for(let q=0;q<3;q++)A[r][q]+=x[r]*x[q]}}
+        for(let r=0;r<3;r++){let m=r;for(let q=r+1;q<3;q++)if(Math.abs(A[q][r])>Math.abs(A[m][r]))m=q;[A[r],A[m]]=[A[m],A[r]];[B[r],B[m]]=[B[m],B[r]];for(let q=0;q<3;q++){if(q===r)continue;const t=A[q][r]/(A[r][r]||1e-9);for(let z=r;z<3;z++)A[q][z]-=t*A[r][z];B[q]-=t*B[r]}}
+        return B.map((v,r)=>v/(A[r][r]||1e-9))};
+      const fx=fit(2),fy=fit(3),cl=v=>Math.max(-0.35,Math.min(0.35,v));off=(i,j)=>[cl(fx[0]+fx[1]*i+fx[2]*j),cl(fy[0]+fy[1]*i+fy[2]*j)];P.off=[fx,fy];feats()}}
+  // 附近的棋盘：四周格子的中央（棋子通常盖不到），挑最像棋盘的两个。光线不平均、有影子也照样比得准
+  const cq=[];for(let j=0;j+1<nr;j++){const row=[];for(let i=0;i+1<nc;i++){const[x,y]=picPt(i+.5,j+.5),s=picStepAt(i,j),v=samp(x,y,s*.12);
+      row.push(v?{V:v.V,q:((v.c[0]-1/3)*un[0]+(v.c[1]-1/3)*un[1]+(v.c[2]-1/3)*un[2])/pb}:null)}cq.push(row)}
+  const loc=(i,j)=>{let cs=[];for(let R=1;R<=3&&cs.length<2;R++){cs=[];for(let b=j-R;b<j+R;b++)for(let a=i-R;a<i+R;a++){const v=cq[b]&&cq[b][a];if(v)cs.push(v)}}
+    cs.sort((p,q)=>q.q-p.q);const t=cs.slice(0,2);return t.length?{q:t.reduce((s,v)=>s+v.q,0)/t.length,V:t.reduce((s,v)=>s+v.V,0)/t.length}:{q:1,V:150}};
+  const out=[],uns=[];
+  for(let j=0;j<nr;j++){out.push(new Array(nc).fill(0));uns.push(new Array(nc).fill(0));for(let i=0;i<nc;i++){const v=f[j][i],L=loc(i,j),r=v.q/Math.max(0.2,L.q),t=v.V/L.V;v.L=L;v.r=r;v.t=t;
+    if(r<0.5&&(v.V<120||v.q<0.22||v.q<0.45&&v.ln<0.06)){ // 亮的棋子（白子）几乎没有颜色；反光的木头还是有一点颜色。黑还是白：很亮一定是白子、很暗一定是黑子；中间的和附近的棋盘比（有影子、有反光都照顾到）
+      const w=v.V>=165&&t>0.9?true:v.V<110?false:t>=1.15;out[j][i]=w?2:1;if(v.V>=110&&v.V<165&&t>0.95&&t<1.35)uns[j][i]=1}
+    if(r>0.35&&r<0.65||v.V>=120&&v.q>0.15&&v.q<0.45&&r<0.65&&v.ln>0.03&&v.ln<0.1)uns[j][i]=1}}
+  // 棋子没放正：空的交叉点，旁边 0.35 格的地方有一颗棋子，而那一边的交叉点是空的 → 算这一点，标成没把握让人看
+  for(let j=0;j<nr;j++)for(let i=0;i<nc;i++){if(out[j][i])continue;const s=picStepAt(i,j),L=f[j][i].L;let best=null;
+    for(const[di,dj]of[[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,b=j+dj;if(a>=0&&b>=0&&a<nc&&b<nr&&out[b][a])continue;const[oi,oj]=off(i,j),[x,y]=picPt(i+oi+di*.35,j+oj+dj*.35),v=samp(x,y,s*.22);if(!v)continue;
+      const q=((v.c[0]-1/3)*un[0]+(v.c[1]-1/3)*un[1]+(v.c[2]-1/3)*un[2])/pb,r=q/Math.max(0.2,L.q);if(r<0.3&&(v.V<120||q<0.15)&&(!best||r<best.r))best={r,v}}
+    if(best){const t=best.v.V/L.V;out[j][i]=best.v.V>=165&&t>0.9?2:best.v.V<110?1:t>=1.15?2:1;uns[j][i]=1}}
+  P.stones=out;P.unsure=uns;P.feat=f;return true}
 
 /* ===================== 线上对弈：邀请链接、计时、大厅、等级分 =====================
    对局：games/og_<id>/layers/state（sgf 栏位放 JSON）

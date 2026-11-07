@@ -47,7 +47,7 @@ service cloud.firestore {
       allow get: if signed();
       allow list: if false;
       allow create, update: if isTeacher();
-      allow delete: if false;
+      allow delete: if isTeacher(); // 改用户名、永久删除后，旧用户名可以再用
     }
     // 学生：在哪些班、每班的纪录文件
     match /students/{sid} {
@@ -86,7 +86,7 @@ service cloud.firestore {
           && (name != 'meta' || request.resource.data.get('owner', null) == request.auth.uid);
         // 学生纪录（u_…）和学生分享给老师的练习册（u_…_b_…）：老师，或学生自己的
         allow create, update: if signed() && small() && gid.matches('cls_.*') && !teacherDoc(name)
-          && (ownsClass(gid) || (inClass(gid) && (stu().get('docs', {}).get(gid, '') == name
+          && (ownsClass(gid) || isAdmin() || (inClass(gid) && (stu().get('docs', {}).get(gid, '') == name
               || (stu().get('docs', {}).get(gid, '') != '' && name.matches(stu().get('docs', {}).get(gid, '') + '_b_.*')))));
         allow delete: if false;
       }

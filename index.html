@@ -449,6 +449,10 @@ body.pick #undoBtn,body.pick #redoBtn,body.pick #saveBtn,body.pick #shareBtn{dis
 .tsdot{display:inline-block;min-width:1.4em;padding:0 5px;border-radius:999px;background:#C0392B;color:#fff;font-size:.75rem;line-height:1.4em;text-align:center}
 .tsaud{display:flex;flex-direction:column;gap:8px}.tsauditem{display:flex;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--panel);flex-wrap:wrap}
 .tsauddia{flex:none;width:170px}.tsauddia svg{width:170px;height:auto;border-radius:4px}.tsaudtx{flex:1;min-width:12em}
+.au-force{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.au-fbox{background:var(--panel);color:var(--ink);border-radius:14px;padding:18px;width:min(380px,100%);display:flex;flex-direction:column;gap:8px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.au-fbox input{height:40px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:var(--bg);color:var(--ink);font-size:1rem}
+.tsmg{display:flex;flex-direction:column;gap:6px;padding:6px 0}.tsmg .row{align-items:center}.tsmg input{height:34px}
 </style>
 
 <div class="app">
@@ -1887,6 +1891,42 @@ const EN={
 ,"，{0} 题会移出棋盘，没有移":", {0} would move off the board and were skipped"
 ,"KataGo 用不了（{0}），只用 GNU Go 判断，结果都要人看。":"KataGo unavailable ({0}); using GNU Go only, so every result needs a human check."
 ,"{0}：{1}{2}（活棋 {3}%）":"{0}: {1} {2} (alive {3}%)","GNU Go：{0}{1}":"GNU Go: {0} {1}"
+,"{0} 回到班里了":"{0} is back in the class"
+,"两次输入的密码不一样":"The two passwords are different"
+,"再点一次确认永久删除（不能恢复）":"Tap again to delete permanently (cannot be undone)"
+,"再点一次确认（旧的用户名和密码会失效）":"Tap again to confirm (the old username and password will stop working)"
+,"再输入一次":"Type it again"
+,"剪开发给学生。第一次登录要先改成自己的密码。":"Cut out and give to students. On first sign-in they must change to their own password."
+,"只有管理员能永久删除":"Only the admin can delete permanently"
+,"名字改好了":"Name changed"
+,"学生的用户名":"Student username"
+,"学生第一次登录要改成自己的。":"Students must change it on first sign-in."
+,"已永久删除":"Deleted permanently"
+,"已移出的学生":"Removed students"
+,"已经没有在任何一班。":"Not in any class."
+,"恢复":"Restore"
+,"找不到这位学生":"Student not found"
+,"找不到这位学生在这班的纪录":"No record of this student in this class"
+,"找学生（永久删除纪录）":"Find a student (delete records permanently)"
+,"改名字":"Rename"
+,"改好了，继续":"Done, continue"
+,"改用户名并打印登录卡":"Change username & print card"
+,"改用户名或重发密码后，旧的登录卡马上失效，做题纪录照旧。学生第一次登录要先改成自己的密码。":"After changing the username or reissuing the password, the old card stops working; records stay. Students must change the password on first sign-in."
+,"新密码":"New password"
+,"新用户名":"New username"
+,"查找":"Search"
+,"永久删除":"Delete permanently"
+,"永久删除这班的纪录":"Delete records in this class"
+,"永久删除：清掉这位学生在这班的全部纪录，不能恢复；没有别班了，账号也会停用。":"Delete permanently: erases all of this student's records in this class and cannot be undone; if they have no other class, the account is closed too."
+,"用户名只能用英文字母、数字、. _ -":"Usernames can only use letters, digits, . _ -"
+,"用户名改好了，请把新的登录卡给 {0}":"Username changed. Give the new card to {0}"
+,"移出班级：学生和纪录先藏起来，之后可以恢复。":"Remove from class: hides the student and records; can be restored later."
+,"老师给的密码大家都一样，别人也可能知道。改好才能继续。":"The password from your teacher is shared and others may know it. Change it to continue."
+,"请先改成你自己的密码":"Please set your own password first"
+,"请换一个和老师给的不一样的密码":"Choose a password different from the one your teacher gave"
+,"请输入名字":"Enter a name"
+,"预设密码":"Default password"
+,"（已删除）":"(deleted)"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -3838,7 +3878,7 @@ function render(){
   // 棋子
   for(let y=0;y<n;y++)for(let x=0;x<n;x++){const c=st.g[y][x];if(!c)continue;
     o+=`<circle cx="${X(x)}" cy="${X(y)}" r="${U*0.48}" fill="url(#${c===1?'gB':'gW'})" ${c===2?'stroke="#8f8b84" stroke-width="1"':''}/>`;
-    if(showNums&&st.nums.has(y*n+x)&&(!numRange||(st.nums.get(y*n+x)>=numRange[0]&&st.nums.get(y*n+x)<=numRange[1]))){const num=st.nums.get(y*n+x);o+=`<text x="${X(x)}" y="${X(y)}" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono,ui-monospace,monospace" font-size="${num>99?13:16}" fill="${c===1?'#f2f2f2':'#1a1a1a'}">${num}</text>`}
+    if((showNums||!exporting&&typeof tsNumsOn==='function'&&tsNumsOn())&&st.nums.has(y*n+x)&&(!numRange||(st.nums.get(y*n+x)>=numRange[0]&&st.nums.get(y*n+x)<=numRange[1]))){const num=st.nums.get(y*n+x);o+=`<text x="${X(x)}" y="${X(y)}" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono,ui-monospace,monospace" font-size="${num>99?13:16}" fill="${c===1?'#f2f2f2':'#1a1a1a'}">${num}</text>`}
   }
   // 数子：死子变淡，各方的地画小方块
   if(scoring){
@@ -3859,7 +3899,7 @@ function render(){
   if(aiHint&&!train&&!scoring&&!exporting)o+=aiOverlay(n,X);
   if(!exporting)o+=revOverlay(n,X)+tsOverlay(n,X);
   // 最后一手
-  if(!scoring&&!judging&&!(typeof revVar!=='undefined'&&revVar)&&!(typeof ts!=='undefined'&&ts&&ts.refPath)&&st.last&&!st.last.pass&&!(showNums&&st.nums.has(st.last.y*n+st.last.x))){const c=st.last.color==='B';o+=`<circle cx="${X(st.last.x)}" cy="${X(st.last.y)}" r="${U*0.2}" fill="none" stroke="${c?'#ffffff':'#1a1a1a'}" stroke-width="2.5"/>`}
+  if(!scoring&&!judging&&!(typeof revVar!=='undefined'&&revVar)&&!(typeof ts!=='undefined'&&ts&&ts.refPath)&&st.last&&!st.last.pass&&!((showNums||!exporting&&typeof tsNumsOn==='function'&&tsNumsOn())&&st.nums.has(st.last.y*n+st.last.x))){const c=st.last.color==='B';o+=`<circle cx="${X(st.last.x)}" cy="${X(st.last.y)}" r="${U*0.2}" fill="none" stroke="${c?'#ffffff':'#1a1a1a'}" stroke-width="2.5"/>`}
   // 好手 / 恶手：在这一手的棋子右上角画小标
   {const a=annoOf(cur),mv=moveOf(cur),xy=mv&&ptToXY(mv[1],n);
     if(a&&xy){const bx=X(xy[0])+U*0.38,by=X(xy[1])-U*0.38,w=a.sym.length>1?U*0.74:U*0.52;
@@ -6078,10 +6118,10 @@ const TsCloud={
 };
 const tsUserDoc=async name=>'u_'+(await tsHash('name:'+name)).slice(0,16);
 async function tsRefreshCloud(){const L=tsLogin();if(!L){tsCloud=null;return}
-  try{const all=await TsCloud.list(L.cls);tsCloud={meta:all.meta||{},books:{},users:{},shared:{},certArt:(all.x_certart&&all.x_certart.certArt)||null};
+  try{const all=await TsCloud.list(L.cls);tsCloud={meta:all.meta||{},books:{},users:{},shared:{},removed:{},certArt:(all.x_certart&&all.x_certart.certArt)||null};
     tsCloud.fixes={};for(const k in all){if(k.startsWith('x_'))tsCloud.fixes[k.slice(2)]=all[k].fix||{};if(k.startsWith('b_')&&!all[k].removed)tsCloud.books[k.slice(2)]={...all[k],id:k.slice(2),cloud:true};
       if(/^u_[^_]+_b_/.test(k)){if(!all[k].removed){const u=all[k.slice(0,k.indexOf('_b_'))]||{};tsCloud.shared[k]={...all[k],id:k,ro:true,shared:true,title:(u.name||all[k].owner||'')+' · '+(all[k].title||'')}}continue}
-      if(k.startsWith('u_')&&!all[k].removed)tsCloud.users[k]=all[k]}
+      if(k.startsWith('u_')&&!all[k].removed)tsCloud.users[k]=all[k];if(k.startsWith('u_')&&all[k].removed&&!all[k].deleted)tsCloud.removed[k]=all[k]}
     tsCloud.tree=tsTreeFix(all.f_tree);
     if(L.role==='student'){const me=tsCloud.users[L.doc];if(me){if(me.wrong&&typeof me.wrong==='object')tsStore.wrong={...me.wrong,...(tsStore.wrong||{})};L.pts=me.pts||0;tsStore.login=L;tsSave()}}
   }catch(e){tsMsg=T('连不上班级资料：{0}',e.message)}}
@@ -6391,7 +6431,7 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
     const cls=ts.solved?'ok':ts.msg&&!ts.shown&&!ts.noAuto?'no':'';
     if(ts.failView&&!ts.solved)h+=`<div class="tsfail"><b>✘ ${T('失败图')}</b><p>${tsE(ts.msg)}</p>${ts.over?'':`<div class="row" style="align-items:center"><button class="btn pri" data-a="redo">${T('再试一次')}</button><span class="note" style="margin:0">${T('也可以直接点棋盘重新下')}</span></div>`}</div>`;else
     h+=`<p class="big ${cls}">${ts.solved?T('答对了！')+' '+tsE(ts.msg)+(ts.gained?' '+T('+{0} 分',ts.gained):''):ts.busy?T('对方应…'):tsE(ts.msg||T('在棋盘上点出你的答案。'))}</p>`;
-    if(!ts.quiz)h+=`<div class="row"><button class="btn" data-a="trial"${ts.busy?' disabled':''}>${T('试下')}</button><button class="btn" data-a="redo">${T('重做')}</button><button class="btn" data-a="show"${ts.solved?' disabled':''}>${T('看答案')}</button>${ts.solved||ts.shown?'':`<button class="btn" data-a="cardview">📖 ${T('看本题解说')}</button>`}<button class="btn" data-a="prev"${ts.idx<=0?' disabled':''}>${T('上一题')}</button><button class="btn pri" data-a="next"${!b||ts.idx>=b.problems.length-1?' disabled':''}>${T('下一题')}</button>${tsCanEdit(b)?`<button class="btn" data-a="editp">${T('修改这题')}</button><button class="btn warn" data-a="delp">${T('删除这题')}</button>`:''}${L&&L.role==='student'?`<button class="btn" data-a="report">${T('这题有问题')}</button>`:''}${(ts.solved||ts.shown)?`<button class="btn" data-a="vview">${T('看解说')}</button><button class="btn" data-a="back">${T('回练习册')}</button><button class="btn" data-a="gohome">🏠 ${T('回主页')}</button>`:''}${tsCanEdit(b)?`<button class="btn" data-a="aiexp">${T('AI 解说')}</button>`:''}</div>`;
+    if(!ts.quiz)h+=`<div class="row"><button class="btn" data-a="trial"${ts.busy?' disabled':''}>${T('试下')}</button><button class="btn" data-a="redo">${T('重做')}</button><button class="btn" data-a="show"${ts.solved?' disabled':''}>${T('看答案')}</button>${ts.solved||ts.shown?'':`<button class="btn" data-a="cardview">📖 ${T('看本题解说')}</button>`}<button class="btn" data-a="nums" aria-pressed="${tsStore.nums!==false}">${T('显示手数')}</button><button class="btn" data-a="prev"${ts.idx<=0?' disabled':''}>${T('上一题')}</button><button class="btn pri" data-a="next"${!b||ts.idx>=b.problems.length-1?' disabled':''}>${T('下一题')}</button>${tsCanEdit(b)?`<button class="btn" data-a="editp">${T('修改这题')}</button><button class="btn warn" data-a="delp">${T('删除这题')}</button>`:''}${L&&L.role==='student'?`<button class="btn" data-a="report">${T('这题有问题')}</button>`:''}${(ts.solved||ts.shown)?`<button class="btn" data-a="vview">${T('看解说')}</button><button class="btn" data-a="back">${T('回练习册')}</button><button class="btn" data-a="gohome">🏠 ${T('回主页')}</button>`:''}${tsCanEdit(b)?`<button class="btn" data-a="aiexp">${T('AI 解说')}</button>`:''}</div>`;
     if(ts.hwBack)h=h.replace(/<button class="btn( pri)?" data-a="(prev|next)"[^>]*>[^<]*<\/button>/g,''); // 作业中回头看：只能按「继续作业」回去
     if(ts.reporting)h+=`<div class="row"><span>${T('哪里有问题？')}</span>${[['ans',T('答案不对')],['pos',T('题目摆错了')],['hard',T('太难／看不懂')]].map(([w,l])=>`<button class="btn" data-a="sendrep" data-w="${w}">${l}</button>`).join('')}</div>`;
   }else if(tsView==='edit'&&ts){
@@ -6416,16 +6456,15 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
       <b class="sub">${T('接回旧班级（以前用 Google 建立的）')}</b><div class="score-opts"><input id="tsOldCls" placeholder="${T('班级代码')}" maxlength="8" style="width:8em;text-transform:uppercase"><button class="btn" data-a="oldcls">${T('接回')}</button></div>`;
   }else if(tsView==='acct'){
     const us=tsCloud?Object.entries(tsCloud.users).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name))):[];
-    h=top+`<b class="sub">${T('{0} 的学生账号',tsE(L.clsName||''))}</b><div style="overflow-x:auto"><table class="score-t"><thead><tr><th>${T('名字')}</th><th>${T('用户名')}</th><th></th></tr></thead><tbody>`+
-      us.map(([d,u])=>`<tr><td style="text-align:left">${tsE(u.name)}</td><td>${u.username?`<code>${tsE(u.username)}</code>`:`<span class="note">${T('旧纪录，还没有账号')}</span>`}</td><td>${u.username?`<button class="btn" data-a="reissue" data-d="${d}">${T('重发密码')}</button>`:''}</td></tr>`).join('')+`</tbody></table></div>
+    h=top+tsAcctTable(L,us)+`
       <b class="sub">${T('建立学生账号')}</b><p class="note" style="margin:0">${T('一行一个名字。名字和旧纪录一样的，会自动接上旧纪录。用户名会自动产生，也可以写「名字,用户名」。')}</p>
-      <textarea id="tsNewStu" rows="5" style="width:100%" placeholder="${T('例如：\n陈小明\n林阿华,ahua')}"></textarea><div class="row"><button class="btn pri" data-a="mkstu">${T('建立并打印登录卡')}</button><label class="btn" style="cursor:pointer">${T('从 Excel / CSV 导入名单')}<input type="file" id="tsStuFile" accept=".xlsx,.csv,.txt" hidden></label></div><p class="note" style="margin:0">${T('Excel 第一栏写名字，第二栏写用户名（可以空着）。导入后先检查一下，再按「建立并打印登录卡」。')}</p>
+      <textarea id="tsNewStu" rows="5" style="width:100%" placeholder="${T('例如：\n陈小明\n林阿华,ahua')}"></textarea><div class="row" style="align-items:center"><span>${T('预设密码')}</span><input id="tsNewPw" value="${AUTH_DEF_PW}" style="width:9em" autocomplete="off"><span class="note" style="margin:0">${T('学生第一次登录要改成自己的。')}</span></div><div class="row"><button class="btn pri" data-a="mkstu">${T('建立并打印登录卡')}</button><label class="btn" style="cursor:pointer">${T('从 Excel / CSV 导入名单')}<input type="file" id="tsStuFile" accept=".xlsx,.csv,.txt" hidden></label></div><p class="note" style="margin:0">${T('Excel 第一栏写名字，第二栏写用户名（可以空着）。导入后先检查一下，再按「建立并打印登录卡」。')}</p>
       <b class="sub">${T('加入别班的学生')}</b><div class="score-opts"><input id="tsExUser" placeholder="${T('他的用户名')}" style="width:10em" autocapitalize="off"><button class="btn" data-a="addstu">${T('加入这班')}</button></div>`;
   }else if(tsView==='admin'){
     if(!tsAdminList){tsAdminList='loading';authPending().then(x=>{tsAdminList=x;renderTs()}).catch(e=>{tsAdminList=[];tsMsg=e.message;renderTs()})}
     const pl=Array.isArray(tsAdminList)?tsAdminList:[];
     h=top+`<b class="sub">${T('等待批准的老师')}</b>`+(tsAdminList==='loading'?`<p class="note">${T('读取中…')}</p>`:pl.length?`<div style="overflow-x:auto"><table class="score-t"><tbody>${pl.map(x=>`<tr><td style="text-align:left">${tsE(x.name||'')}<br><span class="note">${tsE(x.email||'')}</span></td><td>${new Date(x.created||0).toLocaleDateString()}</td><td><button class="btn pri" data-a="approve" data-u="${x.uid}">${T('批准')}</button><button class="btn warn" data-a="deny" data-u="${x.uid}">${T('拒绝')}</button></td></tr>`).join('')}</tbody></table></div>`:`<p class="note">${T('没有等待批准的老师。')}</p>`)+
-      `<div class="row"><button class="btn" data-a="admreload">${T('重新整理')}</button></div>`+tsAdminExtra();
+      `<div class="row"><button class="btn" data-a="admreload">${T('重新整理')}</button></div>`+tsAdminExtra()+tsAdmStuHtml();
     if(!tsReqs.loading&&Date.now()-tsReqs.t>60000)tsReqLoad().then(renderTs);
   }else if(tsView==='audit'){h=tsAuditHtml(top);
   }else if(tsView==='login'){
@@ -6484,8 +6523,16 @@ async function tsAct(e){
     case'swcls':await busy(async()=>{if(L&&L.role==='student')await authStudentEnter('cls_'+t.dataset.c);else await authTeacherEnter(t.dataset.c);tsView='home'});break;
     case'oldcls':await busy(async()=>{const c=$('#tsOldCls').value.toUpperCase().replace(/[^A-Z0-9]/g,''),m=await TsCloud.meta(c);if(!m)throw new Error(T('找不到这个班级代码'));if(m.owner&&m.owner!==acct.uid)throw new Error(T('这个班级不是用你这个账号建立的'));if(!m.owner){const mm={...m};delete mm.owner;delete mm.th;await TsCloud.set(c,'meta',mm,{owner:acct.uid})}await authAddClass(c);tsView='home';tsMsg=T('已接回班级 {0}',m.name||c)});break;
     case'mkstu':await busy(async()=>{const rows=$('#tsNewStu').value.split(/\n/).map(x=>x.split(/[,，]/)).filter(x=>x[0]&&x[0].trim()).map(x=>({name:x[0].trim(),user:(x[1]||'').trim()}));if(!rows.length)throw new Error(T('请输入学生名字'));
-      const cards=await authCreateStudents(rows);authPrintCards(cards);tsMsg=T('建立了 {0} 个账号',cards.length)});break;
-    case'reissue':armed(t,T('再点一次确认（旧密码会失效）'),async()=>{await busy(async()=>{const c=await authReissue(t.dataset.d);authPrintCards([c]);tsMsg=T('已重发 {0} 的登录资料',c.name)})});break;
+      const cards=await authCreateStudents(rows,($('#tsNewPw')||{}).value);authPrintCards(cards);tsMsg=T('建立了 {0} 个账号',cards.length)});break;
+    case'reissue':armed(t,T('再点一次确认（旧密码会失效）'),async()=>{await busy(async()=>{const c=await authReissue(t.dataset.d,($('#tsMgPw')||{}).value);authPrintCards([c]);tsMsg=T('已重发 {0} 的登录资料',c.name)})});break;
+    case'stumg':tsAcctOpen=tsAcctOpen===t.dataset.d?null:t.dataset.d;renderTs();break;
+    case'stuname':await busy(async()=>{await authRename(t.dataset.d,($('#tsMgName')||{}).value);tsMsg=T('名字改好了')});break;
+    case'stuuser':armed(t,T('再点一次确认（旧的用户名和密码会失效）'),async()=>{await busy(async()=>{const c=await authChangeUser(t.dataset.d,($('#tsMgUser')||{}).value,($('#tsMgPw')||{}).value);authPrintCards([c]);tsMsg=T('用户名改好了，请把新的登录卡给 {0}',c.name)})});break;
+    case'unrm':await busy(async()=>{const u=tsCloud.removed[t.dataset.d];if(!u)return;delete u.removed;await TsCloud.set(L.cls,t.dataset.d,u);await tsRefreshCloud();tsMsg=T('{0} 回到班里了',u.name)});break;
+    case'studel':armed(t,T('再点一次确认永久删除（不能恢复）'),async()=>{await busy(async()=>{const u=tsCloud.users[t.dataset.d]||tsCloud.removed[t.dataset.d];await authStuDelete(u&&u.sid,'cls_'+L.cls,t.dataset.d);tsAcctOpen=null;tsMsg=T('已永久删除')})});break;
+    case'admfind':await busy(async()=>{tsAdmFound=await authFindStudent(($('#tsAdmUser')||{}).value)});break;
+    case'admdel':armed(t,T('再点一次确认永久删除（不能恢复）'),async()=>{await busy(async()=>{await authStuDelete(t.dataset.sid,t.dataset.g);tsAdmFound=await authFindStudent(tsAdmFound.username).catch(()=>null);tsMsg=T('已永久删除')})});break;
+    case'nums':tsStore.nums=tsStore.nums===false;tsSave();render();renderTs();break;
     case'addstu':await busy(async()=>{const nm=await authAddExisting($('#tsExUser').value);tsMsg=T('{0} 已加入这班',nm)});break;
     case'home':tsView='home';tsPreview=null;renderTs();break;
     case'fold':tsFold=t.dataset.f||null;renderTs();break;
@@ -7241,6 +7288,26 @@ function tsAudItemHtml(b,it){const p=b&&b.problems.find(x=>x.id===it.pid);let di
   return`<div class="tsauditem"><div class="tsauddia">${dia}</div><div class="tsaudtx"><b>${T('第 {0} 题',i+1)}</b> ${tsE(it.title||'')}<br>${what}<br><span class="note">${tsE(it.why||'')}${it.note?'<br>'+tsE(it.note):''}${it.path.length?'<br>'+T('图上的数字是这条变化的手顺。'):''}</span>
     <div class="row">${btns}<button class="btn" data-a="audno" data-k="${it.id}">${it.kind==='nosol'?T('知道了'):T('不接受')}</button>${p?`<button class="btn" data-a="audopen" data-k="${it.id}">${T('打开修改')}</button>`:''}</div></div></div>`}
 function tsAdmBtn(){const n=tsAdminCount();return`<button class="btn" data-a="admin">${T('管理')}${n?` <span class="tsdot">${n}</span>`:''}</button>`}
+
+/* ---- 学生账号页：每位学生旁边的「管理」 ---- */
+let tsAcctOpen=null,tsAdmFound=null;
+function tsAcctTable(L,us){const adm=tsIsAdm(),rm=Object.entries((tsCloud&&tsCloud.removed)||{});
+  let h=`<b class="sub">${T('{0} 的学生账号',tsE(L.clsName||''))}</b><div style="overflow-x:auto"><table class="score-t"><thead><tr><th>${T('名字')}</th><th>${T('用户名')}</th><th></th></tr></thead><tbody>`;
+  for(const[d,u]of us){h+=`<tr><td style="text-align:left">${tsE(u.name)}</td><td>${u.username?`<code>${tsE(u.username)}</code>`:`<span class="note">${T('旧纪录，还没有账号')}</span>`}</td><td><button class="btn${tsAcctOpen===d?' pri':''}" data-a="stumg" data-d="${d}">${T('管理')}</button></td></tr>`;
+    if(tsAcctOpen===d)h+=`<tr><td colspan="3" style="text-align:left"><div class="tsmg">
+      <div class="row"><span>${T('名字')}</span><input id="tsMgName" value="${tsE(u.name)}" maxlength="30" style="width:10em"><button class="btn" data-a="stuname" data-d="${d}">${T('改名字')}</button></div>
+      ${u.username?`<div class="row"><span>${T('新用户名')}</span><input id="tsMgUser" placeholder="${tsE(u.username)}" autocapitalize="off" style="width:10em"><button class="btn" data-a="stuuser" data-d="${d}">${T('改用户名并打印登录卡')}</button></div>
+      <div class="row"><span>${T('新密码')}</span><input id="tsMgPw" value="${AUTH_DEF_PW}" autocomplete="off" style="width:10em"><button class="btn" data-a="reissue" data-d="${d}">${T('重发密码')}</button></div>
+      <p class="note" style="margin:0">${T('改用户名或重发密码后，旧的登录卡马上失效，做题纪录照旧。学生第一次登录要先改成自己的密码。')}</p>`:''}
+      <div class="row"><button class="btn warn" data-a="remove" data-d="${d}">${T('移出班级')}</button>${adm?`<button class="btn warn" data-a="studel" data-d="${d}">${T('永久删除')}</button>`:''}</div>
+      <p class="note" style="margin:0">${T('移出班级：学生和纪录先藏起来，之后可以恢复。')}${adm?' '+T('永久删除：清掉这位学生在这班的全部纪录，不能恢复；没有别班了，账号也会停用。'):''}</p></div></td></tr>`}
+  h+=`</tbody></table></div>`;
+  if(rm.length)h+=`<b class="sub">${T('已移出的学生')}</b><div style="overflow-x:auto"><table class="score-t"><tbody>${rm.map(([d,u])=>`<tr><td style="text-align:left">${tsE(u.name)}</td><td>${u.username?`<code>${tsE(u.username)}</code>`:''}</td><td><button class="btn" data-a="unrm" data-d="${d}">${T('恢复')}</button>${adm?`<button class="btn warn" data-a="studel" data-d="${d}">${T('永久删除')}</button>`:''}</td></tr>`).join('')}</tbody></table></div>`;
+  return h}
+function tsAdmStuHtml(){let h=`<b class="sub">${T('找学生（永久删除纪录）')}</b><div class="score-opts"><input id="tsAdmUser" placeholder="${T('学生的用户名')}" autocapitalize="off" style="width:10em" value="${tsAdmFound?tsE(tsAdmFound.username||''):''}"><button class="btn" data-a="admfind">${T('查找')}</button></div>`;
+  const f=tsAdmFound;if(f)h+=`<p style="margin:4px 0"><b>${tsE(f.name)}</b> · <code>${tsE(f.username||'')}</code></p>`+(f.cls.length?f.cls.map(c=>`<div class="row" style="align-items:center"><span>${tsE(c.name)}</span><button class="btn warn" data-a="admdel" data-sid="${f.sid}" data-g="${c.gid}">${T('永久删除这班的纪录')}</button></div>`).join(''):`<p class="note">${T('已经没有在任何一班。')}</p>`);
+  return h}
+const tsNumsOn=()=>!!(ts&&!ts.refPath&&tsStore.nums!==false);
 /* ===================== 吃子关卡、限时挑战 ===================== */
 // 小型吃子计算：黑要在 k 手内吃掉目标白棋（t），白尽力逃。棋盘是一维数组：0 空、1 黑、2 白
 const Cap=(()=>{
@@ -7721,7 +7788,7 @@ async function authInit(){ // 打开网页时：之前登录过就接回来；�
     if(old&&old.role==='teacher'&&isT&&!(acct.classes||[]).includes(old.cls)){ // 旧版老师登录的那班：如果是自己建立的，自动接回
       try{const m=await TsCloud.meta(old.cls);if(m&&(!m.owner||m.owner===acct.uid)){if(!m.owner){const mm={...m};delete mm.owner;delete mm.th;await TsCloud.set(old.cls,'meta',mm,{owner:acct.uid})}
         const db=await authDb();await db.collection('accounts').doc(acct.uid).update({classes:firebase.firestore.FieldValue.arrayUnion(old.cls)});await authLoadAcct()}}catch(e){console.warn('claim',e)}}
-    if(isS)await authStudentEnter(tsLogin()&&('cls_'+tsLogin().cls));else if(isT)await authTeacherEnter(tsLogin()&&tsLogin().cls)}catch(e){console.warn('auth',e)}
+    if(isS){await authStudentEnter(tsLogin()&&('cls_'+tsLogin().cls));authForcePw()}else if(isT)await authTeacherEnter(tsLogin()&&tsLogin().cls)}catch(e){console.warn('auth',e)}
   authBodyCls();if(curMode()==='home')renderHome()}
 
 /* ---- 学生 ---- */
@@ -7729,7 +7796,7 @@ async function authStudentLogin(user,pw){
   const u=userKey(user);if(!u||!pw)throw new Error(T('请输入用户名和密码'));const db=await authDb();
   const L=await db.collection('logins').doc(u).get();if(!L.exists)throw new Error(T('没有这个用户名'));
   try{await firebase.auth().signInWithEmailAndPassword(L.data().email,pw)}catch(e){throw new Error(/password|credential/i.test(e.code||'')?T('密码不对'):e.message)}
-  await authLoadAcct();if(!acct||acct.role!=='student')throw new Error(T('这个账号已经停用，请问老师'));prefs.authGuest=false;authSavePrefs();await authStudentEnter()}
+  await authLoadAcct();if(!acct||acct.role!=='student')throw new Error(T('这个账号已经停用，请问老师'));prefs.authGuest=false;authSavePrefs();await authStudentEnter();authForcePw()}
 async function authStudentEnter(gid){ // 学生进入某一班（有好几班时，记住上次那班）
   const db=await authDb(),s=await db.collection('students').doc(acct.sid).get();if(!s.exists)throw new Error(T('找不到学生资料'));const S=s.data();
   const gids=S.gids||[];if(!gids.length){tsStore.login=null;tsSave();return}
@@ -7737,7 +7804,8 @@ async function authStudentEnter(gid){ // 学生进入某一班（有好几班时
   const meta=await TsCloud.meta(cls)||{},doc=(S.docs||{})[g]||('u_'+acct.sid),classes=[];
   for(const x of gids){const m=x===g?meta:(await TsCloud.meta(x.slice(4)))||{};classes.push({cls:x.slice(4),name:m.name||x.slice(4)})}
   tsStore.login={cls,clsName:meta.name||cls,name:S.name,role:'student',doc,sid:acct.sid,username:S.username,classes,pts:0};prefs.lastGid=g;authSavePrefs();tsSave();
-  await tsRefreshCloud();authBodyCls()}
+  await tsRefreshCloud();authBodyCls();
+  const me=tsCloud&&tsCloud.users[doc];if(me&&S.name&&me.name!==S.name)try{me.name=S.name;await TsCloud.set(cls,doc,me)}catch(e){}} // 老师改了名字：自己在每一班的纪录跟着改
 
 /* ---- 老师 ---- */
 async function authTeacherGoogle(name){await Shared.db();const pv=new firebase.auth.GoogleAuthProvider();
@@ -7765,13 +7833,14 @@ const authSavePrefs=()=>{try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs)
 /* ---- 老师建立学生账号（用第二个 Firebase 连线建立，不会把老师登出） ---- */
 let secApp=null;
 async function secAuth(){await Shared.db();if(!secApp){secApp=firebase.apps.find(a=>a.name==='sec')||firebase.initializeApp(FIREBASE_CONFIG,'sec');await secApp.auth().setPersistence(firebase.auth.Auth.Persistence.NONE)}return secApp.auth()}
-const genPw=()=>{const u=new Uint32Array(1);crypto.getRandomValues(u);return String(100000+u[0]%900000)};
+const AUTH_DEF_PW='44334334'; // 老师给的预设密码；学生第一次登录必须改成自己的
+const authPwOk=pw=>{pw=String(pw||'').trim();if(pw.length<6)throw new Error(T('密码至少 6 个字'));return pw};
 async function authFreeUser(base){const db=await authDb();for(let i=0;i<50;i++){const u=userKey(base)+(i?String(i+1):'');if(!(await db.collection('logins').doc(u).get()).exists)return u}throw new Error(T('用户名 {0} 已被用了',base))}
-async function authNewLogin(username,sid,name){ // 建立一个登录（新学生或重发密码）
-  const sa=await secAuth(),pw=genPw(),email=username+'.'+Date.now().toString(36)+'@'+STU_DOMAIN,cr=await sa.createUserWithEmailAndPassword(email,pw),uid=cr.user.uid;await sa.signOut();
-  const db=await authDb();await db.collection('accounts').doc(uid).set({role:'student',sid,name,created:Date.now(),by:acct.uid});
+async function authNewLogin(username,sid,name,pw){ // 建立一个登录（新学生、重发密码、改用户名）
+  pw=authPwOk(pw||AUTH_DEF_PW);const sa=await secAuth(),email=username+'.'+Date.now().toString(36)+'@'+STU_DOMAIN,cr=await sa.createUserWithEmailAndPassword(email,pw),uid=cr.user.uid;await sa.signOut();
+  const db=await authDb();await db.collection('accounts').doc(uid).set({role:'student',sid,name,created:Date.now(),by:acct.uid,mustPw:true});
   await db.collection('logins').doc(username).set({email,sid});return{uid,pw}}
-async function authCreateStudents(rows){ // rows：[{name, user}]，回传登录卡资料
+async function authCreateStudents(rows,pw){ // rows：[{name, user}]，回传登录卡资料
   const L=tsLogin(),db=await authDb(),gid='cls_'+L.cls,out=[];await tsRefreshCloud();
   const existing=tsCloud?Object.entries(tsCloud.users):[];let n=existing.length;
   for(const r of rows){const name=r.name.trim();if(!name)continue;n++;
@@ -7779,14 +7848,14 @@ async function authCreateStudents(rows){ // rows：[{name, user}]，回传登录
     const sid='s'+tsId(12).toLowerCase(),old=existing.find(([d,u])=>u.name===name&&!u.sid); // 同名的旧纪录：接上
     const doc=old?old[0]:'u_'+sid;
     await db.collection('students').doc(sid).set({name,username,gids:[gid],docs:{[gid]:doc},created:Date.now(),by:acct.uid});
-    const{uid,pw}=await authNewLogin(username,sid,name);
-    await db.collection('students').doc(sid).update({uid});
+    const lg=await authNewLogin(username,sid,name,pw);
+    await db.collection('students').doc(sid).update({uid:lg.uid});
     const u=old?old[1]:{name,pts:0,log:{},joined:Date.now()};u.sid=sid;u.username=username;delete u.removed;await TsCloud.set(L.cls,doc,u);
-    out.push({name,username,pw,linked:!!old})}
+    out.push({name,username,pw:lg.pw,linked:!!old})}
   await tsRefreshCloud();return out}
-async function authReissue(doc){ // 学生忘记密码：重发一组登录资料，纪录照旧
+async function authReissue(doc,pw0){ // 学生忘记密码：重发一组登录资料，纪录照旧
   const L=tsLogin(),u=tsCloud.users[doc];if(!u||!u.sid)throw new Error(T('这位学生还没有新账号'));const db=await authDb();
-  const s=(await db.collection('students').doc(u.sid).get()).data(),oldUid=s.uid,{uid,pw}=await authNewLogin(s.username,u.sid,s.name);
+  const s=(await db.collection('students').doc(u.sid).get()).data(),oldUid=s.uid,{uid,pw}=await authNewLogin(s.username,u.sid,s.name,pw0);
   await db.collection('students').doc(u.sid).update({uid});if(oldUid)try{await db.collection('accounts').doc(oldUid).update({role:'revoked'})}catch(e){}
   return{name:s.name,username:s.username,pw}}
 async function authAddExisting(user){ // 别班的学生加入这班（同一个账号，可以在好几班）
@@ -7809,10 +7878,52 @@ async function authQLogin(){ // 打开网页时：如果是扫登录卡来的，
   catch(e){authTab='stu';authMsg=e.message+' · '+T('请输入密码登录');if(curMode()!=='home')goHome();else renderHome();const u=$('#auUser');if(u)u.value=q.u}}
 function authPrintCards(cards){const url=location.origin+location.pathname,E=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),L=tsLogin();
   const h=`<!doctype html><html><head><meta charset="utf-8"><title>${E(T('登录卡'))}</title><style>body{font-family:system-ui,"Microsoft YaHei",sans-serif;margin:16px;background:#fff;color:#222}.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}.c{border:1.5px dashed #888;border-radius:8px;padding:10px 12px;line-height:1.7;break-inside:avoid}.c b{font-size:18px}.c code{font-size:16px;background:#f2f2f2;padding:1px 6px;border-radius:4px}.u{font-size:11px;color:#666;word-break:break-all}@media print{.np{display:none}}.qr{display:flex;align-items:center;gap:8px;margin-top:6px}.qr span{font-size:12px;color:#555}</style></head><body>
-<p class="np"><button onclick="print()">${E(T('打印'))}</button> ${E(T('剪开发给学生。第一次登录后可以自己改密码。'))}</p><div class="g">${cards.map(c=>`<div class="c"><b>${E(c.name)}</b>${c.linked?` <small>${E(T('（已接上旧纪录）'))}</small>`:''}<br>${E(T('班级'))}：${E(L?L.clsName:'')}<br>${E(T('用户名'))}：<code>${E(c.username)}</code><br>${E(T('密码'))}：<code>${E(c.pw)}</code><div class="u">${E(url)}</div><div class="qr">${QR.svg(authQUrl(c.username,c.pw),110)}<span>${E(T('扫一扫就登录'))}</span></div></div>`).join('')}</div></body></html>`;
+<p class="np"><button onclick="print()">${E(T('打印'))}</button> ${E(T('剪开发给学生。第一次登录要先改成自己的密码。'))}</p><div class="g">${cards.map(c=>`<div class="c"><b>${E(c.name)}</b>${c.linked?` <small>${E(T('（已接上旧纪录）'))}</small>`:''}<br>${E(T('班级'))}：${E(L?L.clsName:'')}<br>${E(T('用户名'))}：<code>${E(c.username)}</code><br>${E(T('密码'))}：<code>${E(c.pw)}</code><div class="u">${E(url)}</div><div class="qr">${QR.svg(authQUrl(c.username,c.pw),110)}<span>${E(T('扫一扫就登录'))}</span></div></div>`).join('')}</div></body></html>`;
   const w=window.open('','_blank');if(!w){flash(T('请允许弹出视窗'));return}w.document.open();w.document.write(h);w.document.close()}
 async function authChangePw(pw){if(!pw||pw.length<6)throw new Error(T('密码至少 6 个字'));const u=authUid();if(!u)throw new Error(T('请先登录'));
-  try{await u.updatePassword(pw)}catch(e){throw new Error(/recent/.test(e.code||'')?T('请登出再登入一次，然后马上改密码'):e.message)}}
+  try{await u.updatePassword(pw)}catch(e){throw new Error(/recent/.test(e.code||'')?T('请登出再登入一次，然后马上改密码'):e.message)}
+  if(acct&&acct.mustPw){try{const db=await authDb();await db.collection('accounts').doc(u.uid).update({mustPw:false})}catch(e){}acct.mustPw=false}}
+
+/* ---- 第一次登录（或老师重发密码后）：一定要先改成自己的密码 ---- */
+function authForcePw(){if(!acct||!acct.mustPw||acct.role!=='student'||$('#auForce'))return;
+  const d=document.createElement('div');d.id='auForce';d.className='au-force';
+  d.innerHTML=`<div class="au-fbox"><b>🔒 ${T('请先改成你自己的密码')}</b><p class="note">${T('老师给的密码大家都一样，别人也可能知道。改好才能继续。')}</p>
+    <input type="password" id="auF1" placeholder="${T('新密码（至少 6 个字）')}" autocomplete="new-password"><input type="password" id="auF2" placeholder="${T('再输入一次')}" autocomplete="new-password">
+    <p class="status" id="auFMsg"></p><div class="row"><button class="btn pri" id="auFOk">${T('改好了，继续')}</button><button class="btn" id="auFOut">${T('登出')}</button></div></div>`;
+  document.body.appendChild(d);const msg=t=>{$('#auFMsg').textContent=t};
+  $('#auFOk').onclick=async()=>{const a=$('#auF1').value.trim(),b=$('#auF2').value.trim();
+    if(a!==b)return msg(T('两次输入的密码不一样'));if(a===AUTH_DEF_PW)return msg(T('请换一个和老师给的不一样的密码'));
+    try{await authChangePw(a);d.remove();flash(T('密码改好了'))}catch(e){msg(e.message)}};
+  $('#auFOut').onclick=async()=>{d.remove();await authLogout()}}
+
+/* ---- 老师：改学生名字、改用户名；管理员：永久删除 ---- */
+async function authRename(doc,name){name=String(name||'').trim().slice(0,30);if(!name)throw new Error(T('请输入名字'));
+  const L=tsLogin(),u=tsCloud.users[doc]||(tsCloud.removed||{})[doc];if(!u)throw new Error(T('找不到这位学生'));const db=await authDb();
+  if(u.sid){const s=(await db.collection('students').doc(u.sid).get()).data()||{};await db.collection('students').doc(u.sid).update({name});if(s.uid)try{await db.collection('accounts').doc(s.uid).update({name})}catch(e){}}
+  u.name=name;await TsCloud.set(L.cls,doc,u);await tsRefreshCloud()}
+async function authChangeUser(doc,user,pw){const L=tsLogin(),u=tsCloud.users[doc];if(!u||!u.sid)throw new Error(T('这位学生还没有新账号'));
+  const nu=userKey(user);if(!nu)throw new Error(T('用户名只能用英文字母、数字、. _ -'));const db=await authDb();
+  if((await db.collection('logins').doc(nu).get()).exists)throw new Error(T('用户名 {0} 已被用了',nu));
+  const s=(await db.collection('students').doc(u.sid).get()).data(),oldUid=s.uid,oldUser=s.username,lg=await authNewLogin(nu,u.sid,s.name,pw);
+  await db.collection('students').doc(u.sid).update({uid:lg.uid,username:nu});
+  if(oldUid)try{await db.collection('accounts').doc(oldUid).update({role:'revoked'})}catch(e){}
+  if(oldUser&&oldUser!==nu)try{await db.collection('logins').doc(oldUser).delete()}catch(e){}
+  u.username=nu;await TsCloud.set(L.cls,doc,u);await tsRefreshCloud();return{name:s.name,username:nu,pw:lg.pw}}
+async function authFindStudent(user){const db=await authDb(),lg=await db.collection('logins').doc(userKey(user)).get();if(!lg.exists)throw new Error(T('没有这个用户名'));
+  const sid=lg.data().sid,s=(await db.collection('students').doc(sid).get()).data();if(!s)throw new Error(T('找不到学生资料'));
+  const cls=[];for(const g of s.gids||[]){const m=(await TsCloud.meta(g.slice(4)))||{};cls.push({gid:g,name:m.name||g.slice(4)})}return{sid,name:s.name,username:s.username,cls}}
+async function authStuDelete(sid,gid,doc){ // 管理员：永久删除这位学生在这一班的全部纪录；没有别班了，账号也停用、用户名可以再用
+  if(!tsIsAdm())throw new Error(T('只有管理员能永久删除'));const db=await authDb(),cls=gid.slice(4);let s=null;
+  if(sid){const d=await db.collection('students').doc(sid).get();s=d.exists?d.data():null;if(s&&!doc)doc=(s.docs||{})[gid]}
+  if(!doc)throw new Error(T('找不到这位学生在这班的纪录'));
+  const all=await TsCloud.list(cls);for(const k in all)if(k.startsWith(doc+'_b_'))await TsCloud.set(cls,k,{removed:true});
+  await TsCloud.set(cls,doc,{removed:true,deleted:Date.now(),name:T('（已删除）'),pts:0,log:{}});
+  if(s){const F=firebase.firestore.FieldValue,left=(s.gids||[]).filter(g=>g!==gid);
+    await db.collection('students').doc(sid).update({gids:F.arrayRemove(gid),['docs.'+gid]:F.delete()});
+    if(!left.length){if(s.uid)try{await db.collection('accounts').doc(s.uid).update({role:'revoked'})}catch(e){}
+      if(s.username)try{await db.collection('logins').doc(s.username).delete()}catch(e){}
+      await db.collection('students').doc(sid).update({name:T('（已删除）'),username:'',deleted:Date.now()})}}
+  if(tsLogin()&&tsLogin().cls===cls)await tsRefreshCloud()}
 
 /* ---- 管理员：批准老师 ---- */
 async function authPending(){const db=await authDb(),q=await db.collection('accounts').where('role','==','pending').get();const o=[];q.forEach(d=>o.push({uid:d.id,...d.data()}));return o}

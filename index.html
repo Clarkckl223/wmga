@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#2F6B5A">
+<meta name="theme-color" content="#8EC9EE">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,8 +21,8 @@
 <style>
 /* Layout: board is the page; a quiet side column holds the comment for the current move, then tabs for info / comments / library / files. Stacks to one column on phones. */
 :root{
-  --bg:#EBEEEE; --panel:#FFFFFF; --ink:#1C2326; --muted:#5B666B; --line:#D2D8DA;
-  --accent:#2F6B5A; --accent-ink:#FFFFFF; --accent-soft:#DCEAE4;
+  --bg:#EAF1F7; --panel:#FFFFFF; --ink:#1C2326; --muted:#5B666B; --line:#CFDCE6;
+  --accent:#2B6CB0; --accent-ink:#FFFFFF; --accent-soft:#DCEBF8;
   --wood:#DDB66D; --wood-edge:#C99E4E; --grid:#3A2A14; --danger:#B3402E;
   --f-display:"Noto Serif SC","Songti SC","SimSun",serif;
   --f-body:system-ui,-apple-system,"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
@@ -30,12 +30,12 @@
   --r:10px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#121618; --panel:#1B2124; --ink:#E5EAEC; --muted:#93A1A7; --line:#2D363A;
-  --accent:#6DB59D; --accent-ink:#0E1A16; --accent-soft:#1F3A31;
+  --bg:#10161C; --panel:#18212A; --ink:#E5EAEC; --muted:#93A1A7; --line:#2A3742;
+  --accent:#7AB8E8; --accent-ink:#0B1A26; --accent-soft:#1C3247;
   --wood:#C49A55; --wood-edge:#A87F3C; --grid:#2A1D0C; --danger:#E0745F; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#121618; --panel:#1B2124; --ink:#E5EAEC; --muted:#93A1A7; --line:#2D363A;
-  --accent:#6DB59D; --accent-ink:#0E1A16; --accent-soft:#1F3A31;
+  --bg:#10161C; --panel:#18212A; --ink:#E5EAEC; --muted:#93A1A7; --line:#2A3742;
+  --accent:#7AB8E8; --accent-ink:#0B1A26; --accent-soft:#1C3247;
   --wood:#C49A55; --wood-edge:#A87F3C; --grid:#2A1D0C; --danger:#E0745F; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -72,7 +72,7 @@ body:not([data-mode="play"]) #cgBox{display:none!important}
 .tsview{padding:8px 10px;border-radius:8px;background:var(--accent-soft);min-height:2.6em;line-height:1.6}
 .tsp{position:relative}.tsfix{position:absolute;top:1px;right:3px;font-size:10px;font-style:normal;opacity:.8}
 .tsclock{margin-left:8px;font-size:14px;color:var(--muted)}.tsclock.warn{color:#C0392B;font-weight:700}
-.olplayers{display:flex;gap:8px;flex-wrap:wrap}.olpl{flex:1;min-width:10em;display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--line);border-radius:8px}.olpl.on{border-color:var(--accent,#2F6B5A);box-shadow:0 0 0 2px rgba(47,107,90,.25)}.olclk{margin-left:auto;font-size:15px}.ollist{display:flex;flex-direction:column;gap:4px}.olp{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--line)}.olp span{color:var(--muted)}.olp .btn{margin-left:auto}.olchal{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px;border-radius:8px;background:rgba(47,107,90,.12)}
+.olplayers{display:flex;gap:8px;flex-wrap:wrap}.olpl{flex:1;min-width:10em;display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--line);border-radius:8px}.olpl.on{border-color:var(--accent,#2B6CB0);box-shadow:0 0 0 2px rgba(43,108,176,.25)}.olclk{margin-left:auto;font-size:15px}.ollist{display:flex;flex-direction:column;gap:4px}.olp{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--line)}.olp span{color:var(--muted)}.olp .btn{margin-left:auto}.olchal{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px;border-radius:8px;background:rgba(43,108,176,.12)}
 .picbox{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:10px}.picin{background:var(--bg);color:var(--ink);border-radius:10px;padding:12px;max-width:min(96vw,760px);max-height:94vh;overflow:auto;display:flex;flex-direction:column;gap:8px}.picwrap canvas{max-width:100%;height:auto;display:block;touch-action:manipulation;cursor:crosshair}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 32px}
@@ -363,7 +363,7 @@ body.r-guest #aiToggle,body.r-guest #revToggle,body.r-guest #trainToggle,body.r-
 .authcard{max-width:460px;margin:20px auto;padding:20px}.authcard h2{margin:0 0 12px}.authcard .stack input{height:38px;border:1px solid var(--line);border-radius:6px;padding:0 10px;background:var(--bg);color:var(--ink)}
 /* 主页 */
 .hbrand{display:flex;align-items:center;gap:12px;justify-content:center;margin:18px 0 0}.hbrand b{display:block;font-family:var(--f-display);font-size:1.4rem}.hbrand span{color:var(--muted);font-size:.85rem}
-.hlogo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#1f2a2e,#2F6B5A);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.05rem;letter-spacing:-2px}
+.hlogo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#1c2a3a,#2B6CB0);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.05rem;letter-spacing:-2px}
 .hhero{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:22px 24px;border-radius:16px;background:linear-gradient(120deg,var(--accent-soft),var(--panel));border:1px solid var(--line);margin-top:6px}
 .hgreet{font-family:var(--f-display);font-size:1.6rem;font-weight:700}.hmeta{display:flex;gap:8px;align-items:center;margin-top:6px;color:var(--muted);font-size:.9rem;flex-wrap:wrap}
 .hchip{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:600}.hact{display:flex;gap:8px;flex-wrap:wrap}
@@ -372,7 +372,7 @@ body.r-guest #aiToggle,body.r-guest #revToggle,body.r-guest #trainToggle,body.r-
 .hguest{margin:12px 2px 0}
 .hsec{margin-top:22px}.hsec h3{margin:0 0 10px;font-size:.8rem;letter-spacing:.14em;color:var(--muted);font-weight:600}
 .hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
-.hcard{--c:#2F6B5A;display:flex;align-items:center;gap:14px;padding:16px;border-radius:14px;border:1px solid var(--line);background:var(--panel);text-align:left;cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s}
+.hcard{--c:#2B6CB0;display:flex;align-items:center;gap:14px;padding:16px;border-radius:14px;border:1px solid var(--line);background:var(--panel);text-align:left;cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s}
 .hcard:hover{transform:translateY(-2px);border-color:var(--c);box-shadow:0 6px 18px rgba(0,0,0,.12)}
 .s-play .hcard{--c:#B5452B}.s-class .hcard{--c:#2E5E8A}
 .hic{flex:none;width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;background:color-mix(in srgb,var(--c) 16%,transparent)}
@@ -430,7 +430,7 @@ body.pick #undoBtn,body.pick #redoBtn,body.pick #saveBtn,body.pick #shareBtn{dis
 .tscb p{margin:0 0 8px;font-size:.88rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .tscbtns{display:flex;gap:8px;flex-wrap:wrap}.tscbtns button{flex:1 1 auto;white-space:nowrap;padding:0 12px;min-height:44px;border-radius:12px;font-size:.98rem;font-weight:700;border:0;cursor:pointer;transition:transform .12s,filter .12s;box-shadow:0 2px 0 rgba(0,0,0,.18)}
 .tscbtns button:hover{filter:brightness(1.06)}.tscbtns button:active{transform:scale(.94)}
-.tsc-view{background:#E3EFEA;color:#245A4A}.tsc-retry{background:#FBE9D6;color:#9A4A0C}.tsc-next{background:#2F6B5A;color:#fff}
+.tsc-view{background:#DCEBF8;color:#1E4F86}.tsc-retry{background:#FBE9D6;color:#9A4A0C}.tsc-next{background:#2B6CB0;color:#fff}
 .tscx{position:absolute;top:2px;right:6px;background:none;border:0;font-size:1.1rem;color:var(--muted);cursor:pointer;padding:4px}
 .tscpill{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:6;border-radius:999px;padding:8px 16px;font-weight:700;border:0;box-shadow:0 4px 14px rgba(0,0,0,.3);cursor:pointer;animation:tscIn .3s}
 .tscpill.ok{background:#2E8B57;color:#fff}.tscpill.bad{background:#C0392B;color:#fff}
@@ -440,7 +440,7 @@ body.pick #undoBtn,body.pick #redoBtn,body.pick #saveBtn,body.pick #shareBtn{dis
 @keyframes tscStar{0%{opacity:1;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3)}}
 @media(prefers-reduced-motion:reduce){.tscard,.tscpill,.tscm>*,.tscstar{animation:none!important}}
 /* 文件夹、整理、AI 审题 */
-.tsfold b{color:var(--ink)}.tsfold{background:linear-gradient(180deg,rgba(194,124,14,.10),transparent 60%),var(--panel)}
+.tsfold b{color:var(--ink)}.tsfold{background:linear-gradient(180deg,rgba(142,201,238,.25),transparent 60%),var(--panel)}
 .tscrumb{align-items:center;flex-wrap:wrap}.tscrumb b{margin-left:4px}
 .tsorg{display:flex;flex-direction:column;gap:6px;margin:6px 0}.tsorgr{display:flex;gap:6px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--panel)}
 .tsorgi{font-size:1.1rem}.tsorgname{flex:1;min-width:8em;height:32px;border:1px solid var(--line);border-radius:6px;padding:0 8px;background:var(--bg);color:var(--ink);display:flex;align-items:center}span.tsorgname{border:0;background:none}
@@ -6431,7 +6431,7 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
     const cls=ts.solved?'ok':ts.msg&&!ts.shown&&!ts.noAuto?'no':'';
     if(ts.failView&&!ts.solved)h+=`<div class="tsfail"><b>✘ ${T('失败图')}</b><p>${tsE(ts.msg)}</p>${ts.over?'':`<div class="row" style="align-items:center"><button class="btn pri" data-a="redo">${T('再试一次')}</button><span class="note" style="margin:0">${T('也可以直接点棋盘重新下')}</span></div>`}</div>`;else
     h+=`<p class="big ${cls}">${ts.solved?T('答对了！')+' '+tsE(ts.msg)+(ts.gained?' '+T('+{0} 分',ts.gained):''):ts.busy?T('对方应…'):tsE(ts.msg||T('在棋盘上点出你的答案。'))}</p>`;
-    if(!ts.quiz)h+=`<div class="row"><button class="btn" data-a="trial"${ts.busy?' disabled':''}>${T('试下')}</button><button class="btn" data-a="redo">${T('重做')}</button><button class="btn" data-a="show"${ts.solved?' disabled':''}>${T('看答案')}</button>${ts.solved||ts.shown?'':`<button class="btn" data-a="cardview">📖 ${T('看本题解说')}</button>`}<button class="btn" data-a="nums" aria-pressed="${tsStore.nums!==false}">${T('显示手数')}</button><button class="btn" data-a="prev"${ts.idx<=0?' disabled':''}>${T('上一题')}</button><button class="btn pri" data-a="next"${!b||ts.idx>=b.problems.length-1?' disabled':''}>${T('下一题')}</button>${tsCanEdit(b)?`<button class="btn" data-a="editp">${T('修改这题')}</button><button class="btn warn" data-a="delp">${T('删除这题')}</button>`:''}${L&&L.role==='student'?`<button class="btn" data-a="report">${T('这题有问题')}</button>`:''}${(ts.solved||ts.shown)?`<button class="btn" data-a="vview">${T('看解说')}</button><button class="btn" data-a="back">${T('回练习册')}</button><button class="btn" data-a="gohome">🏠 ${T('回主页')}</button>`:''}${tsCanEdit(b)?`<button class="btn" data-a="aiexp">${T('AI 解说')}</button>`:''}</div>`;
+    if(!ts.quiz)h+=`<div class="row"><button class="btn" data-a="trial"${ts.busy?' disabled':''}>${T('试下')}</button><button class="btn" data-a="redo">${T('重做')}</button><button class="btn" data-a="show"${ts.solved?' disabled':''}>${T('看答案')}</button>${ts.solved||ts.shown?'':`<button class="btn" data-a="cardview">📖 ${T('看本题解说')}</button>`}<button class="btn" data-a="nums" aria-pressed="${tsStore.nums!==false}">${tsStore.nums!==false?'✓ ':''}${T('显示手数')}</button><button class="btn" data-a="prev"${ts.idx<=0?' disabled':''}>${T('上一题')}</button><button class="btn pri" data-a="next"${!b||ts.idx>=b.problems.length-1?' disabled':''}>${T('下一题')}</button>${tsCanEdit(b)?`<button class="btn" data-a="editp">${T('修改这题')}</button><button class="btn warn" data-a="delp">${T('删除这题')}</button>`:''}${L&&L.role==='student'?`<button class="btn" data-a="report">${T('这题有问题')}</button>`:''}${(ts.solved||ts.shown)?`<button class="btn" data-a="vview">${T('看解说')}</button><button class="btn" data-a="back">${T('回练习册')}</button><button class="btn" data-a="gohome">🏠 ${T('回主页')}</button>`:''}${tsCanEdit(b)?`<button class="btn" data-a="aiexp">${T('AI 解说')}</button>`:''}</div>`;
     if(ts.hwBack)h=h.replace(/<button class="btn( pri)?" data-a="(prev|next)"[^>]*>[^<]*<\/button>/g,''); // 作业中回头看：只能按「继续作业」回去
     if(ts.reporting)h+=`<div class="row"><span>${T('哪里有问题？')}</span>${[['ans',T('答案不对')],['pos',T('题目摆错了')],['hard',T('太难／看不懂')]].map(([w,l])=>`<button class="btn" data-a="sendrep" data-w="${w}">${l}</button>`).join('')}</div>`;
   }else if(tsView==='edit'&&ts){
@@ -6980,9 +6980,9 @@ function tsParentReport(doc){const u=tsCloud&&tsCloud.users[doc];if(!u)return;co
   const cert=[u.cert19&&T('19 路 {0}',lvName(u.cert19)),u.cert13&&T('13 路 {0}',lvName(u.cert13))].filter(Boolean).join('、')||T('还没有考');
   const trend=a1==null?T('这段时间还没有复盘纪录。'):a0==null?T('平均每手损失 {0} 目。',a1.toFixed(1)):a1<a0-0.1?T('平均每手损失 {0} 目，比之前 30 天（{1} 目）进步了！',a1.toFixed(1),a0.toFixed(1)):a1>a0+0.1?T('平均每手损失 {0} 目，之前 30 天是 {1} 目，要再加油。',a1.toFixed(1),a0.toFixed(1)):T('平均每手损失 {0} 目，和之前 30 天差不多。',a1.toFixed(1));
   const h=`<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${E(T('{0} 的学习报告',u.name))}</title>
-<style>body{font-family:system-ui,"PingFang SC","Microsoft YaHei",sans-serif;background:#fff;color:#222;max-width:720px;margin:24px auto;padding:0 16px;line-height:1.7}h1{font-size:22px;margin:0}.sub{color:#666}h2{font-size:16px;border-left:4px solid #2F6B5A;padding-left:8px;margin-top:22px}
-.kpi{display:flex;gap:12px;flex-wrap:wrap}.kpi div{flex:1;min-width:140px;border:1px solid #ddd;border-radius:8px;padding:10px}.kpi b{display:block;font-size:22px;color:#2F6B5A}li{margin:4px 0}.note{color:#666;font-size:13px}
-[contenteditable]{border:1px dashed #aaa;border-radius:6px;padding:8px;min-height:70px}@media print{.noprint{display:none}[contenteditable]{border:none}}button{padding:8px 14px;border-radius:6px;border:1px solid #2F6B5A;background:#2F6B5A;color:#fff;cursor:pointer}</style></head><body>
+<style>body{font-family:system-ui,"PingFang SC","Microsoft YaHei",sans-serif;background:#fff;color:#222;max-width:720px;margin:24px auto;padding:0 16px;line-height:1.7}h1{font-size:22px;margin:0}.sub{color:#666}h2{font-size:16px;border-left:4px solid #2B6CB0;padding-left:8px;margin-top:22px}
+.kpi{display:flex;gap:12px;flex-wrap:wrap}.kpi div{flex:1;min-width:140px;border:1px solid #ddd;border-radius:8px;padding:10px}.kpi b{display:block;font-size:22px;color:#2B6CB0}li{margin:4px 0}.note{color:#666;font-size:13px}
+[contenteditable]{border:1px dashed #aaa;border-radius:6px;padding:8px;min-height:70px}@media print{.noprint{display:none}[contenteditable]{border:none}}button{padding:8px 14px;border-radius:6px;border:1px solid #2B6CB0;background:#2B6CB0;color:#fff;cursor:pointer}</style></head><body>
 <h1>${E(T('{0} 的学习报告',u.name))}</h1><div class="sub">${E(ds(from))} ～ ${E(ds(now.getTime()))} · ${E(L.clsName||'')} · ${E(T('老师：{0}',L.name||''))}</div>
 <h2>${E(T('最近 30 天一览'))}</h2><div class="kpi"><div>${E(T('复盘的对局'))}<b>${cur.length}</b></div><div>${E(T('这段时间答对的题'))}<b>${okM}</b><span class="note">${E(T('累计 {0} 题',ok))}</span></div><div>${E(T('棋力认证'))}<b style="font-size:16px">${E(cert)}</b></div></div>
 <h2>${E(T('进步情况'))}</h2><p>${E(trend)}</p><p class="note">${E(T('「每手损失」是 AI 算出来的：每一手比 AI 推荐的下法少了几目，越低表示下得越好。'))}</p>

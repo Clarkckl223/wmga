@@ -6632,6 +6632,9 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
   const sf=$('#tsStuFile');if(sf)sf.onchange=async e=>{const f=e.target.files[0];sf.value='';if(!f)return;try{const L=xlNames(await XL.read(f)),ta=$('#tsNewStu');ta.value=(ta.value.trim()?ta.value.trim()+'\n':'')+L.join('\n');flash(T('读到 {0} 个名字',L.length))}catch(err){flash(T('读不出这个文件：{0}',err.message))}};
   const tib=$('#tsImgB');if(tib)tib.onchange=e=>{const f=e.target.files[0];if(f)picOpen(f,{bookId:tsBookId,fromBook:true});tib.value=''};
   const nn=$('#tsNodeNote');if(nn){ts.noteNode=cur;nn.onfocus=()=>tsSnap();nn.oninput=()=>{if(ts&&ts.noteNode&&ts.noteNode!==G.root)tsNoteSet(ts.noteNode,nn.value)}}
+  const tt=$('#tsTitle');if(tt)tt.oninput=()=>{if(ts)ts.title=tt.value};
+  const tlv=$('#tsLevel');if(tlv)tlv.onchange=()=>{if(ts)ts.level=+tlv.value};
+  const tq=$('#tsQ');if(tq)tq.oninput=()=>{if(ts&&G&&G.root)G.root.props.C=[tq.value||T('黑先')]};
   const tl=$('#tsLimit');if(tl)tl.onchange=()=>{tsStore.limit=tl.value;tsSave()};
   const bt=$('#tsBookTitle');if(bt)bt.onchange=async e=>{const b=tsWork(tsBook(tsBookId));b.title=e.target.value.trim()||b.title;try{await tsSaveBook(b,tsBookG(b)&&tsIsAdm()&&tsScope(b)==='global'?'global':null)}catch(err){tsMsg=err.message}renderTs()};
   const an=$('#tsAutoNx');if(an)an.onchange=()=>{tsStore.autoNext=an.checked;tsSave()};

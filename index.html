@@ -1932,6 +1932,22 @@ const EN={
 ,"自动找角":"Find corners"
 ,"找不到棋盘，请自己点四个角":"Board not found; please tap the four corners"
 ,"；{0} 个没把握（黄色圈），请看一下":"; {0} uncertain (yellow circles), please check"
+,"建议加的失败图":"Suggested failure lines"
+,"建议加成失败图":"Add as failure line"
+,"{0}被吃了":"{0} is captured"
+,"{0}活了":"{0} lives"
+,"这样下不行：对方应 {0} 后，{1}。":"This does not work: after the reply at {0}, {1}."
+,"这样下不行：{0}。":"This does not work: {0}."
+,"{0}：这一手会失败（直觉分数 {1}%）":"{0}: this move fails (intuition {1}%)"
+,"家里电脑的小程序要更新，才能补失败图。":"Update the home PC program to add failure lines."
+,"右键点棋盘，或按 ←":"Right-click the board, or press ←"
+,"删掉这一手":"Delete this move"
+,"复原":"Undo"
+,"电脑：右键或 ← 退一手、→ 前进、↑↓ 换变化、Delete 删掉这一手、Ctrl+Z 复原。":"Computer: right-click or ← to go back, → forward, ↑↓ switch variation, Delete removes this move, Ctrl+Z undo."
+,"再点一次：连后面 {0} 手一起删掉":"Tap again: also deletes the {0} moves after it"
+,"已删掉，按「复原」可以找回来":"Deleted. Press \"Undo\" to bring it back"
+,"再按一次 Delete：连后面 {0} 手一起删掉":"Press Delete again to also delete the {0} moves after it"
+,"电脑：左键放选好的颜色（预设黑子），右键放另一种颜色；同一颜色再点一次就擦掉。Ctrl+Z 复原。":"Computer: left-click places the chosen colour (black by default), right-click the other colour; click the same colour again to erase. Ctrl+Z to undo."
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -4842,7 +4858,7 @@ async function revEvalNodes(nodes,visits,onEach,allow){ // allow：只准下这�
     for(let i=0;i<nodes.length;i+=B){if(rev&&rev.stop)return;
       const chunk=nodes.slice(i,i+B),outs=await AI.run(chunk.map(nd=>AI.itemFor(nd)));
       outs.forEach((o,j)=>{const P=o.policy,a=[];for(let p=0;p<P.length;p++)if(P[p]>0&&(!allow||p===n*n||allow[p]))a.push([p===n*n?-1:p,P[p]]);a.sort((x,y)=>y[1]-x[1]);
-        onEach(i+j,{w:o.winB,l:o.leadB,b:a.slice(0,3).map(x=>x[0]),pv:[a[0]?a[0][0]:-1],own:o.ownB,pp:a[0]?a[0][1]:1})});
+        onEach(i+j,{w:o.winB,l:o.leadB,b:a.slice(0,3).map(x=>x[0]),pv:[a[0]?a[0][0]:-1],own:o.ownB,pp:a[0]?a[0][1]:1,cand:a.slice(0,10)})});
     }
     return;
   }
@@ -4850,7 +4866,8 @@ async function revEvalNodes(nodes,visits,onEach,allow){ // allow：只准下这�
     const nd=nodes[i],it=AI.itemFor(nd),[o]=await AI.run([it]),s=new Search(it);if(allow)s.allow=allow;
     await s.run(Infinity,null,visits);const r=s.results();
     const best=r[0],sg=it.pla===1?1:-1,g2=best&&r[1]&&r[1].N>=2?Math.max(0,(best.leadB-r[1].leadB)*sg):null;
-    onEach(i,{w:best?best.winB:o.winB,l:best?best.leadB:o.leadB,b:r.slice(0,3).map(c=>c.move),pv:best?best.pv.slice(0,10):[-1],own:o.ownB,pp:best?best.P:1,g2});
+    const P=o.policy,cand=[];for(let p=0;p<n*n;p++)if(P[p]>0&&(!allow||allow[p]))cand.push([p,P[p]]);cand.sort((x,y)=>y[1]-x[1]); // 直觉分数最高的几手（AI 审题找「看起来会下的错手」用）
+    onEach(i,{w:best?best.winB:o.winB,l:best?best.leadB:o.leadB,b:r.slice(0,3).map(c=>c.move),pv:best?best.pv.slice(0,10):[-1],own:o.ownB,pp:best?best.P:1,g2,cand:cand.slice(0,10)});
   }
 }
 // 这一手让哪一块棋变死（或让对方的死棋活了）
@@ -6411,17 +6428,19 @@ function tsEditStart(bookId,idx,fromGame){
     r=parseSGF(`(;GM[1]FF[4]SZ[${n}]PL[${nextColor(ts.prevCur||pg.root)}]C[${T('黑先')}])`);if(B.length)r.props.AB=B;if(W.length)r.props.AW=W}
   else r=parseSGF(`(;GM[1]FF[4]SZ[19]PL[B]C[${T('黑先')}])`);
   G={id:'__ts',root:r};cur=r;
+  undoStack=[];redoStack=[];undoUI(); // 复原只管这一题
   Object.assign(ts,{mode:'edit',bookId,idx:old?idx:null,stone:'AB',phase:old?'answer':'setup',title:old?old.title:'',level:old?old.level||2:2});
   tsCrop=null;tsView='edit';document.body.classList.remove('is-ts');tool='play';renderTree();render();renderTs();
 }
-function tsEditClick(x,y){ // 摆题阶段：放黑子 / 白子 / 擦掉；答案阶段：照一般下法记录变化
+function tsEditClick(x,y,right){ // 摆题阶段：左键放选好的颜色（预设黑）、右键放白子，同色再点一次就擦掉；答案阶段：照一般下法记录变化
   const n=sizeOf(root()),pt=xyToPt(x,y),r=G.root;
-  if(ts.phase==='setup'){if(cur!==r){cur=r}
-    const has=k=>(r.props[k]||[]).includes(pt),del=k=>{if(r.props[k]){r.props[k]=r.props[k].filter(v=>v!==pt);if(!r.props[k].length)delete r.props[k]}};
-    const on=ts.stone!=='AE'&&has(ts.stone);del('AB');del('AW');if(ts.stone!=='AE'&&!on)(r.props[ts.stone]=r.props[ts.stone]||[]).push(pt);playSound('stone');render();return true}
+  if(ts.phase==='setup'){if(cur!==r){cur=r}tsSnap();
+    const k=right?(ts.stone==='AW'?'AB':'AW'):ts.stone;
+    const has=q=>(r.props[q]||[]).includes(pt),del=q=>{if(r.props[q]){r.props[q]=r.props[q].filter(v=>v!==pt);if(!r.props[q].length)delete r.props[q]}};
+    const on=k!=='AE'&&has(k);del('AB');del('AW');if(k!=='AE'&&!on)(r.props[k]=r.props[k]||[]).push(pt);playSound('stone');render();return true}
   return false; // 交给一般的落子
 }
-function tsMark(right){const nd=cur;if(nd===G.root)return;const c=tsNote(nd);nd.props.C=[(right?'RIGHT ':'WRONG ')+c];renderTree();render();renderTs();flash(right?T('已标为正解'):T('已标为错误。请在「这一手的说明」写原因，学生下错时会看到。'));if(!right){const i=$('#tsNodeNote');if(i&&!i.value)i.focus()}}
+function tsMark(right){const nd=cur;if(nd===G.root)return;tsSnap();const c=tsNote(nd);nd.props.C=[(right?'RIGHT ':'WRONG ')+c];renderTree();render();renderTs();flash(right?T('已标为正解'):T('已标为错误。请在「这一手的说明」写原因，学生下错时会看到。'));if(!right){const i=$('#tsNodeNote');if(i&&!i.value)i.focus()}}
 function tsKindTag(nd){if(!nd||nd===G.root)return'';const c=(nd.props.C||[''])[0];return TS_RT0.test(c)?`<span class="vk-right">✔ ${T('正解')}</span>`:TS_WR0.test(c)?`<span class="vk-wrong">✘ ${T('错')}</span>`:''}
 function tsEditNoteSync(){ // 出题编辑：走到别的手时，说明框跟着换
   if(!ts||ts.mode!=='edit'||ts.phase!=='answer')return;const row=$('#tsNoteRow'),inp=$('#tsNodeNote');if(!row||!inp)return;ts.noteNode=cur;row.hidden=cur===G.root;
@@ -6554,11 +6573,14 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
     h+=`<div class="score-opts"><label style="flex:1">${T('题目说明')} <input id="tsQ" value="${tsE(tsNote(G.root))}" placeholder="${T('例如：黑先活')}" style="flex:1;min-width:10em"></label></div>`;
     if(setup)h+=`<div class="score-opts"><span class="seg" id="tsStone"><button data-s="AB" aria-pressed="${ts.stone==='AB'}">${T('放黑子')}</button><button data-s="AW" aria-pressed="${ts.stone==='AW'}">${T('放白子')}</button><button data-s="AE" aria-pressed="${ts.stone==='AE'}">${T('擦掉')}</button></span>
       <span class="seg" id="tsFirst"><button data-c="B" aria-pressed="${prop(G.root,'PL')!=='W'}">${T('黑先')}</button><button data-c="W" aria-pressed="${prop(G.root,'PL')==='W'}">${T('白先')}</button></span></div>
+      <p class="note" style="margin:0">${T('电脑：左键放选好的颜色（预设黑子），右键放另一种颜色；同一颜色再点一次就擦掉。Ctrl+Z 复原。')}</p>
       <div class="row" style="align-items:center"><span>${T('整题移动')}</span>${tsShiftBtns('shift')}<span class="note" style="margin:0">${T('图片导入放错角落时用：箭头移一路，斜箭头贴到那个角。答案会一起移。')}</span></div>
       <div class="row"><label class="btn" style="cursor:pointer">${T('从图片导入（截图／照片）')}<input type="file" id="tsImg" accept="image/*" hidden></label></div>
       <div class="row"><button class="btn pri" data-a="toanswer">${T('下一步：摆答案')}</button><button class="btn" data-a="cancel">${T('取消')}</button></div>`;
     else h+=`<div class="score-opts" id="tsNoteRow"${cur===G.root?' hidden':''}><label style="flex:1;display:flex;gap:6px;align-items:center">${T('这一手的说明')} <input id="tsNodeNote" value="${tsE(cur===G.root?'':tsNote(cur))}" placeholder="${T('例如：白 2 断，黑棋不够气')}" style="flex:1;min-width:10em"></label><span id="tsNodeKind">${tsKindTag(cur)}</span></div>
       <p class="note" style="margin:0">${T('错的变化：把对方的应手也摆出来，再按「这条是错的」，并在「这一手的说明」写原因。学生下错时会看到整个失败图和这段说明。')}</p>
+      <div class="row"><button class="btn" data-a="eback" title="${T('右键点棋盘，或按 ←')}">◀ ${T('退一手')}</button><button class="btn" data-a="efwd" title="→">▶</button><button class="btn warn" data-a="edel" title="Delete">✕ ${T('删掉这一手')}</button><button class="btn" data-a="eundo" title="Ctrl+Z">↶ ${T('复原')}</button></div>
+      <p class="note" style="margin:0">${T('电脑：右键或 ← 退一手、→ 前进、↑↓ 换变化、Delete 删掉这一手、Ctrl+Z 复原。')}</p>
       <div class="row" style="align-items:center"><span>${T('整题移动')}</span>${tsShiftBtns('shift')}</div>
       <div class="row"><button class="btn" data-a="right">${T('这条是正解')}</button><button class="btn" data-a="wrongm">${T('这条是错的')}</button><button class="btn" data-a="tostart">${T('回到开头')}</button><button class="btn" data-a="tosetup">${T('回去改棋子')}</button><button class="btn" data-a="aisolve">${T('AI 解答')}</button></div>
       <div class="row"><button class="btn pri" data-a="savep">${T('存进练习册')}</button><button class="btn" data-a="cancel">${T('取消')}</button></div>`;
@@ -6609,7 +6631,7 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
   const ti=$('#tsImg');if(ti)ti.onchange=e=>{const f=e.target.files[0];if(f)picOpen(f);ti.value=''};
   const sf=$('#tsStuFile');if(sf)sf.onchange=async e=>{const f=e.target.files[0];sf.value='';if(!f)return;try{const L=xlNames(await XL.read(f)),ta=$('#tsNewStu');ta.value=(ta.value.trim()?ta.value.trim()+'\n':'')+L.join('\n');flash(T('读到 {0} 个名字',L.length))}catch(err){flash(T('读不出这个文件：{0}',err.message))}};
   const tib=$('#tsImgB');if(tib)tib.onchange=e=>{const f=e.target.files[0];if(f)picOpen(f,{bookId:tsBookId,fromBook:true});tib.value=''};
-  const nn=$('#tsNodeNote');if(nn){ts.noteNode=cur;nn.oninput=()=>{if(ts&&ts.noteNode&&ts.noteNode!==G.root)tsNoteSet(ts.noteNode,nn.value)}}
+  const nn=$('#tsNodeNote');if(nn){ts.noteNode=cur;nn.onfocus=()=>tsSnap();nn.oninput=()=>{if(ts&&ts.noteNode&&ts.noteNode!==G.root)tsNoteSet(ts.noteNode,nn.value)}}
   const tl=$('#tsLimit');if(tl)tl.onchange=()=>{tsStore.limit=tl.value;tsSave()};
   const bt=$('#tsBookTitle');if(bt)bt.onchange=async e=>{const b=tsWork(tsBook(tsBookId));b.title=e.target.value.trim()||b.title;try{await tsSaveBook(b,tsBookG(b)&&tsIsAdm()&&tsScope(b)==='global'?'global':null)}catch(err){tsMsg=err.message}renderTs()};
   const an=$('#tsAutoNx');if(an)an.onchange=()=>{tsStore.autoNext=an.checked;tsSave()};
@@ -6744,6 +6766,10 @@ async function tsAct(e){
     case'toanswer':ts.title=$('#tsTitle').value;ts.level=+$('#tsLevel').value;G.root.props.C=[$('#tsQ').value||T('黑先')];ts.phase='answer';cur=G.root;renderTs();render();break;
     case'tosetup':ts.phase='setup';cur=G.root;renderTs();render();break;
     case'tostart':cur=G.root;render();tsEditNoteSync();break;
+    case'eback':if(cur.parent){cur=cur.parent;render();renderTs()}break;
+    case'efwd':if(cur.children.length){go(cur.children[cur._sel||0]||cur.children[0]);renderTs()}break;
+    case'edel':{const nd=cur;if(nd===G.root)break;let k=0;(function w(z){k++;z.children.forEach(w)})(nd);if(k>1)armed(t,T('再点一次：连后面 {0} 手一起删掉',k-1),()=>tsDelNode());else tsDelNode();break}
+    case'eundo':undo();renderTs();break;
     case'right':tsMark(true);break;
     case'wrongm':tsMark(false);break;
     case'savep':await busy(tsEditSave);break;
@@ -7317,9 +7343,9 @@ async function tsAudKG(fr,n,items,allow,pcOn,visits){ // items：[{path:[fr 里�
       allowMoves:[{player:'B',moves:mv,untilDepth:60},{player:'W',moves:mv,untilDepth:60}],created:Date.now(),
       items:items.map(it=>{const moves=it.path.map(nd=>{const m=moveOf(nd),p=revPt(nd,n);return[m[0],p==null||p<0?'pass':pcGtp(p,n)]});return{moves,turns:[moves.length]}})};
     const o=await tsPcBatch(job);
-    return items.map((it,k)=>{const r=o.out&&o.out[k]&&o.out[k][String(it.path.length)];return r?{own:r.own?pcOwnDec(r.own,n):null,b:r.b||[],pv:r.pv||[]}:null})}
+    return items.map((it,k)=>{const r=o.out&&o.out[k]&&o.out[k][String(it.path.length)];return r?{own:r.own?pcOwnDec(r.own,n):null,b:r.b||[],pv:r.pv||[],cand:r.cand||null}:null})}
   await AI.load();const oldRev=rev;rev=null;G0push(fr);const res=[];
-  try{for(const it of items){const nd=it.path.length?it.path[it.path.length-1]:fr;let r=null;await revEvalNodes([nd],visits,(k,x)=>{r=x},allow);res.push(r?{own:r.own,b:r.b||[],pv:r.pv||[]}:null)}}
+  try{for(const it of items){const nd=it.path.length?it.path[it.path.length-1]:fr;let r=null;await revEvalNodes([nd],visits,(k,x)=>{r=x},allow);res.push(r?{own:r.own,b:r.b||[],pv:r.pv||[],cand:r.cand||null}:null)}}
   finally{G0pop();rev=oldRev}return res}
 async function tsAudGG(r,nd,n,T0,roles){ // GNU Go：这块棋（在 nd 局面）是活（true）还是死（false）；打劫或看不出 = null
   const st=computeState(nd,n),c=roles.def==='B'?1:2,live=T0.find(p=>st.g[(p/n)|0][p%n]===c);if(live==null)return false; // 整块被吃掉了
@@ -7360,7 +7386,20 @@ async function tsAudit(b,onMsg,A){
         if(solv===true&&!inTree){const mv=[];let c=solver;for(const q of(k0.pv&&k0.pv.length?k0.pv:[best]).slice(0,8)){if(q==null||q<0||!allow[q])break;mv.push([c,xyToPt(q%n,(q/n)|0)]);c=c==='B'?'W':'B'}
           if(mv.length){let gv=null;const tmp={props:{[solver]:[bpt]},children:[],parent:r,_tmp:1};r.children.push(tmp);try{gv=await tsAudGG(r,tmp,n,T0,roles)}catch(e){}r.children=r.children.filter(x=>x!==tmp);
             const gw=win(gv);add({kind:'add',path:mv,to:'right',conf:gw===true?'high':'check',why:T('{0}：这一手也能成功',eng)+' · '+(gw==null?T('GNU Go：看不出'):gw?T('GNU Go：同意'):T('GNU Go：不同意'))})}}
-        if(solv===false&&hasRight)add({kind:'nosol',path:[],conf:'check',why:T('{0}：从开头看，好像怎样下都不成功。可能题目摆错了、要打劫，或要吃的不是这块棋。',eng)})}
+        if(solv===false&&hasRight)add({kind:'nosol',path:[],conf:'check',why:T('{0}：从开头看，好像怎样下都不成功。可能题目摆错了、要打劫，或要吃的不是这块棋。',eng)})
+        // 补失败图：题目里的失败图少于 2 条时，找最多 3 个「看起来会下、其实不行」的第一手，摆出对方的正确应法
+        const nWrong=paths.filter(pa=>pa.some(nd=>tsTag(nd)==='wrong')||tsVerdict(pa[pa.length-1])!=='right').length;
+        if(nWrong<2&&solv===true&&!A.noKG){if(!k0.cand)A.note2=T('家里电脑的小程序要更新，才能补失败图。');else{
+          const firsts=new Set(r.children.map(c=>{const m=moveOf(c);return m&&m[0]===solver?m[1]:''})),st=computeState(r,n),opp=solver==='B'?'W':'B';
+          const cs=k0.cand.filter(([q])=>q>=0&&allow[q]&&q!==best&&!st.g[(q/n)|0][q%n]&&!firsts.has(xyToPt(q%n,(q/n)|0))).slice(0,6);
+          if(cs.length){const tmps=cs.map(([q])=>{const t={props:{[solver]:[xyToPt(q%n,(q/n)|0)]},children:[],parent:fr,_tmp:1};fr.children.push(t);return t});let kc=null;
+            try{kc=await tsAudKG(fr,n,tmps.map(t=>({path:[t]})),allow,pcOn,vis)}catch(e){}fr.children=fr.children.filter(x=>!x._tmp);
+            let got=0;if(kc)for(let c=0;c<cs.length&&got<3;c++){const kr2=kc[c];if(!kr2)continue;const w2=win(kvOf(tsOwnS(kr2.own,T0,sgn)));if(w2!==false)continue;
+              const q=cs[c][0],pt=xyToPt(q%n,(q/n)|0),mv=[[solver,pt]];let col=opp;const used=new Set([q]);for(const z of(kr2.pv||[]).slice(0,5)){if(z==null||z<0||!allow[z]||used.has(z)||st.g[(z/n)|0][z%n])break;used.add(z);mv.push([col,xyToPt(z%n,(z/n)|0)]);col=col==='B'?'W':'B'}
+              let gv=null;const tmp={props:{[solver]:[pt]},children:[],parent:r,_tmp:1};r.children.push(tmp);try{gv=await tsAudGG(r,tmp,n,T0,roles)}catch(e){}r.children=r.children.filter(x=>x!==tmp);const gw=win(gv);
+              const dnR=roles.def==='B'?T('黑棋'):T('白棋'),res=roles.def===solver?T('{0}被吃了',dnR):T('{0}活了',dnR),xy1=mv.length>1?ptToXY(mv[1][1],n):null;
+              add({kind:'addw',path:mv,to:'wrong',conf:gw===false?'high':'check',note:xy1?T('这样下不行：对方应 {0} 后，{1}。',pcGtp(xy1[1]*n+xy1[0],n),res):T('这样下不行：{0}。',res),
+                why:T('{0}：这一手会失败（直觉分数 {1}%）',eng,Math.round(cs[c][1]*100))+' · '+(gw==null?T('GNU Go：看不出'):gw===false?T('GNU Go：同意'):T('GNU Go：不同意'))});got++}}}}}
     }finally{G0pop()}
     A.n++;A.t=Date.now();(tsStore.audit=tsStore.audit||{})[b.id]=A;tsSave()}
   return A}
@@ -7375,8 +7414,8 @@ async function tsAudApply(bookId,list){ // list：[{it, to}]
   const b=tsWork(tsBook(bookId)),A=tsStore.audit[bookId];if(!b)return 0;let ch=0;const by={};list.forEach(x=>(by[x.it.pid]=by[x.it.pid]||[]).push(x));
   for(const pid in by){const i=b.problems.findIndex(p=>p.id===pid);if(i<0){by[pid].forEach(x=>x.it.st='gone');continue}const p=b.problems[i],r=parseSGF(p.sgf);tsNormalize(r);let any=false;
     for(const{it,to}of by[pid]){
-      if(it.kind==='add'){let nd=r;for(const[c,pt]of it.path){let x=nd.children.find(y=>{const m=moveOf(y);return m&&m[0]===c&&m[1]===pt});if(!x){x={props:{[c]:[pt]},children:[],parent:nd};nd.children.push(x)}nd=x}
-        if(nd!==r){if(!nd.children.length)tsSetTag(nd,'right',true);any=true}it.st='ok';continue}
+      if(it.kind==='add'||it.kind==='addw'){let nd=r;for(const[c,pt]of it.path){let x=nd.children.find(y=>{const m=moveOf(y);return m&&m[0]===c&&m[1]===pt});if(!x){x={props:{[c]:[pt]},children:[],parent:nd};nd.children.push(x)}nd=x}
+        if(nd!==r){if(!nd.children.length){if(it.kind==='addw')nd.props.C=['WRONG 【AI 审题】'+(it.note||'')];else tsSetTag(nd,'right',true)}any=true}it.st='ok';continue}
       const pa=tsFindPath(r,it.path);if(!pa||!pa.length){it.st='gone';continue}tsSetTag(pa[pa.length-1],to);
       if(to==='right')pa.slice(0,-1).forEach(nd=>{const c=(nd.props.C||[''])[0];if(TS_WR0.test(c)){const v=c.replace(TS_WR0,'').replace(/^\s*[:：]?\s*/,'');if(v)nd.props.C=[v];else delete nd.props.C}});
       any=true;it.st='ok'}
@@ -7384,11 +7423,11 @@ async function tsAudApply(bookId,list){ // list：[{it, to}]
   if(ch)await tsSaveBook(b,tsBookG(b)?'global':null);tsSave();return ch}
 function tsAuditHtml(top){const A=(tsStore.audit||{})[tsAudBook],b=tsBook(tsAudBook);
   let h=top+`<div class="row"><button class="btn" data-a="audback">← ${T('练习册')}</button><b>🔍 ${T('AI 审题结果')}${b?'：'+tsE(b.title):''}</b></div>`;if(!A)return h+`<p class="note">${T('还没有审题结果。')}</p>`;
-  const open=A.items.filter(x=>x.st==='open'),grp=it=>it.kind==='tag'?'tag':it.conf==='high'&&it.kind!=='unclear'&&it.kind!=='nosol'?'high':'check';
+  const open=A.items.filter(x=>x.st==='open'),grp=it=>it.kind==='tag'?'tag':it.kind==='addw'?'addw':it.conf==='high'&&it.kind!=='unclear'&&it.kind!=='nosol'?'high':'check';
   const hi=x=>x.conf==='high'&&x.kind!=='unclear'&&x.kind!=='nosol',nHigh=open.filter(hi).length;
-  h+=`<p class="note" style="margin:0">${T('{0} · {1} · 审了 {2} 题，跳过 {3} 题（不是局部死活题，或找不到要看死活的棋）。待处理 {4} 项。',new Date(A.t).toLocaleString(),tsE(A.eng||''),A.n,A.skip,open.length)}${A.note?' '+tsE(A.note):''}</p>`;
+  h+=`<p class="note" style="margin:0">${T('{0} · {1} · 审了 {2} 题，跳过 {3} 题（不是局部死活题，或找不到要看死活的棋）。待处理 {4} 项。',new Date(A.t).toLocaleString(),tsE(A.eng||''),A.n,A.skip,open.length)}${A.note?' '+tsE(A.note):''}${A.note2?' '+tsE(A.note2):''}</p>`;
   if(nHigh)h+=`<div class="row"><button class="btn pri" data-a="audall">✔ ${T('高把握全部接受（{0} 项）',nHigh)}</button><span class="note" style="margin:0">${T('包括「只补标签」')}</span></div>`;
-  for(const[k,l]of[['check',T('要人看')],['high',T('高把握：两个 AI 都同意')],['tag',T('只补标签：AI 和现在的标记一致')]]){const xs=open.filter(x=>grp(x)===k);if(!xs.length)continue;
+  for(const[k,l]of[['check',T('要人看')],['high',T('高把握：两个 AI 都同意')],['addw',T('建议加的失败图')],['tag',T('只补标签：AI 和现在的标记一致')]]){const xs=open.filter(x=>grp(x)===k);if(!xs.length)continue;
     h+=`<b class="sub">${l}（${xs.length}）</b>`;if(k==='tag'&&xs.length>4&&!tsAudShowTag){h+=`<div class="row"><button class="btn" data-a="audtag">${T('展开')}</button></div>`;continue}
     h+=`<div class="tsaud">${xs.map(it=>tsAudItemHtml(b,it)).join('')}</div>`}
   if(!open.length)h+=`<p class="note">${T('全部处理好了。')}</p>`;return h}
@@ -7396,9 +7435,9 @@ const tsKL=k=>k==='right'?'✔ '+T('正解'):'✘ '+T('失败');
 function tsAudItemHtml(b,it){const p=b&&b.problems.find(x=>x.id===it.pid);let dia='';
   if(p)try{const r=parseSGF(p.sgf),n=sizeOf(r);dia=tsDiagram(r,n,it.path.map(([c,pt])=>{const xy=ptToXY(pt,n);return xy?xy[1]*n+xy[0]:-1}),170)}catch(e){}
   const i=p?b.problems.indexOf(p):it.idx;
-  const what=it.kind==='mark'?`${T('现在')}：${tsKL(it.from)} → ${T('AI 建议')}：<b>${tsKL(it.to)}</b>`:it.kind==='tag'?`${T('补上标签')}：<b>${tsKL(it.to)}</b>`:it.kind==='add'?`<b>${T('AI 找到另一个能成功的第一手，建议加成新的正解')}</b>`:it.kind==='unclear'?`${T('现在')}：${tsKL(it.from)} · <b>${T('两个 AI 意见不一样')}</b>`:`<b>${T('这题可能有问题')}</b>`;
+  const what=it.kind==='mark'?`${T('现在')}：${tsKL(it.from)} → ${T('AI 建议')}：<b>${tsKL(it.to)}</b>`:it.kind==='tag'?`${T('补上标签')}：<b>${tsKL(it.to)}</b>`:it.kind==='add'?`<b>${T('AI 找到另一个能成功的第一手，建议加成新的正解')}</b>`:it.kind==='addw'?`<b>${T('建议加成失败图')}</b>：${tsE(it.note||'')}`:it.kind==='unclear'?`${T('现在')}：${tsKL(it.from)} · <b>${T('两个 AI 意见不一样')}</b>`:`<b>${T('这题可能有问题')}</b>`;
   const btns=it.kind==='unclear'?`<button class="btn" data-a="audset" data-k="${it.id}" data-v="right">${T('标正解')}</button><button class="btn" data-a="audset" data-k="${it.id}" data-v="wrong">${T('标失败')}</button>`:it.kind==='nosol'?'':`<button class="btn pri" data-a="audok" data-k="${it.id}">${T('接受')}</button>`;
-  return`<div class="tsauditem"><div class="tsauddia">${dia}</div><div class="tsaudtx"><b>${T('第 {0} 题',i+1)}</b> ${tsE(it.title||'')}<br>${what}<br><span class="note">${tsE(it.why||'')}${it.note?'<br>'+tsE(it.note):''}${it.path.length?'<br>'+T('图上的数字是这条变化的手顺。'):''}</span>
+  return`<div class="tsauditem"><div class="tsauddia">${dia}</div><div class="tsaudtx"><b>${T('第 {0} 题',i+1)}</b> ${tsE(it.title||'')}<br>${what}<br><span class="note">${tsE(it.why||'')}${it.note&&it.kind!=='addw'?'<br>'+tsE(it.note):''}${it.path.length?'<br>'+T('图上的数字是这条变化的手顺。'):''}</span>
     <div class="row">${btns}<button class="btn" data-a="audno" data-k="${it.id}">${it.kind==='nosol'?T('知道了'):T('不接受')}</button>${p?`<button class="btn" data-a="audopen" data-k="${it.id}">${T('打开修改')}</button>`:''}</div></div></div>`}
 function tsAdmBtn(){const n=tsAdminCount();return`<button class="btn" data-a="admin">${T('管理')}${n?` <span class="tsdot">${n}</span>`:''}</button>`}
 
@@ -7421,6 +7460,18 @@ function tsAdmStuHtml(){let h=`<b class="sub">${T('找学生（永久删除纪�
   const f=tsAdmFound;if(f)h+=`<p style="margin:4px 0"><b>${tsE(f.name)}</b> · <code>${tsE(f.username||'')}</code></p>`+(f.cls.length?f.cls.map(c=>`<div class="row" style="align-items:center"><span>${tsE(c.name)}</span><button class="btn warn" data-a="admdel" data-sid="${f.sid}" data-g="${c.gid}">${T('永久删除这班的纪录')}</button></div>`).join(''):`<p class="note">${T('已经没有在任何一班。')}</p>`);
   return h}
 const tsNumsOn=()=>!!(ts&&!ts.refPath&&tsStore.nums!==false);
+
+/* ---- 出题编辑：退一手、删掉这一手、复原（最多 30 步）、右键 ---- */
+let tsDelArm=null;
+function tsSnap(){snap();if(undoStack.length>30)undoStack.splice(0,undoStack.length-30);undoUI()}
+function tsDelNode(){const nd=cur;if(!nd.parent)return;tsSnap();const p=nd.parent;p.children=p.children.filter(c=>c!==nd);p._sel=0;cur=p;renderTree();render();renderTs();tsEditNoteSync();flash(T('已删掉，按「复原」可以找回来'))}
+(function(){const bd=document.getElementById('board');if(!bd)return;
+  bd.addEventListener('contextmenu',e=>{if(!ts||ts.mode!=='edit')return;e.preventDefault();
+    if(ts.phase==='answer'){if(cur.parent){cur=cur.parent;render();renderTs()}return}
+    const pt=bd.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const p=pt.matrixTransform(bd.getScreenCTM().inverse()),n=sizeOf(root()),x=Math.round((p.x-PAD)/U),y=Math.round((p.y-PAD)/U);
+    if(x>=0&&y>=0&&x<n&&y<n){tsEditClick(x,y,true);renderTs()}});
+  document.addEventListener('keydown',e=>{if(!ts||ts.mode!=='edit'||ts.phase!=='answer'||/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
+    if(e.key==='Delete'&&cur!==G.root){e.preventDefault();let k=0;(function w(z){k++;z.children.forEach(w)})(cur);if(k<=1||tsDelArm&&tsDelArm.nd===cur&&Date.now()-tsDelArm.t<3000){tsDelArm=null;tsDelNode()}else{tsDelArm={nd:cur,t:Date.now()};flash(T('再按一次 Delete：连后面 {0} 手一起删掉',k-1))}}})})();
 /* ===================== 吃子关卡、限时挑战 ===================== */
 // 小型吃子计算：黑要在 k 手内吃掉目标白棋（t），白尽力逃。棋盘是一维数组：0 空、1 黑、2 白
 const Cap=(()=>{

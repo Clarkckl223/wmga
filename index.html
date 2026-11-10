@@ -255,7 +255,8 @@ body.is-training #tree,body.is-training #vars{visibility:hidden}
 .tsbooks{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .tsbook{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:2px;text-align:left;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:10px 12px 14px}
 .tsbook span{font-size:.8rem;color:var(--muted)}.tsbook i{position:absolute;left:0;bottom:0;height:4px;background:#2E8B57}
-.tstable{overflow-x:auto}.tstable table{border-collapse:collapse;width:100%;font-size:14px}.tstable td,.tstable th{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left;white-space:nowrap}.exfl{display:flex;flex-direction:column;gap:4px;max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0}.exfl label{display:flex;gap:6px;align-items:center;cursor:pointer}.exfl input{width:18px;height:18px}.exrow{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0}.exrow>div:first-child{display:flex;flex-direction:column;gap:2px}.exrow .row{margin:0}.exbad{color:var(--bad,#C0392B)}.exrows .row{margin:4px 0;flex-wrap:wrap}.exrows select{height:34px;max-width:16em}
+.tstable{overflow-x:auto}.tstable table{border-collapse:collapse;width:100%;font-size:14px}.tstable td,.tstable th{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left;white-space:nowrap}.exfl{display:flex;flex-direction:column;gap:4px;max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0}.exfl label[hidden]{display:none!important}.exfl label{display:flex;gap:6px;align-items:center;cursor:pointer}.exfl input{width:18px;height:18px}.exrow{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0}.exrow>div:first-child{display:flex;flex-direction:column;gap:2px}.exrow .row{margin:0}.exbad{color:var(--bad,#C0392B)}.exrows .row{margin:4px 0;flex-wrap:wrap}.exrows select{height:34px;max-width:16em}
+.bugdot{display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:#D93025;color:#fff;font-size:12px;text-align:center;padding:0 5px;margin-left:2px}.bugin{width:min(96vw,720px);gap:8px}.bugin textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;background:var(--panel,#fff);color:var(--ink)}.bugimg{max-height:90px;max-width:160px;border-radius:6px;border:1px solid var(--line)}.bugck{display:flex;gap:6px;align-items:center}.bugpre{white-space:pre-wrap;font-size:12px;max-height:180px;overflow:auto;background:var(--accent-soft);padding:6px;border-radius:6px}.bugit{border:1px solid var(--line);border-left:4px solid #D93025;border-radius:8px;padding:8px;margin:6px 0;display:flex;flex-direction:column;gap:4px}.bugit.doing{border-left-color:#C27C0E}.bugit.done{border-left-color:#2E8B57;opacity:.8}.bugst{margin-left:auto;font-size:13px;font-weight:600}.bugst.new{color:#D93025}.bugst.doing{color:#C27C0E}.bugst.done{color:#2E8B57}.bugtx{white-space:pre-wrap}.bugrep{background:var(--accent-soft);border-radius:6px;padding:6px}.bugexp{font-size:12px}
 .tsthg{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}.tsth{border:2px solid #B9C0C8;border-radius:10px;background:var(--panel);padding:4px;display:flex;flex-direction:column;gap:2px;align-items:stretch;text-align:left;color:var(--ink);cursor:pointer;font:inherit}.tsth[hidden]{display:none}.tsthb{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:6px;overflow:hidden}.tsthb svg{max-width:100%;max-height:100%;height:auto}.tstht{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tsthm{font-size:12px;color:var(--muted)}.tsthm small{color:#C27C0E}.tsth.g{border-color:#2E8B57}.tsth.b{border-color:#2E6FA8}.tsth.r{border-color:#C0392B}.tsp[hidden]{display:none}
 .tsgrid{display:flex;flex-wrap:wrap;gap:6px}
 .tsp.cap small{color:#d9a400;letter-spacing:-1px}.tsp.lock{opacity:.45}
@@ -469,6 +470,7 @@ body.pick #undoBtn,body.pick #redoBtn,body.pick #saveBtn,body.pick #shareBtn{dis
       <button class="btn" id="tsToggle" aria-pressed="false" hidden>做题</button>
       <button class="btn" id="olToggle" aria-pressed="false" hidden>线上对弈</button>
       <button class="btn" id="helpBtn">说明</button>
+      <button class="btn" id="bugBtn" title="回报问题">🐞 回报</button>
       <button class="btn" id="installBtn" hidden>安装 App</button>
       <button class="btn" id="undoBtn" title="撤销 (Ctrl+Z)" disabled>↶ 撤销</button>
       <button class="btn" id="redoBtn" title="重做 (Ctrl+Y)" disabled>↷ 重做</button>
@@ -712,10 +714,11 @@ body.pick #undoBtn,body.pick #redoBtn,body.pick #saveBtn,body.pick #shareBtn{dis
         <button class="btn" id="vsUndo">悔棋</button>
         <button class="btn" id="vsHint" aria-pressed="false">提示</button>
         <button class="btn" id="vsJudge" aria-pressed="false">形势判断</button>
+        <button class="btn" id="vsCount" aria-pressed="false">数子 / 数目</button>
         <button class="btn warn" id="vsResign">认输</button>
         <button class="btn pri" id="vsExit">结束对局</button>
       </div>
-      <div class="row" id="vsEndRow" hidden><button class="btn pri" id="vsAgain">再下一盘</button><button class="btn" id="vsRevBtn">看整盘分析</button><button class="btn" id="vsHomeBtn">🏠 回主页</button></div>
+      <div class="row" id="vsEndRow" hidden><button class="btn pri" id="vsAgain">再下一盘</button><button class="btn" id="vsRevBtn">看整盘分析</button><button class="btn" id="vsAppeal" hidden>🐞 AI 判错了，申请复核</button><button class="btn" id="vsHomeBtn">🏠 回主页</button></div>
     </div>
 
     <div class="score" id="scoreBox" hidden>
@@ -2093,6 +2096,63 @@ const EN={
 ,"题数":"Count"
 ,"（最外层的练习册）":"(Top-level workbooks)"
 ,"（选考卷）":"(choose exam)"
+,"AI 判错":"AI misjudged"
+,"今天已经回报 10 次了，明天再试":"You've sent 10 reports today; try again tomorrow"
+,"今天还可以回报 {0} 次":"{0} reports left today"
+,"会自动附上：画面、网页版本、设备、屏幕大小、最近的程序错误（{0} 个）":"Attached automatically: screen, version, device, screen size, recent errors ({0})"
+,"位置":"Where"
+,"你还没有回报过问题。":"You haven't sent any reports."
+,"全部回报":"All reports"
+,"双方停一手，对局结束：{0}（AI 判断死子，可以按下面的「数子 / 数目」确认）。":"Both passed, game over: {0} (dead stones judged by the AI; check with Count score below)."
+,"双方停一手，对局结束：{0}（GNU Go 判断死子，可以按下面的「数子 / 数目」确认）。":"Both passed, game over: {0} (dead stones judged by GNU Go; check with Count score below)."
+,"发生什么事？你做了什么？例如：按了「下一题」后画面没反应。":"What happened? What did you do? e.g. pressed Next and nothing happened."
+,"只供参考：认证和升级赛的输赢以 AI 判断为准（{0}）。觉得判错了，可以按「AI 判错了，申请复核」。":"For reference only: certification and ladder results follow the AI's judgement ({0}). If you think it's wrong, press \"AI misjudged, request review\"."
+,"回复":"Reply"
+,"回复已送出":"Reply sent"
+,"回复（回报的人看得到）":"Reply (the reporter can see it)"
+,"回报":"Report"
+,"回报问题":"Report a problem"
+,"处理中":"In progress"
+,"复制不了":"Couldn't copy"
+,"复制棋谱":"Copy SGF"
+,"导出全部回报":"Export all reports"
+,"屏幕":"Screen"
+,"已复制到剪贴板，可以直接贴给 Claude。":"Copied to clipboard; paste it to Claude."
+,"已解决":"Solved"
+,"我的回报":"My reports"
+,"换图片":"Change image"
+,"新":"New"
+,"未解决":"Open"
+,"棋谱已复制":"SGF copied"
+,"没有回报。":"No reports."
+,"没有登录：只看得到在这台设备送出的回报。":"Not logged in: only reports sent from this device are shown."
+,"版本":"Version"
+,"程序错误":"Bug"
+,"类型":"Type"
+,"自动附上的资料":"Attached info"
+,"请写一下发生什么事":"Please describe what happened"
+,"请在下面的框里全选复制。":"Select all in the box below and copy."
+,"读不到回报：{0}":"Can't load reports: {0}"
+,"谢谢！已经送出，管理员会尽快处理。":"Thanks! Sent; the admin will look at it soon."
+,"这盘的输赢判断有问题：":"The result of this game is wrong: "
+,"这题的答案有问题：":"This problem's answer is wrong: "
+,"这题答案有问题":"Answer is wrong"
+,"连不上云端，请稍后再试":"Can't reach the cloud; try again later"
+,"送出":"Send"
+,"送出回复":"Send reply"
+,"错误纪录":"Error log"
+,"问题回报":"Problem reports"
+,"附上当时的棋谱或题目":"Attach the current game or problem"
+,"附图片":"Attach image"
+,"题目答案错":"Wrong answer"
+,"（有附图）":"(image attached)"
+,"🐞 AI 判错了，申请复核":"🐞 AI misjudged, request review"
+,"🐞 回报":"🐞 Report"
+,"搜索文件夹或练习册":"Search folders or workbooks"
+,"勾选文件夹（包括里面的子文件夹）或个别练习册，随机抽题，做法和作业本一样。":"Tick folders (subfolders included) or single workbooks; problems are drawn at random and work like homework."
+,"选文件夹或练习册…":"Choose folder or workbook…"
+,"文件夹":"Folders"
+,"每行：从哪个文件夹或练习册抽几题。只能用全站的，所有学生的题库才一样。":"Each row: how many problems from which folder or workbook. Site-wide ones only, so every student has the same pool."
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -4156,7 +4216,9 @@ function renderScore(){
     line=T('黑 {0} 点，白 {1} 点',fmtQ(res.B),fmtQ(res.W))+' → '+(d>0?T('黑胜 {0} 点',fmtQ(d)):d<0?T('白胜 {0} 点',fmtQ(-d)):(res.H?T('平分，让子棋判白胜'):T('平分，应氏规则判黑胜')));
   }
   if(!scoring.dead.size)sub=(sub?sub+' ':'')+T('还没标出任何死子。如果棋局还没下完，数出来的结果会不准。');
+  if(typeof vs!=='undefined'&&vs&&vs.over&&(vs.cert||vs.ladder))sub=(sub?sub+' ':'')+T('只供参考：认证和升级赛的输赢以 AI 判断为准（{0}）。觉得判错了，可以按「AI 判错了，申请复核」。',resultText((root().props.RE||[''])[0]));
   $('#scoreRes').innerHTML=escH(line)+(sub?`<small>${escH(sub)}</small>`:'');
+  $('#scoreWrite').hidden=!!(typeof vs!=='undefined'&&vs&&(vs.cert||vs.ladder)); // 认证、升级赛：结果以 AI 判断为准，不能改
   $('#scoreNote').textContent=T(scoring.rule==='cn'?'中国规则：活子加围住的空点；公气各算一半。让子棋黑方要还子。':scoring.rule==='jp'?'日韩规则：围住的空点加提子和死子。双活里的眼和假眼不算地，由 goscorer（KataGo 作者开发）自动判断。':'应氏规则：和中国规则一样数活子和地，白贴 8 点；平分时黑胜（让子棋白胜）。');
 }
 function scoreRE(){const r=scoring.res;let d=r.diff;
@@ -4981,12 +5043,12 @@ function vsFinish(re,msg){ // 对局结束：实战走成主线、写结果、�
 }
 function vsEnd(){ // 双方停一手：用 AI 判断死子并算出胜负
   vs.over=true;vs.endMsg=T('双方停一手，AI 正在判断胜负…');renderVs();const node=cur;
-  if(vs.level.gg||vs.level.stu){GG.score(node).then(re=>{if(!vs||cur!==node||!re)return;vsFinish(re,T('双方停一手，对局结束：{0}（GNU Go 判断死子，可以按「数子 / 数目」确认）。',resultText(re)))}).catch(()=>{});return}
+  if(vs.level.gg||vs.level.stu){GG.score(node).then(re=>{if(!vs||cur!==node||!re)return;vsFinish(re,T('双方停一手，对局结束：{0}（GNU Go 判断死子，可以按下面的「数子 / 数目」确认）。',resultText(re)))}).catch(()=>{});return}
   AI.analyze(node).then(()=>{if(!vs||cur!==node)return;const n=sizeOf(root()),st=computeState(node,n),e=aiEstimate(node,st);if(!e)return;
     const k=aiKomi(),r=root(),ha=parseInt(prop(r,'HA')||'0',10)||0,H=ha>=2?ha:0;
     const lead=Math.round((e.aB+e.tB+e.dame/2-H/2-(e.aW+e.tW+e.dame/2+H/2)-k.komi)*2)/2;
     const re=lead>0?'B+'+lead:lead<0?'W+'+(-lead):'0';
-    vsFinish(re,T('双方停一手，对局结束：{0}（AI 判断死子，可以按「数子 / 数目」确认）。',resultText(re)))}).catch(()=>{});
+    vsFinish(re,T('双方停一手，对局结束：{0}（AI 判断死子，可以按下面的「数子 / 数目」确认）。',resultText(re)))}).catch(()=>{});
 }
 function vsUndo(){ // 悔棋：拿掉 AI 的一手和自己的一手
   if(!vs||vs.thinking||vs.cert)return;const user=vs.ai===1?'W':'B';let a=cur;const rm=nd=>{const p=nd.parent;if(!p||nd.children.length)return false;p.children.splice(p.children.indexOf(nd),1);p._sel=0;cur=p;return true};
@@ -5009,7 +5071,7 @@ function renderVs(){
   else if(vs.msg)t=vs.msg;
   else t=nextColor(cur)===user?T('轮到你下（{0}）',user==='B'?T('黑棋'):T('白棋')):T('轮到 AI');
   msg.textContent=t;
-  $('#vsEndRow').hidden=!vs.over;$('#vsJudge').hidden=!!(vs.ladder||vs.cert);if(vs.cert){$('#vsHint').disabled=true;if(aiHint)setAiHint(false)}$('#vsJudge').setAttribute('aria-pressed',judging);
+  $('#vsEndRow').hidden=!vs.over;const lk=!!(vs.ladder||vs.cert)&&!vs.over;$('#vsJudge').hidden=lk;$('#vsCount').hidden=lk;$('#vsCount').setAttribute('aria-pressed',!!scoring);$('#vsAppeal').hidden=!(vs.over&&(vs.ladder||vs.cert));if(vs.cert){$('#vsHint').disabled=true;if(aiHint)setAiHint(false)}$('#vsJudge').setAttribute('aria-pressed',judging);
   $('#vsPass').disabled=$('#vsResign').disabled=vs.over||vs.thinking;$('#vsUndo').disabled=vs.thinking;
   $('#vsHint').setAttribute('aria-pressed',aiHint);
   $('#vsTimeL').hidden=!vs.level.search;$('#vsUndo').disabled=vs.thinking||!!vs.finished||!!vs.cert;if(document.activeElement!==$('#vsTime'))$('#vsTime').value=String(prefs.aiPlayTime??5);
@@ -6394,14 +6456,15 @@ async function certCertificate(key){
 function certSetHtml(){const A=certArtLocal(),sample=A.signer||T('王小明');setTimeout(()=>CERT_NAME_FONTS.forEach(f=>certFontLink(f[1],sample)),0);
   return`<b class="sub" style="margin:14px 0 8px;font-size:1rem">${T('证书设定')}</b>
   <div class="acctrow"><label>${T('签名者名字')} <input id="csSigner" maxlength="20" value="${tsE(A.signer||'')}" placeholder="${T('写在签名下面的名字')}" style="width:10em"></label></div>
-  <div class="acctrow"><label class="btn" style="cursor:pointer">${A.sig?T('换电子签名'):T('上载电子签名')}<input type="file" id="csSig" accept="image/*" hidden></label>${A.sig?`<img src="${A.sig}" alt="" style="height:40px;background:#fff;border-radius:4px"><button class="btn" data-cs="nosig">${T('拿掉')}</button>`:''}
+  <div class="acctrow"><label class="btn" style="cursor:pointer">${A.sig?T('换电子签名'):T('上载电子签名')}<input type="file" id="csSig" accept="image/*" hidden></label>${A.sig?`<img src="${A.sig}" alt="" style="height:40px;background:repeating-conic-gradient(#ddd 0 25%,#fff 0 50%) 0 0/12px 12px;border-radius:4px"><button class="btn" data-cs="nosig">${T('拿掉')}</button>`:''}
     <label class="btn" style="cursor:pointer">${A.art?T('换背景装饰画'):T('上载背景装饰画')}<input type="file" id="csArt" accept="image/*" hidden></label>${A.art?`<img src="${A.art}" alt="" style="height:40px;border-radius:4px"><button class="btn" data-cs="noart">${T('拿掉')}</button>`:''}
     <button class="btn" data-cs="preview">${T('预览证书')}</button></div>
   <div class="acctrow"><span>${T('学生名字的字体')}</span></div>
   <div class="cfonts">${CERT_NAME_FONTS.map(f=>`<button class="cfont" data-cs="font" data-f="${f[0]}" aria-pressed="${certNameFont(A)[0]===f[0]}"><span style="font-family:${certBrush(f).replace(/"/g,"'")}">${tsE(sample)}</span><small>${T(f[2])}</small></button>`).join('')}</div>
   <p class="note" style="margin:0">${T('签名：在白纸上签名后拍照即可，白色底会自动去掉。背景已内建松枝棋子水墨画，也可以换成别的图（不要有文字）。')}</p>`}
 function certShrink(file,maxW,mode){return new Promise(res=>{picLoad(file,(img)=>{const s=Math.min(1,maxW/img.width),cv=document.createElement('canvas');cv.width=Math.round(img.width*s);cv.height=Math.round(img.height*s);const c=cv.getContext('2d');c.drawImage(img,0,0,cv.width,cv.height);
-  if(mode==='sig'){const d=c.getImageData(0,0,cv.width,cv.height),a=d.data;for(let i=0;i<a.length;i+=4){const v=(a[i]+a[i+1]+a[i+2])/3;if(v>185)a[i+3]=0;else{a[i+3]=Math.min(255,(185-v)*3);a[i]=a[i+1]=a[i+2]=Math.min(v,40)}}c.putImageData(d,0,0);res(cv.toDataURL('image/png'))}
+  if(mode==='sig'){const d=c.getImageData(0,0,cv.width,cv.height),a=d.data;for(let i=0;i<a.length;i+=4){const v=(a[i]+a[i+1]+a[i+2])/3;if(a[i+3]<128||v>185)a[i+3]=0; // 原图透明的地方（透明底 PNG）保持透明，白底也去掉
+    else{a[i+3]=Math.min(255,(185-v)*3);a[i]=a[i+1]=a[i+2]=Math.min(v,40)}}c.putImageData(d,0,0);res(cv.toDataURL('image/png'))}
   else res(cv.toDataURL('image/jpeg',0.82))})})}
 async function certArtSave(A){try{localStorage.setItem(CERT_ART_KEY,JSON.stringify(A))}catch(e){flash(T('图片太大，存不进这台设备'));return}
   const L=tsLogin&&tsLogin(),cs=(L&&L.classes)||[];let ok=0;for(const x of cs){try{await TsCloud.set(x.cls,'x_certart',{fix:{},certArt:A});ok++}catch(e){}}
@@ -6830,6 +6893,7 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
     const cls=ts.exam?'':ts.solved?'ok':ts.msg&&!ts.shown&&!ts.noAuto?'no':'';
     if(ts.failView&&!ts.solved)h+=`<div class="tsfail"><b>✘ ${T('失败图')}</b><p>${tsE(ts.msg)}</p>${ts.over?'':`<div class="row" style="align-items:center"><button class="btn pri" data-a="redo">${T('再试一次')}</button><span class="note" style="margin:0">${T('也可以直接点棋盘重新下')}</span></div>`}</div>`;else
     h+=`<p class="big ${cls}">${ts.solved?T('答对了！')+' '+tsE(ts.msg)+(ts.gained?' '+T('+{0} 分',ts.gained):''):ts.busy?T('对方应…'):tsE(ts.msg||T('在棋盘上点出你的答案。'))}</p>`;
+    if(!ts.exam)h+=`<div class="row" style="justify-content:flex-end;margin:0"><button class="btn" data-a="bugans" style="padding:2px 10px;font-size:13px">🐞 ${T('这题答案有问题')}</button></div>`;
     if(!ts.quiz)h+=`<div class="row"><button class="btn" data-a="trial"${ts.busy?' disabled':''}>${T('试下')}</button><button class="btn" data-a="redo">${T('重做')}</button><button class="btn" data-a="show"${ts.solved?' disabled':''}>${T('看答案')}</button>${ts.solved||ts.shown?'':`<button class="btn" data-a="cardview">📖 ${T('看本题解说')}</button>`}<button class="btn" data-a="nums" aria-pressed="${tsStore.nums!==false}">${tsStore.nums!==false?'✓ ':''}${T('显示手数')}</button><button class="btn" data-a="prev"${ts.idx<=0?' disabled':''}>${T('上一题')}</button><button class="btn pri" data-a="next"${!b||ts.idx>=b.problems.length-1?' disabled':''}>${T('下一题')}</button>${tsCanEdit(b)?`<button class="btn" data-a="editp">${T('修改这题')}</button><button class="btn warn" data-a="delp">${T('删除这题')}</button>`:''}${L&&L.role==='student'?`<button class="btn" data-a="report">${T('这题有问题')}</button>`:''}${(ts.solved||ts.shown)?`<button class="btn" data-a="vview">${T('看解说')}</button><button class="btn" data-a="back">${T('回练习册')}</button><button class="btn" data-a="gohome">🏠 ${T('回主页')}</button>`:''}${tsCanEdit(b)?`<button class="btn" data-a="aiexp">${T('AI 解说')}</button>`:''}</div>`;
     if(ts.hwBack)h=h.replace(/<button class="btn( pri)?" data-a="(prev|next)"[^>]*>[^<]*<\/button>/g,''); // 作业中回头看：只能按「继续作业」回去
     if(ts.reporting)h+=`<div class="row"><span>${T('哪里有问题？')}</span>${[['ans',T('答案不对')],['pos',T('题目摆错了')],['hard',T('太难／看不懂')]].map(([w,l])=>`<button class="btn" data-a="sendrep" data-w="${w}">${l}</button>`).join('')}</div>`;
@@ -7604,7 +7668,7 @@ function tsBookExtras(b){ // 练习册页：谁看得到、上载全站
   if(b.gbook&&tsIsAdm())h+=`<div class="row" style="align-items:center">${b.hidden?`<span class="note" style="margin:0;color:var(--bad,#C0392B)">🙈 ${T('隐藏中：只有管理员看得到')}</span><button class="btn pri" data-a="gbshow">${T('公开')}</button>`:`<button class="btn" data-a="gbhide">🙈 ${T('隐藏')}</button>`}</div>`;
   if(b.gbook&&tsIsAdm())h+=`<div class="row"><button class="btn warn" data-a="gbdel">${T('整本删除（全站）')}</button><span class="note" style="margin:0">${tsE(T('上载者：{0}',b.by||'—'))}</span></div>`;
   return h}
-function tsAdminExtra(){let h='';const fr=tsReqs.pend.filter(r=>r.type==='folder'),br=tsReqs.pend.filter(r=>r.type==='book');
+function tsAdminExtra(){let h=`<div class="row"><button class="btn" data-a="bugadm">🐞 ${T('问题回报')}${typeof bugNew!=='undefined'&&bugNew?` <span class="bugdot">${bugNew}</span>`:''}</button></div>`;const fr=tsReqs.pend.filter(r=>r.type==='folder'),br=tsReqs.pend.filter(r=>r.type==='book');
   h+=`<b class="sub">${T('新文件夹申请')}</b>`+(fr.length?`<div style="overflow-x:auto"><table class="score-t"><tbody>${fr.map(r=>`<tr><td style="text-align:left">📁 <b>${tsE(r.p.name)}</b><br><span class="note">${tsE(r.who)} · ${tsE(r.p.clsName||r.p.cls||'')}${r.p.parent?' · '+T('放在「{0}」里',tsE((tsFolder(r.p.parent)||{name:'?'}).name)):''}</span></td><td><button class="btn pri" data-a="rqcls" data-r="${r.id}">${T('通过 · 本班')}</button><button class="btn pri" data-a="rqglob" data-r="${r.id}">${T('通过 · 全站')}</button><button class="btn warn" data-a="rqno" data-r="${r.id}">${T('不通过')}</button></td></tr>`).join('')}</tbody></table></div>`:`<p class="note">${T('没有。')}</p>`);
   h+=`<b class="sub">${T('上载全站的练习册')}</b>`+(br.length?`<div style="overflow-x:auto"><table class="score-t"><tbody>${br.map(r=>`<tr><td style="text-align:left">📘 <b>${tsE(r.p.title)}</b>${r.p.gid?' · '+T('更新'):''}<br><span class="note">${tsE(r.who)} · ${T('{0} 题',(r.p.problems||[]).length)} · ${new Date(r.created).toLocaleDateString()}</span></td><td><button class="btn" data-a="rqview" data-r="${r.id}">${T('预览')}</button><button class="btn pri" data-a="rqok" data-r="${r.id}">${T('通过')}</button><button class="btn warn" data-a="rqno" data-r="${r.id}">${T('不通过')}</button></td></tr>`).join('')}</tbody></table></div>`:`<p class="note">${T('没有。')}</p>`);
   const au=Object.entries(tsStore.audit||{}).map(([id,a])=>({id,a,n:a.items.filter(x=>x.st==='open').length})).filter(x=>x.n);
@@ -7794,15 +7858,21 @@ function exName(){const L=tsLogin();return(L&&L.name)||(typeof acct!=='undefined
 
 /* 文件夹 → 练习册 → 题目 */
 function exFoldSet(fids){const s=new Set();const add=id=>{if(s.has(id))return;s.add(id);for(const f of tsAllFolders())if(tsFPar(f)===id)add(f.id)};fids.forEach(add);return s}
-function exBooksIn(fids,globalOnly){const s=exFoldSet(fids.filter(f=>f!=='__top')),top=fids.includes('__top');
-  return tsBooks().filter(b=>!b.virt&&!b.wrong&&!b.hide&&!b.ghidden&&!b.hidden&&!b.view&&b.id!=='__preview'&&(!globalOnly||tsBookG(b))&&(()=>{const pl=tsBookPlace(b);return pl?s.has(pl):top})())}
+function exBooksIn(fids,globalOnly){const s=exFoldSet(fids.filter(f=>f!=='__top'&&!f.startsWith('b:'))),top=fids.includes('__top'),bids=new Set(fids.filter(f=>f.startsWith('b:')).map(f=>f.slice(2))); // f 可以是文件夹 id，也可以是 b:练习册 id
+  return tsBooks().filter(b=>!b.virt&&!b.wrong&&!b.hide&&!b.ghidden&&!b.hidden&&!b.view&&b.id!=='__preview'&&(!globalOnly||tsBookG(b))&&(bids.has(b.id)||(()=>{const pl=tsBookPlace(b);return pl?s.has(pl):top})()))}
 async function exLoad(fids,g){for(const b of exBooksIn(fids,g))if(b.src&&!b.problems.length)try{await tsLoadBook(b)}catch(e){}return exBooksIn(fids,g)}
 function exPool(books,minLv,used){const out=[];for(const b of books)for(const p of b.problems||[]){const pid=tsPid(b,p);if((+p.level||1)>=(+minLv||1)&&!p.view&&!(used&&used.has(pid)))out.push({...p,_pid:pid})}return out}
 function exCount(f,lv){let n=0,approx=false;for(const b of exBooksIn([f],true)){if(b.src&&!b.problems.length){n+=b.count||0;approx=true}else n+=exPool([b],lv).length}return{n,approx}}
-function exFoldName(f){if(f==='__top')return T('（最外层的练习册）');if(f==='__mine')return T('我的练习册');const p=tsFPath(f);return p.length?p.map(x=>x.name).join(' › '):'?'}
+function exFoldName(f){if(f.startsWith('b:')){const b=tsBook(f.slice(2));return'📘 '+(b?b.title:'?')}if(f==='__top')return T('（最外层的练习册）');if(f==='__mine')return T('我的练习册');const p=tsFPath(f);return p.length?p.map(x=>x.name).join(' › '):'?'}
 function exFoldOpts(globalOnly){const fs=tsAllFolders().filter(f=>!globalOnly||f.g).map(f=>({id:f.id,name:exFoldName(f.id),d:tsFPath(f.id).length}));
   fs.sort((a,b)=>a.name.localeCompare(b.name,'zh'));const out=[{id:'__top',name:exFoldName('__top'),d:1}];
   if(!globalOnly&&tsBooks().some(b=>b.local))out.push({id:'__mine',name:T('我的练习册'),d:1});return out.concat(fs)}
+function exBookOpts(globalOnly){return tsBooks().filter(b=>!b.virt&&!b.wrong&&!b.hide&&!b.ghidden&&!b.hidden&&!b.view&&b.id!=='__preview'&&!b.cap&&(!globalOnly||tsBookG(b)))
+  .map(b=>({id:'b:'+b.id,name:'📘 '+b.title,n:b.src&&!b.problems.length?(b.count||0):b.problems.length})).sort((a,b)=>a.name.localeCompare(b.name,'zh'))}
+const exQBox=()=>`<input id="exQ" type="search" value="${tsE(exQ)}" placeholder="${T('搜索文件夹或练习册')}" style="width:100%;box-sizing:border-box;height:34px;border:1px solid var(--line);border-radius:6px;padding:0 8px;background:var(--bg)">`;
+let exQ='';
+function exQApply(){const q=exQ.trim().toLowerCase();document.querySelectorAll('#tsBody [data-mfl]').forEach(l=>l.hidden=!!q&&!l.dataset.mfl.toLowerCase().includes(q)&&!l.querySelector('input:checked'));
+  document.querySelectorAll('#tsBody .exrows option[data-nm]').forEach(o=>{const h=!!q&&!o.dataset.nm.toLowerCase().includes(q)&&!o.selected;o.hidden=h;o.disabled=h})}
 
 /* 抽题 */
 async function exDraw(ex){const used=new Set(),ps=[];
@@ -7863,8 +7933,9 @@ function exResHtml(){const v=exResV;if(!v)return'';if(v.loading)return`<p class=
 function exHtml(top){let h='';
   if(tsView==='quizEnd')return exEndHtml(tsQuizDone);
   if(tsView==='mix'){const c=exMix,fs=exFoldOpts(false);
-    h=top+`<div class="row"><button class="btn" data-a="home">← ${T('练习册')}</button></div><div class="score-head"><b>🔀 ${T('混合出题')}</b><span>${T('勾选一个或几个文件夹（包括里面的子文件夹），随机抽题，做法和作业本一样。')}</span></div>
-      <div class="exfl">${fs.map(f=>`<label style="padding-left:${(f.d-1)*18}px"><input type="checkbox" data-mf="${f.id}"${c.fids.includes(f.id)?' checked':''}> 📁 ${tsE(f.id==='__top'||f.id==='__mine'?f.name:f.name.split(' › ').pop())}</label>`).join('')}</div>
+    h=top+`<div class="row"><button class="btn" data-a="home">← ${T('练习册')}</button></div><div class="score-head"><b>🔀 ${T('混合出题')}</b><span>${T('勾选文件夹（包括里面的子文件夹）或个别练习册，随机抽题，做法和作业本一样。')}</span></div>
+      ${exQBox()}<div class="exfl">${fs.map(f=>`<label data-mfl="${tsE(f.name)}" style="padding-left:${(f.d-1)*18}px"><input type="checkbox" data-mf="${f.id}"${c.fids.includes(f.id)?' checked':''}> 📁 ${tsE(f.id==='__top'||f.id==='__mine'?f.name:f.name.split(' › ').pop())}</label>`).join('')}
+        <b class="sub" style="margin-top:6px">${T('练习册')}</b>${exBookOpts(false).map(b=>`<label data-mfl="${tsE(b.name)}"><input type="checkbox" data-mf="${b.id}"${c.fids.includes(b.id)?' checked':''}> ${tsE(b.name)} <span class="note" style="margin:0">（${T('{0} 题',b.n)}）</span></label>`).join('')}</div>
       <div class="score-opts"><span>${T('题数')}</span><span class="seg">${[10,20,50].map(n=>`<button data-a="mixn" data-v="${n}" aria-pressed="${c.n===n}">${n}</button>`).join('')}</span></div>
       <div class="row"><button class="btn pri" data-a="mixgo"${c.fids.length?'':' disabled'}>${T('开始')}</button></div>`;return h}
   if(tsView==='exams'){const adm=tsIsAdm(),L=tsLogin(),list=Object.values(tsExams).sort((a,b)=>(a.title||'').localeCompare(b.title||'','zh'));
@@ -7874,12 +7945,12 @@ function exHtml(top){let h='';
     h+=`<div class="row">${adm?`<button class="btn" data-a="exnew">＋ ${T('新考卷')}</button>`:''}<button class="btn" data-a="exres" data-w="me">${T('我的成绩')}</button>${L&&L.role==='teacher'?`<button class="btn" data-a="exres" data-w="cls">${T('全班成绩')}</button>`:''}${adm?`<button class="btn" data-a="exres" data-w="all">${T('全部成绩')}</button>`:''}</div>`;
     if(exResV&&exResV.open)h+=`<b class="sub">${exResV.w==='all'?T('全部成绩'):exResV.w==='cls'?T('全班成绩'):T('我的成绩')}</b>`+exResHtml();
     return h}
-  if(tsView==='exedit'&&exEdit){const e=exEdit,fs=exFoldOpts(true),sum=e.rows.reduce((a,r)=>a+(+r.n||0),0),tot=exTot(e);
-    h=top+`<div class="row"><button class="btn" data-a="exams">← ${T('考卷')}</button></div><div class="score-head"><b>${e.id?T('修改考卷'):T('新考卷')}</b><span>${T('每行：从哪个文件夹抽几题。只能用全站的文件夹，所有学生的题库才一样。')}</span></div>
+  if(tsView==='exedit'&&exEdit){const e=exEdit,fs=exFoldOpts(true),bs=exBookOpts(true),sum=e.rows.reduce((a,r)=>a+(+r.n||0),0),tot=exTot(e);
+    h=top+`<div class="row"><button class="btn" data-a="exams">← ${T('考卷')}</button></div><div class="score-head"><b>${e.id?T('修改考卷'):T('新考卷')}</b><span>${T('每行：从哪个文件夹或练习册抽几题。只能用全站的，所有学生的题库才一样。')}</span></div>
       <div class="score-opts"><label>${T('名称')} <input id="exTitle" value="${tsE(e.title)}" maxlength="40" style="width:14em"></label></div>
       <div class="score-opts"><span>${T('题数')}</span><span class="seg">${EX_TOT.map(n=>`<button data-a="extot" data-v="${n}" aria-pressed="${e.tm===String(n)}">${n}</button>`).join('')}<button data-a="extot" data-v="c" aria-pressed="${e.tm==='c'}">${T('自订')}</button></span>${e.tm==='c'?`<input id="exTotC" type="number" min="1" max="300" value="${e.tc||''}" style="width:5em;height:34px">`:''}</div>
-      <div class="exrows">${e.rows.map((r,i)=>{const c=r.f?exCount(r.f,r.lv):null,low=c&&!c.approx&&c.n<(+r.n||0);
-        return`<div class="row" style="align-items:center"><select data-exr="${i}" data-k="f"><option value="">${T('选文件夹…')}</option>${fs.map(f=>`<option value="${f.id}"${f.id===r.f?' selected':''}>${tsE(f.name)}</option>`).join('')}</select>
+      ${exQBox()}<div class="exrows">${e.rows.map((r,i)=>{const c=r.f?exCount(r.f,r.lv):null,low=c&&!c.approx&&c.n<(+r.n||0);
+        return`<div class="row" style="align-items:center"><select data-exr="${i}" data-k="f"><option value="">${T('选文件夹或练习册…')}</option><optgroup label="${T('文件夹')}">${fs.map(f=>`<option value="${f.id}" data-nm="${tsE(f.name)}"${f.id===r.f?' selected':''}>📁 ${tsE(f.name)}</option>`).join('')}</optgroup><optgroup label="${T('练习册')}">${bs.map(b=>`<option value="${b.id}" data-nm="${tsE(b.name)}"${b.id===r.f?' selected':''}>${tsE(b.name)}（${b.n}）</option>`).join('')}</optgroup></select>
           <span>${T('抽')}</span><input type="number" min="0" max="300" data-exr="${i}" data-k="n" value="${r.n||''}" style="width:4.5em;height:34px"><span>${T('题')}</span>
           <select data-exr="${i}" data-k="lv">${[1,2,3,4,5].map(v=>`<option value="${v}"${v==(r.lv||1)?' selected':''}>${v===1?T('全部难度'):tsStars(v)+' '+T('以上')}</option>`).join('')}</select>
           <button class="btn" data-a="exrowdel" data-i="${i}">✕</button>${c?`<span class="note" style="margin:0${low?';color:var(--bad,#C0392B)':''}">${low?T('只有 {0} 题，不够',c.n):T('有 {0}{1} 题',c.approx?'≈':'',c.n)}</span>`:''}</div>`}).join('')}</div>
@@ -7895,7 +7966,7 @@ const exTot=e=>e.tm==='c'?(+e.tc||0):+e.tm;
 const exSumText=(s,t)=>s===t?T('已分配 {0} / {1} 题',s,t):s<t?T('已分配 {0} / {1}，还差 {2}',s,t,t-s):T('已分配 {0} / {1}，多了 {2}',s,t,s-t);
 function exSumSync(){const e=exEdit;if(!e)return;const s=e.rows.reduce((a,r)=>a+(+r.n||0),0),t=exTot(e),el=$('#exSum'),b=$('#exSaveBtn');
   if(el){el.textContent=exSumText(s,t);el.classList.toggle('exbad',s!==t)}if(b)b.disabled=!(s===t&&t>0)}
-function exBind(){
+function exBind(){const qi=$('#exQ');if(qi){qi.oninput=()=>{exQ=qi.value;exQApply()};exQApply()}
   document.querySelectorAll('#tsBody [data-mf]').forEach(c=>c.onchange=()=>{const id=c.dataset.mf,f=exMix.fids;if(c.checked){if(!f.includes(id))f.push(id)}else exMix.fids=f.filter(x=>x!==id);renderTs()});
   const ti=$('#exTitle');if(ti)ti.oninput=()=>{exEdit.title=ti.value};
   const tc=$('#exTotC');if(tc)tc.oninput=()=>{exEdit.tc=+tc.value||0;exSumSync()};
@@ -7911,13 +7982,13 @@ async function exSaveEx(){const e=exEdit;e.title=(e.title||'').trim();if(!e.titl
   const db=await Shared.db();await db.collection('games').doc(TS_GLOBAL).collection('layers').doc(id).set({sgf:JSON.stringify(x),name:id,updated:Date.now()});tsExams[id]={...x,id};exEdit=null;tsView='exams';tsMsg=T('考卷已存好。')}
 async function exAct(a,t,busy){
   switch(a){
-    case'mixopen':{const c=tsStore.mixCfg;exMix={fids:tsFold?[tsFold]:(c&&c.fids||['__top']).slice(),n:c&&c.n||10};tsView='mix';renderTs();return true}
+    case'mixopen':{exQ='';const c=tsStore.mixCfg;exMix={fids:tsFold?[tsFold]:(c&&c.fids||['__top']).slice(),n:c&&c.n||10};tsView='mix';renderTs();return true}
     case'mixn':exMix.n=+t.dataset.v;renderTs();return true;
     case'mixgo':await busy(exMixStart);return true;
     case'mixagain':{const c=tsStore.mixCfg;if(!c){tsView='home';renderTs();return true}exMix={fids:c.fids.slice(),n:c.n};await busy(exMixStart);return true}
     case'exams':exResV=null;tsView='exams';renderTs();return true;
-    case'exnew':exEdit={title:'',tm:'50',tc:0,rows:[{f:'',n:0,lv:1}],min:60,pass:80,draw:'rand'};tsView='exedit';renderTs();return true;
-    case'exedit':{const x=tsExams[t.dataset.id];if(!x)return true;exEdit={...JSON.parse(JSON.stringify(x)),tm:EX_TOT.includes(x.total)?String(x.total):'c',tc:x.total};tsView='exedit';renderTs();return true}
+    case'exnew':exQ='';exEdit={title:'',tm:'50',tc:0,rows:[{f:'',n:0,lv:1}],min:60,pass:80,draw:'rand'};tsView='exedit';renderTs();return true;
+    case'exedit':{exQ='';const x=tsExams[t.dataset.id];if(!x)return true;exEdit={...JSON.parse(JSON.stringify(x)),tm:EX_TOT.includes(x.total)?String(x.total):'c',tc:x.total};tsView='exedit';renderTs();return true}
     case'exdel':armed(t,T('再点一次确认删除'),()=>busy(async()=>{const id=t.dataset.id,db=await Shared.db();await db.collection('games').doc(TS_GLOBAL).collection('layers').doc(id).set({sgf:JSON.stringify({removed:true}),name:id,updated:Date.now()});delete tsExams[id]}));return true;
     case'extot':exEdit.tm=t.dataset.v;if(exEdit.tm==='c'&&!exEdit.tc)exEdit.tc=exEdit.rows.reduce((a,r)=>a+(+r.n||0),0);renderTs();return true;
     case'exrowadd':exEdit.rows.push({f:'',n:0,lv:1});renderTs();return true;
@@ -7928,9 +7999,92 @@ async function exAct(a,t,busy){
     case'exgo':await busy(()=>exStart(t.dataset.id));return true;
     case'exres':{const w=t.dataset.w;exResV={open:1,w,loading:1,list:[]};renderTs();try{exResV.list=await exResLoad(w)}catch(e){exResV.err=T('读不到成绩：{0}',e.message)}exResV.loading=0;renderTs();return true}
     case'exquit':armed(t,T('再点一次：这次考试不算成绩'),()=>{tsQuiz=null;tsExit();const c=exRun&&exRun.cert;exRun=null;if(c){tsClosePanel();if(typeof certOpen==='function')certOpen()}else{tsView='exams';renderTs()}});return true;
+    case'bugadm':bugOpen({view:'admin'});return true;
+    case'bugans':bugOpen({type:'ans',text:T('这题的答案有问题：')});return true;
     case'excert':tsView='home';tsClosePanel();if(typeof certOpen==='function')certOpen();return true;
   }
   return false}
+
+/* ---- 🐞 回报问题：所有人都能回报（每台设备每天 10 次）；管理员看全部、改状态、回复、导出 ---- */
+const BUG_LOG=[];
+window.addEventListener('error',e=>{BUG_LOG.push({t:Date.now(),m:String(e.message||'').slice(0,300),s:String(e.filename||'').split('/').pop()+':'+(e.lineno||'')+':'+(e.colno||'')});if(BUG_LOG.length>15)BUG_LOG.shift()});
+window.addEventListener('unhandledrejection',e=>{const r=e.reason;BUG_LOG.push({t:Date.now(),m:String(r&&r.message||r).slice(0,300),s:'promise'});if(BUG_LOG.length>15)BUG_LOG.shift()});
+const BUG_TYPES=[['bug','程序错误'],['ans','题目答案错'],['ai','AI 判错'],['idea','建议']];
+const BUG_ST=[['new','新'],['doing','处理中'],['done','已解决']];
+const bugTypeName=k=>T((BUG_TYPES.find(x=>x[0]===k)||['','?'])[1]),bugStName=k=>T((BUG_ST.find(x=>x[0]===k)||['','?'])[1]);
+let bugV=null,bugNew=0;   // bugV：{view:'form'|'mine'|'admin', type, text, img, att, ctx, list, filter, msg}
+function bugCtx(){const mode=document.body.dataset.mode||'',o={mode,ver:document.lastModified,ua:navigator.userAgent.slice(0,240),scr:screen.width+'×'+screen.height+' @'+(window.devicePixelRatio||1),vw:innerWidth+'×'+innerHeight,lang:typeof LANG!=='undefined'?LANG:'',errs:BUG_LOG.slice(-10)};
+  try{if(mode==='ts'&&typeof ts!=='undefined'&&ts&&tsView==='solve'){const b=tsBook(ts.bookId),p=b&&b.problems[ts.idx];o.where=T('做题')+'：'+((b&&b.title)||'')+' · '+T('第 {0} 题',ts.idx+1)+(p&&p.title?' '+p.title:'');o.pid=ts.pid;if(p)o.sgf=p.sgf;o.cur=toSGF(G.root)}
+    else if(mode==='ts')o.where=T('做题')+' · '+(typeof tsView!=='undefined'?tsView:'');
+    else if(mode==='play'&&typeof vs!=='undefined'&&vs){o.where=T('下棋')+(vs.cert?' · '+T('棋力认证'):vs.ladder?' · '+T('升级赛'):'')+' · '+((root().props.RE||[''])[0]||T('对局中'));o.sgf=toSGF(root())}
+    else{o.where=mode||'review';if(typeof G!=='undefined'&&G&&G.root)o.sgf=toSGF(root())}}catch(e){o.ctxErr=String(e.message)}
+  if(o.sgf&&o.sgf.length>300000)o.sgf=o.sgf.slice(0,300000);if(o.cur&&o.cur.length>50000)o.cur='';return o}
+function bugOpen(opt){opt=opt||{};bugV={view:opt.view||'form',type:opt.type||'bug',text:opt.text||'',img:'',att:true,ctx:bugCtx(),list:null,filter:'open'};bugUi();if(bugV.view!=='form')bugLoad()}
+function bugClose(){const o=$('#bugBox');if(o)o.remove();bugV=null;bugBadge()}
+function bugImg(file){return new Promise(res=>picLoad(file,img=>{const s=Math.min(1,1000/Math.max(img.width,img.height)),cv=document.createElement('canvas');cv.width=Math.round(img.width*s);cv.height=Math.round(img.height*s);
+  const c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,cv.width,cv.height);c.drawImage(img,0,0,cv.width,cv.height);let q=0.72,d=cv.toDataURL('image/jpeg',q);while(d.length>380000&&q>0.3){q-=0.12;d=cv.toDataURL('image/jpeg',q)}res(d)}))}
+function bugQuota(add){const day=new Date().toISOString().slice(0,10);let c={};try{c=JSON.parse(localStorage.getItem('goReview.bugDay')||'{}')}catch(e){}if(c.d!==day)c={d:day,n:0};
+  if(add){c.n++;try{localStorage.setItem('goReview.bugDay',JSON.stringify(c))}catch(e){}}return 10-c.n}
+async function bugSend(){const f=bugV;if(!f.text.trim()&&!f.img)throw new Error(T('请写一下发生什么事'));if(bugQuota()<=0)throw new Error(T('今天已经回报 10 次了，明天再试'));
+  const db=await Shared.db(),u=firebase.auth().currentUser;if(!u)throw new Error(T('连不上云端，请稍后再试'));
+  const ctx={...f.ctx};if(!f.att){delete ctx.sgf;delete ctx.cur}
+  const doc={type:f.type,text:f.text.trim().slice(0,3000),img:f.img||'',name:typeof exName==='function'?exName():'',uid:u.uid,st:'new',reply:'',t:Date.now(),where:(ctx.where||'').slice(0,200),sgf:JSON.stringify(ctx)};
+  const r=await db.collection('bugs').add(doc);bugQuota(true);
+  let m=[];try{m=JSON.parse(localStorage.getItem('goReview.bugMine')||'[]')}catch(e){}m.unshift(r.id);try{localStorage.setItem('goReview.bugMine',JSON.stringify(m.slice(0,50)))}catch(e){}
+  bugV={...bugV,view:'mine',text:'',img:'',msg:T('谢谢！已经送出，管理员会尽快处理。')};await bugLoad()}
+async function bugLoad(){const v=bugV;if(!v)return;v.list=null;bugUi();
+  try{const db=await Shared.db(),c=db.collection('bugs');let qs;
+    if(v.view==='admin')qs=await c.limit(500).get();else{const u=firebase.auth().currentUser;qs=await c.where('uid','==',u?u.uid:'-').get()}
+    v.list=qs.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>b.t-a.t);if(v.view==='admin')bugNew=v.list.filter(x=>x.st==='new').length}
+  catch(e){v.list=[];v.msg=T('读不到回报：{0}',e.message)}if(bugV===v)bugUi()}
+async function bugSet(id,o){const db=await Shared.db();await db.collection('bugs').doc(id).update({...o,upd:Date.now()});const x=bugV.list.find(b=>b.id===id);if(x)Object.assign(x,o);bugNew=bugV.list.filter(b=>b.st==='new').length;bugUi()}
+async function bugBadge(){const b=$('#bugBtn');if(!b)return;if(typeof tsIsAdm!=='function'||!tsIsAdm()){bugNew=0}
+  else try{const db=await Shared.db(),qs=await db.collection('bugs').where('st','==','new').get();bugNew=qs.docs.length}catch(e){}
+  b.innerHTML='🐞 '+escH(T('回报'))+(bugNew?` <span class="bugdot">${bugNew}</span>`:'')}
+function bugExport(list){return list.map((b,i)=>{let c={};try{c=JSON.parse(b.sgf||'{}')}catch(e){}
+  return[`#${i+1} [${bugTypeName(b.type)}][${bugStName(b.st)}] ${new Date(b.t).toLocaleString()} · ${b.name||''}`,`${T('位置')}：${b.where||c.where||''}`,`${T('说明')}：${b.text||''}`,b.reply?`${T('回复')}：${b.reply}`:'',
+    `${T('设备')}：${c.ua||''} · ${c.scr||''} · ${c.vw||''} · ${T('版本')} ${c.ver||''}`,c.errs&&c.errs.length?`${T('错误纪录')}：\n`+c.errs.map(e=>'  '+e.m+' @ '+e.s).join('\n'):'',c.sgf?`SGF：${c.sgf.slice(0,4000)}`:'',b.img?T('（有附图）'):''].filter(Boolean).join('\n')}).join('\n\n----\n\n')}
+function bugItemHtml(b,adm){let c={};try{c=JSON.parse(b.sgf||'{}')}catch(e){}
+  return`<div class="bugit ${b.st}"><div class="row" style="align-items:center;margin:0"><b>${bugTypeName(b.type)}</b><span class="note" style="margin:0">${new Date(b.t).toLocaleString()}${adm?' · '+escH(b.name||''):''}</span><span class="bugst ${b.st}">${bugStName(b.st)}</span></div>
+    ${b.where?`<div class="note" style="margin:0">📍 ${escH(b.where)}</div>`:''}<div class="bugtx">${escH(b.text||'')}</div>${b.img?`<a href="${b.img}" target="_blank"><img src="${b.img}" alt="" class="bugimg"></a>`:''}
+    ${b.reply&&!adm?`<div class="bugrep">💬 ${escH(b.reply)}</div>`:''}
+    ${adm?`<details><summary>${T('自动附上的资料')}</summary><pre class="bugpre">${escH([`${T('设备')}：${c.ua||''}`,`${T('屏幕')}：${c.scr||''} · ${c.vw||''}`,`${T('版本')}：${c.ver||''} · ${c.mode||''} · ${c.lang||''}`,c.pid?'pid: '+c.pid:'',...(c.errs||[]).map(e=>'⚠ '+e.m+' @ '+e.s)].filter(Boolean).join('\n'))}</pre>${c.sgf?`<button class="btn" data-bg="sgf" data-id="${b.id}">${T('复制棋谱')}</button>`:''}</details>
+      <div class="row" style="align-items:center"><span class="seg">${BUG_ST.map(([k,l])=>`<button data-bg="st" data-v="${k}" data-id="${b.id}" aria-pressed="${b.st===k}">${T(l)}</button>`).join('')}</span></div>
+      <div class="row" style="align-items:center"><input data-rep="${b.id}" value="${escH(b.reply||'')}" placeholder="${T('回复（回报的人看得到）')}" style="flex:1;min-width:10em;height:34px"><button class="btn" data-bg="rep" data-id="${b.id}">${T('送出回复')}</button><button class="btn warn" data-bg="del" data-id="${b.id}">${T('删除')}</button></div>`:''}</div>`}
+function bugUi(){const v=bugV;if(!v)return;let o=$('#bugBox');if(!o){o=document.createElement('div');o.id='bugBox';o.className='picbox';document.body.appendChild(o);o.onclick=bugClick;o.onchange=bugChange;o.oninput=bugInput}
+  const adm=typeof tsIsAdm==='function'&&tsIsAdm(),c=v.ctx;
+  let h=`<div class="picin bugin"><div class="row" style="align-items:center;margin:0"><span class="seg"><button data-bg="v" data-v="form" aria-pressed="${v.view==='form'}">🐞 ${T('回报问题')}</button><button data-bg="v" data-v="mine" aria-pressed="${v.view==='mine'}">${T('我的回报')}</button>${adm?`<button data-bg="v" data-v="admin" aria-pressed="${v.view==='admin'}">${T('全部回报')}${bugNew?` <span class="bugdot">${bugNew}</span>`:''}</button>`:''}</span><button class="btn" data-bg="close" style="margin-left:auto">${T('关闭')}</button></div>`;
+  if(v.msg)h+=`<p class="status">${escH(v.msg)}</p>`;
+  if(v.view==='form'){h+=`<div class="score-opts"><span>${T('类型')}</span><span class="seg">${BUG_TYPES.map(([k,l])=>`<button data-bg="type" data-v="${k}" aria-pressed="${v.type===k}">${T(l)}</button>`).join('')}</span></div>
+    <textarea id="bugText" rows="5" maxlength="3000" placeholder="${T('发生什么事？你做了什么？例如：按了「下一题」后画面没反应。')}">${escH(v.text)}</textarea>
+    <div class="row" style="align-items:center"><label class="btn" style="cursor:pointer">📷 ${v.img?T('换图片'):T('附图片')}<input type="file" id="bugImgIn" accept="image/*" hidden></label>${v.img?`<img src="${v.img}" class="bugimg" alt=""><button class="btn" data-bg="noimg">✕</button>`:''}</div>
+    <label class="bugck"><input type="checkbox" id="bugAtt"${v.att?' checked':''}> ${T('附上当时的棋谱或题目')}${c.where?'（'+escH(c.where)+'）':''}</label>
+    <details><summary class="note">${T('会自动附上：画面、网页版本、设备、屏幕大小、最近的程序错误（{0} 个）',c.errs.length)}</summary><pre class="bugpre">${escH([c.where,c.ua,c.scr+' · '+c.vw,c.ver,...c.errs.map(e=>'⚠ '+e.m)].filter(Boolean).join('\n'))}</pre></details>
+    <div class="row"><button class="btn pri" data-bg="send">${T('送出')}</button><span class="note" style="margin:0;align-self:center">${T('今天还可以回报 {0} 次',Math.max(0,bugQuota()))}</span></div>`}
+  else{const L=v.list;if(!L)h+=`<p class="note">${T('载入中…')}</p>`;
+    else{const isA=v.view==='admin',show=isA?L.filter(b=>v.filter==='all'||(v.filter==='open'?b.st!=='done':b.st===v.filter)):L;
+      if(isA)h+=`<div class="row" style="align-items:center"><span class="seg">${[['open',T('未解决')],['new',T('新')],['done',T('已解决')],['all',T('全部')]].map(([k,l])=>`<button data-bg="flt" data-v="${k}" aria-pressed="${v.filter===k}">${l}</button>`).join('')}</span><button class="btn" data-bg="export">📋 ${T('导出全部回报')}</button></div>${v.exp!=null?`<textarea class="bugexp" rows="8" readonly>${escH(v.exp)}</textarea>`:''}`;
+      h+=show.length?show.map(b=>bugItemHtml(b,isA)).join(''):`<p class="note">${isA?T('没有回报。'):T('你还没有回报过问题。')}</p>`;
+      if(!isA&&!tsUid())h+=`<p class="note">${T('没有登录：只看得到在这台设备送出的回报。')}</p>`}}
+  o.innerHTML=h+'</div>'}
+async function bugClick(e){if(e.target.id==='bugBox'){bugClose();return}const t=e.target.closest('[data-bg]');if(!t)return;const a=t.dataset.bg,v=bugV;v.msg='';
+  try{
+    if(a==='close'){bugClose();return}
+    if(a==='v'){v.view=t.dataset.v;v.exp=null;if(v.view==='form')bugUi();else await bugLoad();return}
+    if(a==='type'){v.type=t.dataset.v;bugUi();return}
+    if(a==='noimg'){v.img='';bugUi();return}
+    if(a==='flt'){v.filter=t.dataset.v;bugUi();return}
+    if(a==='send'){t.disabled=true;await bugSend();return}
+    if(a==='export'){const L=v.list||[];v.exp=bugExport(L.filter(b=>b.st!=='done').length?L.filter(b=>b.st!=='done'):L);try{await navigator.clipboard.writeText(v.exp);v.msg=T('已复制到剪贴板，可以直接贴给 Claude。')}catch(x){v.msg=T('请在下面的框里全选复制。')}bugUi();return}
+    if(a==='st'){await bugSet(t.dataset.id,{st:t.dataset.v});return}
+    if(a==='rep'){const i=document.querySelector(`#bugBox [data-rep="${t.dataset.id}"]`);await bugSet(t.dataset.id,{reply:(i&&i.value||'').slice(0,1000),...(i&&i.value?{st:'doing'}:{})});v.msg=T('回复已送出');bugUi();return}
+    if(a==='del'){armed(t,T('再点一次确认删除'),async()=>{const db=await Shared.db();await db.collection('bugs').doc(t.dataset.id).delete();v.list=v.list.filter(b=>b.id!==t.dataset.id);bugNew=v.list.filter(b=>b.st==='new').length;bugUi()});return}
+    if(a==='sgf'){const b=v.list.find(x=>x.id===t.dataset.id);let c={};try{c=JSON.parse(b.sgf)}catch(x){}try{await navigator.clipboard.writeText(c.sgf||'');v.msg=T('棋谱已复制')}catch(x){v.msg=T('复制不了')}bugUi();return}
+  }catch(err){v.msg=err.message;t.disabled=false;bugUi()}}
+async function bugChange(e){const v=bugV;if(e.target.id==='bugAtt'){v.att=e.target.checked;return}
+  if(e.target.id==='bugImgIn'&&e.target.files[0]){v.img=await bugImg(e.target.files[0]);bugUi()}}
+function bugInput(e){if(e.target.id==='bugText')bugV.text=e.target.value}
+setTimeout(bugBadge,6000);setInterval(bugBadge,10*60000);
 /* ===================== 吃子关卡、限时挑战 ===================== */
 // 小型吃子计算：黑要在 k 手内吃掉目标白棋（t），白尽力逃。棋盘是一维数组：0 空、1 黑、2 白
 const Cap=(()=>{
@@ -8744,7 +8898,7 @@ $('#scoreExit').onclick=stopScoring;
 $('#scoreClear').onclick=()=>{if(scoring){scoring.dead=new Set();render()}};
 $('#ruleSeg').onclick=e=>{const b=e.target.closest('button');if(!b||!scoring)return;scoring.rule=b.dataset.r;scoring.komi=RULE_KOMI[b.dataset.r];render()};
 $('#komiIn').addEventListener('input',e=>{const v=parseFloat(e.target.value);if(scoring&&isFinite(v)){scoring.komi=v;renderScore()}});
-$('#scoreWrite').onclick=()=>{if(!scoring)return;snap();if(typeof markInfo==='function')markInfo();const re=scoreRE();root().props.RE=[re];
+$('#scoreWrite').onclick=()=>{if(!scoring||typeof vs!=='undefined'&&vs&&(vs.cert||vs.ladder))return;snap();if(typeof markInfo==='function')markInfo();const re=scoreRE();root().props.RE=[re];
   const ru={cn:'Chinese',jp:'Japanese',ing:'Ing'}[scoring.rule];root().props.RU=[ru];root().props.KM=[String(scoring.komi)];
   renderInfo();changed(false);render();flash(T('结果已写入：{0}',resultText(re)))};
 $('#langBtn').onclick=()=>{LANG=LANG==='en'?'zh':'en';prefs.lang=LANG;try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(e){}applyStatic();$('#shareStatus').textContent='';renderWho();renderTree();render();renderLib();Drive.ui();if(curMode()==='home')renderHome();if(!$('#tsBox').hidden)renderTs()};
@@ -8811,7 +8965,9 @@ $('#ngName').oninput=e=>{ng.name=e.target.value};$('#ngAuto').onchange=e=>{ng.au
 $('#aiToggle').onclick=()=>setAiHint(!aiHint);
 $('#revToggle').onclick=()=>$('#revBox').hidden?revOpen():revClose();
 $('#revClose').onclick=revClose;
-$('#homeBtn').onclick=goHome;$('#duelBody').addEventListener('click',duelAct);$('#duelBody').addEventListener('change',duelChange);$('#certBody').addEventListener('click',certAct);$('#certBody').addEventListener('change',certChange);$('#certClose').onclick=certClose;$('#ngPc').onchange=e=>{prefs.vsPc=e.target.checked;try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(x){}};$('#vsJudge').onclick=()=>{if(vs&&(vs.ladder||vs.cert))return;judging=!judging;$('#judgeToggle').setAttribute('aria-pressed',judging);if(judging&&scoring)stopScoring();render();renderVs()};$('#vsAgain').onclick=()=>{if(vs&&vs.cert){vsStop();certOpen()}else openNew()};$('#vsRevBtn').onclick=()=>{setMode('review');revOpen()};$('#vsHomeBtn').onclick=goHome;$('#homeBox').onclick=e=>{if(e.target.closest('[data-au]')){authAct(e);return}if(e.target.closest('[data-ck]')){ckDo();return}const b=e.target.closest('[data-h]');if(b)homeGo(b.dataset.h)};$('#homeBox').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){const f=e.target.closest('.authcard');const b=f&&f.querySelector('.btn.pri');if(b)b.click()}});
+$('#homeBtn').onclick=goHome;$('#duelBody').addEventListener('click',duelAct);$('#duelBody').addEventListener('change',duelChange);$('#certBody').addEventListener('click',certAct);$('#certBody').addEventListener('change',certChange);$('#certClose').onclick=certClose;$('#ngPc').onchange=e=>{prefs.vsPc=e.target.checked;try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(x){}};$('#bugBtn').onclick=()=>bugOpen();$('#vsAppeal').onclick=()=>bugOpen({type:'ai',text:T('这盘的输赢判断有问题：')});
+$('#vsCount').onclick=()=>{if(vs&&(vs.ladder||vs.cert)&&!vs.over)return;if(judging){judging=false;$('#judgeToggle').setAttribute('aria-pressed',false);$('#vsJudge').setAttribute('aria-pressed',false)}scoring?stopScoring():startScoring();if(vs)renderVs()};
+$('#vsJudge').onclick=()=>{if(vs&&(vs.ladder||vs.cert)&&!vs.over)return;judging=!judging;$('#judgeToggle').setAttribute('aria-pressed',judging);if(judging&&scoring)stopScoring();render();renderVs()};$('#vsAgain').onclick=()=>{if(vs&&vs.cert){vsStop();certOpen()}else openNew()};$('#vsRevBtn').onclick=()=>{setMode('review');revOpen()};$('#vsHomeBtn').onclick=goHome;$('#homeBox').onclick=e=>{if(e.target.closest('[data-au]')){authAct(e);return}if(e.target.closest('[data-ck]')){ckDo();return}const b=e.target.closest('[data-h]');if(b)homeGo(b.dataset.h)};$('#homeBox').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){const f=e.target.closest('.authcard');const b=f&&f.querySelector('.btn.pri');if(b)b.click()}});
 $('#playMenu').onclick=e=>{const b=e.target.closest('[data-pk]');if(b)playPick(b.dataset.pk)};$('#recDone').onclick=recDone;
 $('#olToggle').onclick=()=>$('#olBox').hidden?olPanelOpen():olPanelClose();$('#olClose').onclick=()=>{olPanelClose();if(curMode()==='play'&&$('#olBox').hidden&&!vs)goHome()};$('#olBody').addEventListener('click',olAct);$('#cgBody').addEventListener('click',cgAct);$('#cgClose').onclick=()=>{cgClose();if(curMode()==='play')goHome()};
 $('#tsToggle').onclick=()=>$('#tsBox').hidden?tsOpenPanel():tsClosePanel();$('#tsClose').onclick=()=>curMode()==='ts'?goHome():tsClosePanel();$('#tsBody').addEventListener('click',tsAct);

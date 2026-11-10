@@ -66,6 +66,24 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ---- 考卷成绩：学生自己交；自己、班级老师、管理员看得到；只有管理员能改或删 ----
+    match /exres/{id} {
+      allow create: if signed() && small() && request.resource.data.uid == request.auth.uid;
+      allow get, list: if isAdmin() || (signed() && resource.data.uid == request.auth.uid)
+        || (signed() && resource.data.cls is string && resource.data.cls.matches('cls_.*') && ownsClass(resource.data.cls));
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- 问题回报：谁都能交（含访客匿名登录）；自己和管理员看得到；只有管理员能改状态、回复、删除 ----
+    match /bugs/{id} {
+      allow create: if signed() && small() && request.resource.data.uid == request.auth.uid
+        && request.resource.data.st == 'new' && request.resource.data.reply == ''
+        && (!('img' in request.resource.data) || (request.resource.data.img is string && request.resource.data.img.size() < 420000))
+        && request.resource.data.text is string && request.resource.data.text.size() <= 3000;
+      allow get, list: if isAdmin() || (signed() && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
     // ---- 棋谱分享、线上对弈、家里电脑（不是班级）：维持原来的做法 ----
     // wmga_global：内建练习册的「全站原版」修改，大家都能读，只有管理员能改
     match /games/{gid} {

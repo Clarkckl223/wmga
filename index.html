@@ -257,6 +257,7 @@ body.is-training #tree,body.is-training #vars{visibility:hidden}
 .tsbook span{font-size:.8rem;color:var(--muted)}.tsbook i{position:absolute;left:0;bottom:0;height:4px;background:#2E8B57}
 .tstable{overflow-x:auto}.tstable table{border-collapse:collapse;width:100%;font-size:14px}.tstable td,.tstable th{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left;white-space:nowrap}.exfl{display:flex;flex-direction:column;gap:4px;max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0}.exfl label[hidden]{display:none!important}.exfl label{display:flex;gap:6px;align-items:center;cursor:pointer}.exfl input{width:18px;height:18px}.exrow{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0}.exrow>div:first-child{display:flex;flex-direction:column;gap:2px}.exrow .row{margin:0}.exbad{color:var(--bad,#C0392B)}.exrows .row{margin:4px 0;flex-wrap:wrap}.exrows select{height:34px;max-width:16em}
 .bugdot{display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:#D93025;color:#fff;font-size:12px;text-align:center;padding:0 5px;margin-left:2px}.bugin{width:min(96vw,720px);gap:8px}.bugin textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;background:var(--panel,#fff);color:var(--ink)}.bugimg{max-height:90px;max-width:160px;border-radius:6px;border:1px solid var(--line)}.bugck{display:flex;gap:6px;align-items:center}.bugpre{white-space:pre-wrap;font-size:12px;max-height:180px;overflow:auto;background:var(--accent-soft);padding:6px;border-radius:6px}.bugit{border:1px solid var(--line);border-left:4px solid #D93025;border-radius:8px;padding:8px;margin:6px 0;display:flex;flex-direction:column;gap:4px}.bugit.doing{border-left-color:#C27C0E}.bugit.done{border-left-color:#2E8B57;opacity:.8}.bugst{margin-left:auto;font-size:13px;font-weight:600}.bugst.new{color:#D93025}.bugst.doing{color:#C27C0E}.bugst.done{color:#2E8B57}.bugtx{white-space:pre-wrap}.bugrep{background:var(--accent-soft);border-radius:6px;padding:6px}.bugexp{font-size:12px}
+#clInk{position:absolute;z-index:4;pointer-events:none;touch-action:none}#clInk.pen{pointer-events:auto;cursor:crosshair}.clst{font-size:13px;font-weight:600;padding:1px 8px;border-radius:10px;background:var(--accent-soft)}.clst.live{background:#2E8B57;color:#fff}.clst.end{opacity:.7}.clcol{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer}.clcol.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--panel,#fff) inset}.clboard{white-space:pre-wrap;background:var(--accent-soft);border-radius:8px;padding:8px}#clBoardIn{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;background:var(--bg);color:var(--ink)}.clchat{border-top:1px solid var(--line);padding-top:6px;display:flex;flex-direction:column;gap:6px}.clmsgs{max-height:220px;overflow:auto;font-size:14px;display:flex;flex-direction:column;gap:2px}.clpick{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px}.clstat{background:var(--accent-soft);border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:2px}
 .tsthg{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}.tsth{border:2px solid #B9C0C8;border-radius:10px;background:var(--panel);padding:4px;display:flex;flex-direction:column;gap:2px;align-items:stretch;text-align:left;color:var(--ink);cursor:pointer;font:inherit}.tsth[hidden]{display:none}.tsthb{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:6px;overflow:hidden}.tsthb svg{max-width:100%;max-height:100%;height:auto}.tstht{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tsthm{font-size:12px;color:var(--muted)}.tsthm small{color:#C27C0E}.tsth.g{border-color:#2E8B57}.tsth.b{border-color:#2E6FA8}.tsth.r{border-color:#C0392B}.tsp[hidden]{display:none}
 .tsgrid{display:flex;flex-wrap:wrap;gap:6px}
 .tsp.cap small{color:#d9a400;letter-spacing:-1px}.tsp.lock{opacity:.45}
@@ -481,7 +482,7 @@ body.pick #undoBtn,body.pick #redoBtn,body.pick #saveBtn,body.pick #shareBtn{dis
 
   <section id="homeBox" class="home"></section>
   <main>
-    <div class="playmenu" id="playMenu"><b>下棋</b><button class="btn" data-pk="ai">和 AI 下</button><button class="btn" data-pk="ladder">升级赛</button><button class="btn" data-pk="online">线上对弈</button><button class="btn" data-pk="cap">吃子棋</button><button class="btn" data-pk="cert">棋力认证</button><button class="btn" data-pk="duel">AI 对战</button></div>
+    <div class="playmenu" id="playMenu"><b>下棋</b><button class="btn" data-pk="ai">和 AI 下</button><button class="btn" data-pk="ladder">升级赛</button><button class="btn" data-pk="online">线上对弈</button><button class="btn" data-pk="cap">吃子棋</button><button class="btn" data-pk="cert">棋力认证</button><button class="btn" data-pk="duel">AI 对战</button><button class="btn" data-pk="room">网课课堂</button></div>
     <div class="playmenu" id="recBar"><b>记谱</b><span class="note" style="margin:0">在棋盘上依序下，评论写在右边。</span><button class="btn pri" id="recDone">存好了，再记一盘</button></div>
     <div class="players">
       <div class="pl b"><span class="dot b"></span><div style="min-width:0"><div class="nm" id="pbName">黑方</div><div class="sub" id="pbSub"></div></div></div>
@@ -654,7 +655,7 @@ body.pick #undoBtn,body.pick #redoBtn,body.pick #saveBtn,body.pick #shareBtn{dis
       <div class="score-opts"><span>棋盘</span><span class="seg" id="ngSize"><button data-v="7">7 路</button><button data-v="9">9 路</button><button data-v="13">13 路</button><button data-v="19">19 路</button></span></div>
       <div class="score-opts" id="ngHaRow">
         <label for="ngHa"><span>让子</span><select id="ngHa"></select></label>
-        <label for="ngKomi"><span>贴目</span><input id="ngKomi" type="number" step="0.5" inputmode="decimal"></label>
+        <label for="ngKomi"><span>贴目</span><input id="ngKomi" type="number" step="0.5" inputmode="decimal"><small id="ngKomiNote" class="note" style="margin:0"></small></label>
       </div>
       <div class="score-opts"><span>对手</span><span class="seg" id="ngOpp"><button data-v="ai">和 AI 下</button><button data-v="ladder">升级赛</button><button data-v="self">自己摆</button></span></div>
       <div class="score-opts" id="ngAiRow">
@@ -682,6 +683,10 @@ body.pick #undoBtn,body.pick #redoBtn,body.pick #saveBtn,body.pick #shareBtn{dis
     <div class="score" id="cgBox" hidden>
       <div class="score-head"><b>吃子棋</b><span>先吃到规定子数的一方赢。</span><button class="btn" id="cgClose" style="margin-left:auto">关闭</button></div>
       <div id="cgBody" class="stack"></div>
+    </div>
+    <div class="score cl" id="clBox" hidden>
+      <div class="score-head"><b>网课课堂</b><span>老师讲解，学生实时跟着看、答题。</span><button class="btn" id="clClose" style="margin-left:auto">关闭</button></div>
+      <div id="clBody" class="stack"></div>
     </div>
     <div class="score ol" id="olBox" hidden>
       <div class="score-head"><b>线上对弈</b><span>邀请朋友，或在大厅找人下。</span><button class="btn" id="olClose" style="margin-left:auto">关闭</button></div>
@@ -2153,6 +2158,84 @@ const EN={
 ,"选文件夹或练习册…":"Choose folder or workbook…"
 ,"文件夹":"Folders"
 ,"每行：从哪个文件夹或练习册抽几题。只能用全站的，所有学生的题库才一样。":"Each row: how many problems from which folder or workbook. Site-wide ones only, so every student has the same pool."
+,"7 路不贴目：黑 25 子以上胜，不足 25 子白胜。":"7×7, no komi: Black wins with 25+ stones, otherwise White wins."
+,"{0} 人":"{0}"
+,"上课中":"Live"
+,"上课时间":"Start"
+,"下课":"End class"
+,"下课了！可以在课堂列表按「复习」看回整堂课。":"Class is over! Use Review in the class list to go over it again."
+,"下课时间":"End"
+,"下课时间要比上课时间晚":"End time must be after start time"
+,"不贴目（黑 25 子胜）":"no komi (Black wins with 25)"
+,"不贴目，黑 25 子胜":"no komi, Black wins with 25"
+,"交替落子；右键删最后一手。":"Alternate moves; right-click removes the last move."
+,"全员禁言":"Mute all"
+,"再点一次删除这页":"Tap again to delete this page"
+,"再点一次清空":"Tap again to clear"
+,"再点一次：下课":"Tap again: end class"
+,"写给全班看的文字…":"Text for the whole class…"
+,"创建课堂":"Create class"
+,"删除这页":"Delete page"
+,"刷新":"Refresh"
+,"发送":"Send"
+,"可以自由翻看；老师当时画的线会在那一手显示。":"Browse freely; the teacher's drawings appear on the moves where they were made."
+,"在线 {0} 人":"{0} online"
+,"复习":"Review"
+,"已下课":"Ended"
+,"已下课，整堂课已存好给学生复习。":"Class ended; saved for students to review."
+,"已作答":"Answered"
+,"开始答题":"Start quiz"
+,"开放":"Open"
+,"开放发言":"Allow chat"
+,"所有人":"Everyone"
+,"推荐落子":"Suggest moves"
+,"撤销":"Undo"
+,"擦":"Erase"
+,"收起统计":"Hide stats"
+,"未开始":"Not started"
+,"棋谱库里没有棋谱。":"No games in your library."
+,"清空棋盘":"Clear board"
+,"清空画板":"Clear drawings"
+,"点一下加标记，再点一下取消；按住拖动可以连续画地盘。":"Tap to add a mark, tap again to remove; drag to paint territory."
+,"现在没有你可以进入的课堂。":"No classes you can join right now."
+,"画笔":"Pen"
+,"画笔颜色":"Pen colour"
+,"白胜":"White wins"
+,"空白页":"Blank page"
+,"第 1 局执黑、第 2 局执白、第 3 局猜先；{0}（中国数子）。":"Game 1 Black, game 2 White, game 3 by nigiri; {0} (Chinese counting)."
+,"答题中：已作答 {0} 人":"Quiz: {0} answered"
+,"粗":"Thick"
+,"细":"Thin"
+,"结束答题":"End quiz"
+,"网课课堂":"Online class"
+,"老师出题了：在棋盘上点你的答案":"Quiz time: tap your answer on the board"
+,"老师出题：在棋盘上点你的答案":"Quiz: tap your answer on the board"
+,"老师已关闭发言":"The teacher has muted chat"
+,"老师讲解中。想自己摆，按「试下」":"The teacher is explaining. Press Try to play on your own."
+,"老师讲解，学生实时跟着看、答题。":"The teacher explains; students follow live and answer."
+,"聊天室":"Chat"
+,"落子":"Place"
+,"落子统计":"Answer stats"
+,"试下中（老师看不到）":"Trying on your own (teacher can't see)"
+,"请输入课堂名":"Enter a class name"
+,"读不到课堂：{0}":"Can't load classes: {0}"
+,"课件":"Slides"
+,"课件 {0} / {1}":"Slide {0} / {1}"
+,"课堂名":"Class name"
+,"课堂密码（可不填）":"Password (optional)"
+,"课堂已创建。":"Class created."
+,"谁可以进入":"Who can join"
+,"跟着老师的棋盘":"Following the teacher"
+,"跟随老师":"Follow teacher"
+,"输入要说的话（最多 100 字）":"Type a message (max 100 chars)"
+,"还没有人作答。":"No answers yet."
+,"还没有人发言。":"No messages yet."
+,"还没有课堂，按「创建课堂」开一堂。":"No classes yet; press Create class."
+,"进入":"Join"
+,"退出":"Exit"
+,"选择棋谱":"Choose game"
+,"黑板":"Blackboard"
+,"黑胜":"Black wins"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -4207,9 +4290,9 @@ function renderScore(){
   // 结果文字
   let line='',sub='',d=res.diff;
   if(scoring.rule==='cn'){
-    const need=res.half+scoring.komi/2;line=T('黑 {0} 子，白 {1} 子',fmtQ(res.B),fmtQ(res.W));
-    sub=T('黑需要 {0} 子才胜（贴 {1} 子）。',fmtQ(need),fmtQ(scoring.komi/2));
-    const v=fmtQ(Math.abs(d)/2);line+=' → '+(d>0?T('黑胜 {0} 子',v):d<0?T('白胜 {0} 子',v):T('和棋（平局）'));
+    const need=res.half+scoring.komi/2,n7=sizeOf(root())===7&&scoring.komi===0.5;line=T('黑 {0} 子，白 {1} 子',fmtQ(res.B),fmtQ(res.W));
+    sub=n7?T('7 路不贴目：黑 25 子以上胜，不足 25 子白胜。'):T('黑需要 {0} 子才胜（贴 {1} 子）。',fmtQ(need),fmtQ(scoring.komi/2));
+    const v=fmtQ(Math.abs(d)/2);line+=' → '+(n7?(d>0?T('黑胜'):T('白胜')):d>0?T('黑胜 {0} 子',v):d<0?T('白胜 {0} 子',v):T('和棋（平局）'));
   }else if(scoring.rule==='jp'){
     line=T('黑 {0} 目，白 {1} 目',fmtQ(res.B),fmtQ(res.W))+' → '+(d>0?T('黑胜 {0} 目',fmtQ(d)):d<0?T('白胜 {0} 目',fmtQ(-d)):T('和棋（平局）'));
   }else{
@@ -4809,7 +4892,8 @@ function setAiHint(on){aiHint=on;$('#aiToggle').setAttribute('aria-pressed',on);
 AI.on(()=>{renderAiBar();renderAiNet();if(typeof renderVs==='function')renderVs();if(G&&(judging||scoring))render()});
 
 /* ---- 新对局：棋盘大小、让子、贴目、和 AI 下 ---- */
-const MAX_HA={7:5,9:9,13:9,19:9},KOMI_DEF={7:9,9:5.5,13:5.5,19:7.5}; // 中国数子：9 路黑 44 子、13 路 88 子、19 路 185 子才胜
+const MAX_HA={7:5,9:9,13:9,19:9},KOMI_DEF={7:0.5,9:5.5,13:5.5,19:7.5}; // 7 路给初学者：不贴目，黑 25 子胜（程序里用 0.5，黑 24.5 子算白胜）
+const komiText=(n,km)=>(km==null?KOMI_DEF[n]:+km)===0.5&&n===7?T('不贴目（黑 25 子胜）'):T('贴 {0} 目',km==null?KOMI_DEF[n]:km); // 中国数子：9 路黑 44 子、13 路 88 子、19 路 185 子才胜
 // 棋力等级（名字以仿人类为准；5 级以下：GNU Go 学生版；4 级～6 段：KataGo「校准棋力」，方法取自 KaTrain（MIT，Sander Land）；7～9 段：再加上搜索）
 // 学生版参数（三种棋盘各一套，用家里电脑的 calibrate.py 校准）：一律用 GNU Go 等级 10 找候选；d=级位-6；温度 T=tA·d^tB；8 级以下才会乱下一手，机会 pA·(级位-7)，最多 pMax
 const STU={9:{tA:0.5,tB:1.1,pA:0.02,pMax:0.6},13:{tA:0.28,tB:1.05,pA:0.008,pMax:0.35,b0:6},19:{tA:0.15,tB:1.0,pA:0.004,pMax:0.2},base:6,lv:10};
@@ -4887,7 +4971,7 @@ function handicapPts(n,h){const d=n>=13?3:2,a=d,b=n-1-d,c=(n-1)/2,pts=[];
   if(h===5||h===7||h===9)pts.push([c,c]);if(h>=6)pts.push([a,c],[b,c]);if(h>=8)pts.push([c,a],[c,b]);return pts}
 let ng={size:19,ha:0,komi:7.5,opp:'ai',color:'B',level:'10k',lv:{},auto:true,name:'',eng:'kata'};
 try{const v=JSON.parse(localStorage.getItem('goReview.newgame')||'null');if(v)ng={...ng,...v}}catch(e){}
-if(ng.ha<1&&(ng.size===9&&ng.komi===7||ng.size===13&&ng.komi===7.5))ng.komi=KOMI_DEF[ng.size]; // 旧的默认贴目
+if(ng.ha<1&&(ng.size===9&&ng.komi===7||ng.size===13&&ng.komi===7.5||ng.size===7&&ng.komi===9))ng.komi=KOMI_DEF[ng.size]; // 旧的默认贴目
 function ngSave(){try{localStorage.setItem('goReview.newgame',JSON.stringify(ng))}catch(e){}}
 function ngKey(n,eng){return eng==='gnugo'?'g'+n:n}
 function ngLevel(){const eng=ng.eng==='gnugo'?'gnugo':'kata',ids=oppIds(ng.size,eng),v=ng.lv&&ng.lv[ngKey(ng.size,eng)];return ids.includes(v)?v:eng==='gnugo'?'g5':ids.includes(ng.level)?ng.level:ids[Math.min(4,ids.length-1)]}
@@ -4911,7 +4995,7 @@ function renderNew(){if(G&&G.id==='__blank'&&sizeOf(G.root)!==ng.size)blankBoard
     $('#ngLadder').innerHTML=`<b>${T('{0} 路升级赛 · 你的级位：{1}',ng.size,lvName(L.lv))}</b><br>${T('对手是同级的 AI，黑白轮流。连赢 {0} 盘升一级，连输 {1} 盘降一级。',LAD_UP,LAD_DOWN)}${k?' '+k+'。':''}${L.games?' '+T('共 {0} 盘，赢 {1} 盘，最高 {2}。',L.games,L.wins,lvName(L.best)):''}`}
   const cl=ngLevel();$('#ngLevel').innerHTML=oppIds(ng.size,eng).map(id=>`<option value="${id}"${id===cl?' selected':''}>${lvName(id)}${id==='max'?T('（按思考时间）'):''}</option>`).join('');
   if(document.activeElement!==$('#ngName'))$('#ngName').value=ng.name||me()||'';$('#ngAuto').checked=ng.auto!==false;
-  if(document.activeElement!==$('#ngKomi'))$('#ngKomi').value=ng.komi;
+  if(document.activeElement!==$('#ngKomi'))$('#ngKomi').value=ng.komi;{const kn=$('#ngKomiNote');if(kn)kn.textContent=ng.size===7&&+ng.komi===0.5?T('不贴目，黑 25 子胜'):''}
   $('#ngAiRow').hidden=ng.opp==='self';$('#ngTimeL').hidden=lad||cl!=='max';if(document.activeElement!==$('#ngTime'))$('#ngTime').value=String(prefs.aiPlayTime??5);
   $('#ngPcL').hidden=!(PC.on()&&ng.opp!=='self');$('#ngPc').checked=prefs.vsPc!==false;
   $('#ngNote').textContent=ng.opp==='self'?'':!lad&&eng==='gnugo'?T('GNU Go 是传统的电脑围棋程序（大约 5–15 级），第一次要下载约 1 MB。'):eng==='kata'?T('5 级以下由 GNU Go 学生版下（约 1 MB），4 级以上由 KataGo 下（约 12 MB）。棋力是校准过的大约值。'):T('第一次要下载约 12 MB。棋力是大约的。');
@@ -5060,7 +5144,7 @@ function vsStop(){vs=null;$('#vsBox').hidden=true;if(judging){judging=false;$('#
 function renderVs(){
   if(!vs){return}const box=$('#vsBox');box.hidden=false;
   const r=root(),n=sizeOf(r),ha=parseInt(prop(r,'HA')||'0',10)||0,user=vs.ai===1?'W':'B';
-  $('#vsSub').textContent=[T('AI 棋力：{0}',lvName(vs.level)),T('{0} 路',n),ha>=2?T('让 {0} 子',ha):'',T('贴 {0} 目',prop(r,'KM')||'0')].filter(Boolean).join(' · ');
+  $('#vsSub').textContent=[T('AI 棋力：{0}',lvName(vs.level)),T('{0} 路',n),ha>=2?T('让 {0} 子',ha):'',komiText(n,prop(r,'KM')||'0')].filter(Boolean).join(' · ');
   const st=vs.level.gg||vs.level.stu?'ready':AI.status(),msg=$('#vsMsg');let t='';msg.className='big';
   if(vs.over){t=vs.endMsg;msg.classList.add('ok')}
   else if(st==='loading')t=T('AI 下载中（约 {1} MB，只需下载一次）… {0}%',Math.round(AI.prog()*100),AI.net().mb);
@@ -6265,6 +6349,8 @@ function playPick(k){ // 下棋模式上方的选择
   $('#cgBox').hidden=true;cg=null;if(G&&G.cgp){const r=parseSGF(`(;GM[1]FF[4]SZ[${ng.size||19}])`);G={id:'__blank',root:r};cur=r;render()}
   if(k==='duel'){duelOpen();return}if(k==='cert'){certOpen();return}
   $('#duelBox').hidden=true;$('#certBox').hidden=true;
+  if(k==='room'){closeNew();if(!$('#olBox').hidden)olPanelClose();clPanelOpen();return}
+  if(!$('#clBox').hidden)clPanelClose();
   if(k==='online'){closeNew();olPanelOpen();return}
   if(!$('#olBox').hidden)olPanelClose();ng.opp=k;ngSave();openNew();
 }
@@ -6354,13 +6440,13 @@ function renderCert(){
   else if(A){const w=A.res.filter(x=>x==='W').length,l=A.res.filter(x=>x==='L').length;
     h+=`<p class="big">${T('{0} 路 {1} 认证 · 第 {2} 局 · {3} 胜 {4} 败',A.n,lvName(A.lv),Math.min(3,A.res.length+1),w,l)}</p>`;
     h+=`<div class="row"><button class="btn pri" data-c="next"${vs&&!vs.over?' disabled':''}>${A.res.length?T('下一局'):T('开始第一局')}</button><button class="btn warn" data-c="quit">${T('放弃这次认证')}</button></div>`;
-    h+=`<p class="note" style="margin:0">${T('第 1 局执黑、第 2 局执白、第 3 局猜先；贴 {0} 目（中国数子）。',KOMI_DEF[A.n])} ${T('认证中不能悔棋、不能看提示和形势判断。')}</p>`}
+    h+=`<p class="note" style="margin:0">${T('第 1 局执黑、第 2 局执白、第 3 局猜先；{0}（中国数子）。',komiText(A.n))} ${T('认证中不能悔棋、不能看提示和形势判断。')}</p>`}
   else{h+=`<div class="score-opts"><label>${T('我的名字')} <input id="certName" maxlength="16" value="${tsE(name)}" placeholder="${T('必填，会写在证书上')}" style="width:10em"></label>
       <span>${T('棋盘')}</span><span class="seg" data-cn>${[13,19].map(v=>`<button data-v="${v}" aria-pressed="${o.n===v}">${v} 路</button>`).join('')}</span>
       <label>${T('要考的级位')} <select id="certLv">${ids.map(id=>`<option value="${id}"${id===o.lv?' selected':''}>${lvName(id)}</option>`).join('')}</select></label></div>
       <p class="note" style="margin:0">${certReqText(certReq(o.n+':'+o.lv))}</p>
       <div class="row"><button class="btn pri" data-c="start">${T('开始认证')}</button>${typeof tsIsAdm==='function'&&tsIsAdm()?`<button class="btn" data-c="cfg">⚙ ${T('各级位通过条件')}</button>`:''}</div>
-      <p class="note" style="margin:0">${T('第 1 局执黑、第 2 局执白、第 3 局猜先；贴 {0} 目（中国数子）。',KOMI_DEF[o.n])} ${certLow(o.lv)?T('对手是 GNU Go 学生版。'):T('对手是 KataGo 校准棋力。')}</p>`}
+      <p class="note" style="margin:0">${T('第 1 局执黑、第 2 局执白、第 3 局猜先；{0}（中国数子）。',komiText(o.n))} ${certLow(o.lv)?T('对手是 GNU Go 学生版。'):T('对手是 KataGo 校准棋力。')}</p>`}
   // 成长地图
   h+=`<b class="sub">${T('成长地图')}（${o.n} 路）</b><div class="certmap">${ids.map(id=>{const p=cert.passed[o.n+':'+id];return`<button class="certlv${p?' on':''}" data-c="${p?'show':'pick'}" data-l="${id}" title="${p?T('{0} 通过',new Date(p.t).toLocaleDateString()):''}">${lvName(id)}${p?'<small>★</small>':''}</button>`}).join('')}</div>`;
   if(cert.cfgView&&!A)h+=certCfgHtml();
@@ -8085,6 +8171,224 @@ async function bugChange(e){const v=bugV;if(e.target.id==='bugAtt'){v.att=e.targ
   if(e.target.id==='bugImgIn'&&e.target.files[0]){v.img=await bugImg(e.target.files[0]);bugUi()}}
 function bugInput(e){if(e.target.id==='bugText')bugV.text=e.target.value}
 setTimeout(bugBadge,6000);setInterval(bugBadge,10*60000);
+
+/* ---- 网课课堂（第一期）：老师动棋盘，学生实时跟着；标记、画笔、黑板、聊天、答题、课后复习 ----
+   Firestore：rooms/{rid}（课堂资料）、rooms/{rid}/live/state（老师的棋盘状态）、live/ware（课件）、live/rev（下课后的复习）、
+   rooms/{rid}/chat、rooms/{rid}/people（在线）、rooms/{rid}/ans（答题） */
+let cl=null,clView='lobby',clRooms=null,clMsg='',clForm=null,clPick=null;
+const CL_INK=['#E53935','#8E24AA','#1E88E5','#43A047','#00ACC1'];
+const clIsT=()=>(typeof tsIsAdm==='function'&&tsIsAdm())||!!(typeof acct!=='undefined'&&acct&&(acct.role==='teacher'||acct.role==='admin'))||(()=>{const L=tsLogin();return!!(L&&L.role==='teacher')})();
+async function clDb(){const db=await Shared.db(),u=firebase.auth().currentUser;if(!u)throw new Error(T('连不上云端，请稍后再试'));return{db,uid:u.uid}}
+const clRef=(db,rid)=>db.collection('rooms').doc(rid);
+const clPack=o=>({sgf:JSON.stringify(o),name:'x',updated:Date.now()});
+const clUnpack=d=>{try{return d&&d.exists?JSON.parse(d.data().sgf):null}catch(e){return null}};
+function clPath(n){const p=[];while(n&&n.parent){p.unshift(n.parent.children.indexOf(n));n=n.parent}return p}
+function clAt(r,p){let n=r;for(const i of p||[]){if(!n.children[i])break;n=n.children[i]}return n}
+const clKey=(page,path)=>page+':'+(path||[]).join('.');
+const clTime=t=>{const d=new Date(t);return`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
+const clStatus=r=>r.status==='end'?T('已下课'):r.status==='live'?T('上课中'):T('未开始');
+
+/* ---- 大厅 ---- */
+async function clLoadRooms(){clRooms=null;renderCl();try{const{db,uid}=await clDb();clUidCache=uid;const c=db.collection('rooms'),L=tsLogin(),M=new Map(),add=qs=>qs.forEach(d=>M.set(d.id,{...d.data(),id:d.id}));
+    if(tsIsAdm())add(await c.limit(200).get());
+    else{add(await c.where('open','==',true).get());if(clIsT())add(await c.where('teacher','==',uid).get());if(L&&L.cls)add(await c.where('cls','==','cls_'+L.cls).get())}
+    const old=Date.now()-30*864e5;clRooms=[...M.values()].filter(r=>!r.removed&&(r.status!=='end'||(r.end||r.t)>old)).sort((a,b)=>(a.status==='end')-(b.status==='end')||(a.start||0)-(b.start||0))}
+  catch(e){clRooms=[];clMsg=T('读不到课堂：{0}',e.message)}renderCl()}
+function clLobbyHtml(){let h=`<div class="row"><button class="btn" data-k="reload">↻ ${T('刷新')}</button>${clIsT()?`<button class="btn pri" data-k="new">＋ ${T('创建课堂')}</button>`:''}</div>`;
+  if(!clRooms)return h+`<p class="note">${T('载入中…')}</p>`;
+  if(!clRooms.length)return h+`<p class="note">${clIsT()?T('还没有课堂，按「创建课堂」开一堂。'):T('现在没有你可以进入的课堂。')}</p>`;
+  const{uid}=clMe();
+  return h+clRooms.map(r=>`<div class="exrow"><div><b>${tsE(r.title)}</b><span class="note" style="margin:0">${tsE(r.tname||'')} · ${clTime(r.start)}–${clTime(r.end).split(' ')[1]} · ${r.open?T('开放'):T('本班')}${r.pw?' · 🔒':''}</span></div>
+    <div class="row"><span class="clst ${r.status||'wait'}">${clStatus(r)}</span>${r.status==='end'?`<button class="btn" data-k="rev" data-id="${r.id}">${T('复习')}</button>`:`${r.pw&&r.teacher!==uid?`<input data-pw="${r.id}" type="password" placeholder="${T('密码')}" style="width:6em;height:34px">`:''}<button class="btn pri" data-k="enter" data-id="${r.id}">${T('进入')}</button>`}
+    ${r.teacher===uid||tsIsAdm()?`<button class="btn warn" data-k="del" data-id="${r.id}">${T('删除')}</button>`:''}</div></div>`).join('')}
+let clUidCache='';const clMe=()=>({uid:clUidCache});
+function clFormHtml(){const f=clForm,L=tsLogin();const dt=t=>{const d=new Date(t-new Date().getTimezoneOffset()*6e4);return d.toISOString().slice(0,16)};
+  return`<div class="score-head"><b>${T('创建课堂')}</b></div>
+    <div class="score-opts"><label>${T('课堂名')} <input id="clTitle" value="${tsE(f.title)}" maxlength="40" style="width:14em"></label></div>
+    <div class="score-opts"><label>${T('上课时间')} <input id="clStart" type="datetime-local" value="${dt(f.start)}"></label><label>${T('下课时间')} <input id="clEnd" type="datetime-local" value="${dt(f.end)}"></label></div>
+    <div class="score-opts"><span>${T('谁可以进入')}</span><span class="seg">${L&&L.cls?`<button data-k="scope" data-v="cls" aria-pressed="${!f.open}">${T('本班')}（${tsE(L.clsName||L.cls)}）</button>`:''}<button data-k="scope" data-v="open" aria-pressed="${!!f.open}">${T('所有人')}</button></span></div>
+    <div class="score-opts"><label>${T('课堂密码（可不填）')} <input id="clPw" value="${tsE(f.pw)}" maxlength="20" style="width:8em"></label></div>
+    <div class="row"><button class="btn pri" data-k="create">${T('完成')}</button><button class="btn" data-k="lobby">${T('取消')}</button></div>`}
+async function clCreate(){const f=clForm;f.title=($('#clTitle').value||'').trim();if(!f.title)throw new Error(T('请输入课堂名'));
+  const s=Date.parse($('#clStart').value),e=Date.parse($('#clEnd').value);if(!(s&&e&&e>s))throw new Error(T('下课时间要比上课时间晚'));
+  const L=tsLogin(),{db,uid}=await clDb();const doc={title:f.title,teacher:uid,tname:typeof exName==='function'?exName():'',cls:!f.open&&L&&L.cls?'cls_'+L.cls:'',open:!!f.open||!(L&&L.cls),pw:($('#clPw').value||'').trim(),start:s,end:e,status:'wait',chatOff:false,t:Date.now()};
+  await db.collection('rooms').add(doc);clForm=null;clView='lobby';clMsg=T('课堂已创建。');await clLoadRooms()}
+
+/* ---- 进入课堂 ---- */
+async function clEnter(rid,review){const r=(clRooms||[]).find(x=>x.id===rid);if(!r)return;const{db,uid}=await clDb();clUidCache=uid;
+  if(!review&&r.pw&&r.teacher!==uid&&!tsIsAdm()){const i=document.querySelector(`#clBody [data-pw="${rid}"]`);if(!i||i.value!==r.pw)throw new Error(T('密码不对'))}
+  clLeave(true);const teacher=r.teacher===uid||(tsIsAdm()&&!review);
+  cl={rid,room:r,teacher,review:!!review,follow:true,st:null,last:'',chat:[],people:{},ans:{},unsubs:[],ink:[],tool:'play',pen:null,inkLog:{},page:0,pages:[],board:'',myAns:null,lid:'__cl_'+rid};
+  clView='room';if(typeof vs!=='undefined'&&vs)vsStop();if(scoring)stopScoring();if(train)stopTrain();if(aiHint)setAiHint(false);judging=false;
+  if(review){const rv=clUnpack(await clRef(db,rid).collection('live').doc('rev').get())||{};cl.pages=rv.pages&&rv.pages.length?rv.pages:[`(;GM[1]FF[4]SZ[19])`];cl.inkLog=rv.ink||{};cl.board=rv.board||'';cl.follow=false;clShowPage(0);renderCl();return}
+  const ref=clRef(db,rid);
+  if(teacher){const st=clUnpack(await ref.collection('live').doc('state').get()),w=clUnpack(await ref.collection('live').doc('ware').get())||{};
+    cl.pages=w.pages&&w.pages.length?w.pages:[st&&st.sgf||'(;GM[1]FF[4]SZ[19])'];cl.inkLog=w.ink||{};cl.page=st?Math.min(st.page||0,cl.pages.length-1):0;cl.board=st&&st.board||'';
+    if(st&&st.sgf)cl.pages[cl.page]=st.sgf;clShowPage(cl.page,st&&st.path);cl.ink=st&&st.ink||[];cl.quiz=st&&st.quiz||null;
+    if(r.status==='wait'){await ref.update({status:'live'});r.status='live'}
+    cl.unsubs.push(ref.collection('ans').onSnapshot(qs=>{const a={};qs.forEach(d=>a[d.id]=d.data());cl&&(cl.ans=a);renderCl();clInkDraw()},()=>{}))}
+  else cl.unsubs.push(ref.collection('live').doc('state').onSnapshot(d=>{const st=clUnpack(d);if(st&&cl&&cl.rid===rid)clIn(st)},e=>{clMsg=e.message;renderCl()}));
+  cl.unsubs.push(ref.onSnapshot(d=>{if(!cl||!d.exists)return;cl.room={...d.data(),id:rid};if(cl.room.status==='end'&&!cl.teacher&&!cl.ended){cl.ended=true;clMsg=T('下课了！可以在课堂列表按「复习」看回整堂课。')}renderCl()},()=>{}));
+  cl.unsubs.push(ref.collection('chat').orderBy('t').limitToLast(100).onSnapshot(qs=>{if(!cl)return;cl.chat=qs.docs.map(d=>({...d.data(),id:d.id}));renderCl()},()=>{}));
+  cl.unsubs.push(ref.collection('people').onSnapshot(qs=>{if(!cl)return;const p={};qs.forEach(d=>p[d.id]=d.data());cl.people=p;renderCl()},()=>{}));
+  const beat=()=>ref.collection('people').doc(uid).set({name:typeof exName==='function'?exName():'',t:Date.now(),tch:teacher}).catch(()=>{});beat();cl.beat=setInterval(beat,30000);
+  renderCl();clInkSize()}
+function clLeave(keep){if(cl){cl.unsubs.forEach(f=>{try{f()}catch(e){}});clearInterval(cl.beat);clearTimeout(cl.outT);clearInterval(cl.candT);if(cl.teacher&&!cl.review)clSaveWare().catch(()=>{});if(aiHint)setAiHint(false);judging=false;
+    const g=cl;cl=null;if(G&&G.id===g.lid){if(typeof blankBoard==='function')blankBoard()}}
+  clInkDraw();if(!keep){clView='lobby';renderCl()}}
+function clShowPage(i,path){if(cl.page!==i&&cl.quiz&&!cl.quiz.on)cl.quiz=null;cl.page=i;let r;try{r=parseSGF(cl.pages[i])}catch(e){r=parseSGF('(;GM[1]FF[4]SZ[19])')}openRoot(r,{id:cl.lid});G.id=cl.lid;cur=clAt(G.root,path);renderTree();render()}
+
+/* ---- 老师 → 学生：每次画面更新后，把棋盘状态写上去（0.15 秒内合并） ---- */
+function clOut(){if(!cl||!cl.teacher||cl.review||!G||G.id!==cl.lid)return;clearTimeout(cl.outT);cl.outT=setTimeout(clPush,150)}
+async function clPush(){if(!cl||!G||G.id!==cl.lid)return;const sgf=toSGF(G.root),path=clPath(cur),pk=clKey(cl.page,path);
+  if(cl.pk!==undefined&&cl.pk!==pk&&cl.ink.length){cl.inkLog[cl.pk]=cl.ink;cl.ink=[]} // 换手数或换课件：画自动清掉，复习时保留
+  cl.pk=pk;cl.pages[cl.page]=sgf;
+  const st={v:1,sgf,path,page:cl.page,pages:cl.pages.length,ink:cl.ink,board:cl.board,quiz:cl.quiz||null,judge:!!judging,cands:cl.cands||null,t:Date.now()},s=JSON.stringify(st);
+  if(s===cl.last)return;cl.last=s;try{const{db}=await clDb();await clRef(db,cl.rid).collection('live').doc('state').set({sgf:s,name:'state',updated:Date.now()})}catch(e){clMsg=T('同步失败：{0}',e.message);renderCl()}}
+async function clSaveWare(){const{db}=await clDb();await clRef(db,cl.rid).collection('live').doc('ware').set(clPack({pages:cl.pages,ink:cl.inkLog}))}
+function clIn(st){const prev=cl.st;cl.st=st;
+  if(st.quiz&&st.quiz.on&&(!prev||!prev.quiz||prev.quiz.id!==st.quiz.id)){cl.myAns=null;if(!cl.follow){cl.follow=true}flash(T('老师出题了：在棋盘上点你的答案'))}
+  if(cl.follow)clApply();else renderCl()}
+function clApply(){const st=cl.st;if(!st)return;
+  if(!G||G.id!==cl.lid||st.sgf!==cl.lastSgf){let r;try{r=parseSGF(st.sgf)}catch(e){return}if(!G||G.id!==cl.lid){openRoot(r,{id:cl.lid});G.id=cl.lid}else G.root=r;cl.lastSgf=st.sgf;renderTree()}
+  cur=clAt(G.root,st.path);if(!!st.judge!==judging){judging=!!st.judge;$('#judgeToggle').setAttribute('aria-pressed',judging)}
+  render();renderCl()}
+
+/* ---- 棋盘：老师落子、标记、右键删最后一手；学生答题 ---- */
+function clClick(x,y){if(!cl||!G||G.id!==cl.lid)return false;const pt=xyToPt(x,y);
+  if(cl.review)return false;
+  if(cl.teacher){if(cl.pen)return true;if(cl.tool!=='play'){snap();markToggle(cur.props,pt,cl.tool);render();return true}return false}
+  if(!cl.follow)return false; // 试下：自己摆
+  const q=cl.st&&cl.st.quiz;if(q&&q.on){cl.myAns=pt;clAnswer(q.id,pt);render();return true}
+  flash(T('老师讲解中。想自己摆，按「试下」'));return true}
+async function clAnswer(qid,pt){try{const{db,uid}=await clDb();await clRef(db,cl.rid).collection('ans').doc(uid).set({q:qid,pt,name:typeof exName==='function'?exName():'',t:Date.now()});renderCl()}catch(e){clMsg=e.message;renderCl()}}
+document.addEventListener('contextmenu',e=>{if(!cl||!cl.teacher||cl.review||!G||G.id!==cl.lid||!e.target.closest('#board'))return;e.preventDefault();
+  if(cl.tool!=='play'||cl.pen)return;if(cur.parent&&!cur.children.length&&moveOf(cur)){snap();const p=cur.parent;p.children.splice(p.children.indexOf(cur),1);cur=p;renderTree();render()}});
+let clPaint=null; // 拖着画地盘（○ ✕ △ □）：经过的点都加上
+document.addEventListener('pointerdown',e=>{if(!cl||!cl.teacher||cl.pen||!['CR','MA','TR','SQ'].includes(cl.tool)||!e.target.closest('#board'))return;const p=clXY(e);clPaint=p?{last:p.join(',')}:null});
+document.addEventListener('pointermove',e=>{if(!clPaint)return;const p=clXY(e);if(!p)return;const k=p.join(',');if(k===clPaint.last)return;clPaint.last=k;const pt=xyToPt(p[0],p[1]);
+  if(!(cur.props[cl.tool]||[]).includes(pt)){markToggle(cur.props,pt,cl.tool);clPaint.moved=1;render()}});
+document.addEventListener('pointerup',()=>{clPaint=null});
+function clXY(e){const svg=$('#board'),pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse()),n=sizeOf(root());
+  const x=Math.round((p.x-PAD)/U),y=Math.round((p.y-PAD)/U);return x<0||y<0||x>=n||y>=n?null:[x,y]}
+
+/* ---- 画笔层（画在棋盘上面，不改棋谱）＋答题统计、推荐落子 ---- */
+function clCanvas(){let c=$('#clInk');if(!c){const w=$('#board').parentElement;c=document.createElement('canvas');c.id='clInk';w.appendChild(c);
+    c.addEventListener('pointerdown',clPenDown);c.addEventListener('pointermove',clPenMove);c.addEventListener('pointerup',clPenUp);c.addEventListener('pointercancel',clPenUp)}return c}
+function clInkSize(){const c=clCanvas(),b=$('#board').getBoundingClientRect(),w=$('#board').parentElement.getBoundingClientRect(),d=window.devicePixelRatio||1;
+  c.style.left=(b.left-w.left)+'px';c.style.top=(b.top-w.top)+'px';c.style.width=b.width+'px';c.style.height=b.height+'px';
+  if(c.width!==Math.round(b.width*d)){c.width=Math.round(b.width*d);c.height=Math.round(b.height*d)}c.classList.toggle('pen',!!(cl&&cl.pen));clInkDraw()}
+window.addEventListener('resize',()=>{if(cl)clInkSize()});
+function clVB(){const v=$('#board').viewBox.baseVal;return v}
+function clInkDraw(){const c=$('#clInk');if(!c)return;const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);
+  if(!cl||!G||G.id!==cl.lid)return;const v=clVB(),sx=c.width/v.width,sy=c.height/v.height,tx=x=>(x*v.width+0)*sx,ty=y=>(y*v.height)*sy; // 笔画存成 0~1 的比例
+  const strokes=cl.review?(cl.inkLog[clKey(cl.page,clPath(cur))]||[]):cl.teacher?cl.ink.concat(cl.pen&&cl.pen.cur?[cl.pen.cur]:[]):cl.follow&&cl.st?cl.st.ink||[]:[];
+  g.lineCap='round';g.lineJoin='round';
+  for(const s of strokes){if(!s.p||s.p.length<2)continue;g.strokeStyle=s.c;g.lineWidth=(s.w||3)*sx*(v.width/400);g.beginPath();g.moveTo(tx(s.p[0]),ty(s.p[1]));for(let i=2;i<s.p.length;i+=2)g.lineTo(tx(s.p[i]),ty(s.p[i+1]));if(s.p.length===2)g.lineTo(tx(s.p[0])+0.1,ty(s.p[1]));g.stroke()}
+  const n=sizeOf(root()),P=i=>(PAD+U*i),badge=(x,y,txt,bg)=>{const cx=P(x)*sx,cy=P(y)*sy,r=U*0.36*sx;g.fillStyle=bg;g.beginPath();g.arc(cx,cy,r,0,7);g.fill();g.fillStyle='#fff';g.font=`bold ${Math.round(r*1.1)}px sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(txt,cx,cy+1)};
+  const q=cl.teacher?cl.quiz:cl.follow&&cl.st&&cl.st.quiz;
+  if(q){const res=cl.teacher&&q.on?clAnsCount(q.id):q.res;if(res&&(cl.teacher||!q.on))for(const pt in res){const xy=ptToXY(pt,n);if(xy)badge(xy[0],xy[1],res[pt],'#C2185B')}
+    if(!cl.teacher&&q.on&&cl.myAns){const xy=ptToXY(cl.myAns,n);if(xy)badge(xy[0],xy[1],'✓','#2E6FA8')}}
+  const cands=cl.teacher?null:cl.follow&&cl.st&&cl.st.cands;if(cands)cands.forEach((c,i)=>badge(c.x,c.y,String.fromCharCode(65+i),i?'#3F8F63':'#2E6FA8'))}
+function clAnsCount(qid){const r={};for(const k in cl.ans){const a=cl.ans[k];if(a.q===qid&&a.pt)r[a.pt]=(r[a.pt]||0)+1}return r}
+const clNorm=e=>{const c=$('#clInk'),b=c.getBoundingClientRect();return[+((e.clientX-b.left)/b.width).toFixed(4),+((e.clientY-b.top)/b.height).toFixed(4)]};
+function clPenDown(e){if(!cl||!cl.pen)return;e.preventDefault();$('#clInk').setPointerCapture(e.pointerId);const[x,y]=clNorm(e);cl.pen.cur={c:cl.pen.c,w:cl.pen.w,p:[x,y]};clInkDraw()}
+function clPenMove(e){if(!cl||!cl.pen||!cl.pen.cur)return;const[x,y]=clNorm(e),p=cl.pen.cur.p;if(Math.hypot(x-p[p.length-2],y-p[p.length-1])<0.004)return;p.push(x,y);clInkDraw()}
+function clPenUp(){if(!cl||!cl.pen||!cl.pen.cur)return;cl.ink.push(cl.pen.cur);cl.pen.cur=null;cl.last='';clOut();clInkDraw()}
+
+/* 推荐落子：老师这边算，把前 5 手送给学生 */
+function clCands(){if(!cl||!cl.teacher||!aiHint)return;try{const s=anaGet(cur),n=sizeOf(root());const cs=s?anaCands(s).slice(0,5).map(c=>({x:c.move%n,y:(c.move/n)|0})):[];
+  const k=JSON.stringify(cs);if(k!==JSON.stringify(cl.cands||[])){cl.cands=cs;clOut()}}catch(e){}}
+
+/* ---- 画面 ---- */
+function clRoomHtml(){const r=cl.room,on=Object.values(cl.people).filter(p=>Date.now()-p.t<75000),q=cl.teacher?cl.quiz:cl.st&&cl.st.quiz;
+  let h=`<div class="row" style="align-items:center;margin:0"><b>${tsE(r.title)}</b><span class="clst ${r.status||'wait'}">${cl.review?T('复习'):clStatus(r)}</span>${cl.review?'':`<span class="note" style="margin:0">${T('在线 {0} 人',on.length)}</span>`}
+    <span style="margin-left:auto"></span>${cl.teacher&&!cl.review?`<button class="btn warn" data-k="end">${T('下课')}</button>`:''}<button class="btn" data-k="leave">${T('离开')}</button></div>`;
+  if(cl.review){h+=clPagesHtml(false)+`<p class="note" style="margin:0">${T('可以自由翻看；老师当时画的线会在那一手显示。')}</p>`+(cl.board?`<div class="clboard">${tsE(cl.board)}</div>`:'');return h}
+  if(cl.teacher){const tl=[['play','● '+T('落子')],['TR','△'],['CR','○'],['SQ','□'],['MA','✕'],['LB','A'],['LN','1'],['erase',T('擦')]];
+    h+=`<div class="score-opts"><span class="seg">${tl.map(([k,l])=>`<button data-k="tool" data-v="${k}" aria-pressed="${!cl.pen&&cl.tool===k}">${l}</button>`).join('')}</span><button class="btn${cl.pen?' pri':''}" data-k="pen">✏️ ${T('画笔')}</button></div>`;
+    if(cl.pen)h+=`<div class="score-opts"><span>${T('画笔颜色')}</span>${CL_INK.map(c=>`<button class="clcol${cl.pen.c===c?' on':''}" data-k="pc" data-v="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}<span class="seg"><button data-k="pw" data-v="3" aria-pressed="${cl.pen.w===3}">${T('细')}</button><button data-k="pw" data-v="6" aria-pressed="${cl.pen.w===6}">${T('粗')}</button></span>
+      <button class="btn" data-k="inkundo">${T('撤销')}</button><button class="btn" data-k="inkclr">${T('清空画板')}</button><button class="btn" data-k="pen">${T('退出')}</button></div>`;
+    else h+=`<p class="note" style="margin:0">${cl.tool==='play'?T('交替落子；右键删最后一手。'):T('点一下加标记，再点一下取消；按住拖动可以连续画地盘。')}</p>`;
+    h+=`<div class="row"><button class="btn" data-k="judge" aria-pressed="${judging}">${T('形势判断')}</button><button class="btn" data-k="hint" aria-pressed="${aiHint}">${T('推荐落子')}</button>
+      <select data-k="size">${[7,9,13,19].map(n=>`<option value="${n}"${n===sizeOf(root())?' selected':''}>${T('{0} 路',n)}</option>`).join('')}</select><button class="btn" data-k="clear">${T('清空棋盘')}</button></div>`;
+    h+=clPagesHtml(true);
+    if(clPick)h+=clPickHtml();
+    const n=Object.values(cl.ans).filter(a=>q&&a.q===q.id).length;
+    h+=`<div class="row" style="align-items:center">${q&&q.on?`<b>${T('答题中：已作答 {0} 人',n)}</b><button class="btn pri" data-k="qend">${T('结束答题')}</button>`:`<button class="btn" data-k="qstart">🙋 ${T('开始答题')}</button>${q&&q.res?`<button class="btn" data-k="qhide">${T('收起统计')}</button>`:''}`}</div>`;
+    if(q)h+=clStatHtml(q);
+    h+=`<b class="sub">${T('黑板')}</b><textarea id="clBoardIn" rows="3" maxlength="2000" placeholder="${T('写给全班看的文字…')}">${tsE(cl.board)}</textarea>`}
+  else{h+=`<div class="row" style="align-items:center">${cl.follow?`<span class="note" style="margin:0">👀 ${T('跟着老师的棋盘')}</span><button class="btn" data-k="try">${T('试下')}</button>`:`<b>✋ ${T('试下中（老师看不到）')}</b><button class="btn pri" data-k="follow">${T('跟随老师')}</button>`}</div>`;
+    if(q&&q.on)h+=`<p class="big">${T('老师出题：在棋盘上点你的答案')}${cl.myAns?` · ${T('已作答')}`:''}</p>`;else if(q&&q.res)h+=clStatHtml(q);
+    if(cl.st&&cl.st.board)h+=`<b class="sub">${T('黑板')}</b><div class="clboard">${tsE(cl.st.board)}</div>`;
+    if(cl.st&&cl.st.pages>1)h+=`<p class="note" style="margin:0">${T('课件 {0} / {1}',cl.st.page+1,cl.st.pages)}</p>`}
+  h+=clChatHtml(on);return h}
+function clPagesHtml(t){return`<div class="row" style="align-items:center"><span>${T('课件')}</span><button class="btn" data-k="pg" data-v="-1"${cl.page>0?'':' disabled'}>◀</button><span>${cl.page+1} / ${cl.pages.length}</span><button class="btn" data-k="pg" data-v="1"${cl.page<cl.pages.length-1?'':' disabled'}>▶</button>
+  ${t?`<button class="btn" data-k="pick">＋ ${T('选择棋谱')}</button><button class="btn" data-k="pgnew">＋ ${T('空白页')}</button>${cl.pages.length>1?`<button class="btn warn" data-k="pgdel">${T('删除这页')}</button>`:''}`:''}</div>`}
+function clPickHtml(){const q=(clPick.q||'').toLowerCase(),ids=Object.keys(store.games).filter(id=>!id.startsWith('__')&&!id.startsWith('ol_')).sort((a,b)=>store.games[b].updated-store.games[a].updated)
+    .filter(id=>!q||(store.games[id].title||'').toLowerCase().includes(q)).slice(0,40);
+  return`<div class="clpick"><div class="row" style="align-items:center;margin:0"><input id="clPickQ" type="search" value="${tsE(clPick.q||'')}" placeholder="${T('搜索棋谱')}" style="flex:1;height:34px"><button class="btn" data-k="pick">${T('关闭')}</button></div>
+    ${ids.length?ids.map(id=>`<button class="li" data-k="pickgo" data-id="${id}"><span class="t">${tsE(store.games[id].title||T('未命名'))}</span></button>`).join(''):`<p class="note">${T('棋谱库里没有棋谱。')}</p>`}</div>`}
+function clStatHtml(q){const res=cl.teacher&&q.on?clAnsCount(q.id):q.res||{},tot=Object.values(res).reduce((a,b)=>a+b,0),n=sizeOf(root());if(!tot)return cl.teacher?`<p class="note" style="margin:0">${T('还没有人作答。')}</p>`:'';
+  const who=pt=>cl.teacher?Object.values(cl.ans).filter(a=>a.q===q.id&&a.pt===pt).map(a=>a.name).join('、'):'';
+  return`<div class="clstat"><b>${T('落子统计')}</b>${Object.entries(res).sort((a,b)=>b[1]-a[1]).map(([pt,c])=>{const xy=ptToXY(pt,n);return`<div><b>${xy?coordName(['B',pt],n):pt}</b> · ${T('{0} 人',c)}${cl.teacher?` <span class="note" style="margin:0">${tsE(who(pt))}</span>`:''}</div>`}).join('')}</div>`}
+function clChatHtml(on){const off=cl.room.chatOff&&!cl.teacher;
+  return`<div class="clchat"><div class="row" style="align-items:center;margin:0"><b>${T('聊天室')}</b>${cl.teacher?`<button class="btn" data-k="mute">${cl.room.chatOff?T('开放发言'):T('全员禁言')}</button>`:cl.room.chatOff?`<span class="note" style="margin:0">${T('老师已关闭发言')}</span>`:''}
+    <details style="margin-left:auto"><summary class="note">${T('在线 {0} 人',on.length)}</summary><div class="note">${on.map(p=>tsE(p.name||'?')+(p.tch?' 👨‍🏫':'')).join('、')}</div></details></div>
+    <div class="clmsgs" id="clMsgs">${cl.chat.map(m=>`<div><b>${tsE(m.name||'')}</b>：${tsE(m.text)}</div>`).join('')||`<span class="note">${T('还没有人发言。')}</span>`}</div>
+    <div class="row" style="margin:0"><input id="clSay" maxlength="100" placeholder="${off?T('老师已关闭发言'):T('输入要说的话（最多 100 字）')}"${off?' disabled':''} style="flex:1;height:34px"><button class="btn" data-k="say"${off?' disabled':''}>${T('发送')}</button></div></div>`}
+function renderCl(){const b=$('#clBody');if(!b)return;let h='';
+  if(clMsg)h+=`<p class="status">${tsE(clMsg)}</p>`;
+  h+=clView==='room'&&cl?clRoomHtml():clView==='create'&&clForm?clFormHtml():clLobbyHtml();
+  const ae=document.activeElement,keep=ae&&ae.id&&b.contains(ae)?{id:ae.id,v:ae.value,s:ae.selectionStart}:null;
+  b.innerHTML=h;
+  if(keep){const e=document.getElementById(keep.id);if(e){e.value=keep.v;e.focus();try{e.setSelectionRange(keep.s,keep.s)}catch(x){}}}
+  const m=$('#clMsgs');if(m)m.scrollTop=m.scrollHeight;
+  const bi=$('#clBoardIn');if(bi)bi.oninput=()=>{cl.board=bi.value;clOut()};
+  const pq=$('#clPickQ');if(pq)pq.oninput=()=>{clPick.q=pq.value;renderCl()};
+  const sy=$('#clSay');if(sy)sy.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();clSay()}};
+  if(cl)clInkSize()}
+async function clSay(){const i=$('#clSay');const t=(i&&i.value||'').trim();if(!t)return;i.value='';try{const{db,uid}=await clDb();await clRef(db,cl.rid).collection('chat').add({uid,name:typeof exName==='function'?exName():'',text:t.slice(0,100),t:Date.now()})}catch(e){clMsg=e.message;renderCl()}}
+async function clAct(e){const t=e.target.closest('[data-k]');if(!t||t.tagName==='SELECT'&&e.type==='click')return;const k=t.dataset.k;clMsg='';
+  try{switch(k){
+    case'reload':await clLoadRooms();break;
+    case'new':{const s=Date.now()+5*6e4;clForm={title:'',start:s-s%(15*6e4)+15*6e4,end:s-s%(15*6e4)+75*6e4,open:!tsLogin()||!tsLogin().cls,pw:''};clView='create';renderCl();break}
+    case'scope':clForm.title=$('#clTitle').value;clForm.pw=$('#clPw').value;clForm.open=t.dataset.v==='open';renderCl();break;
+    case'create':await clCreate();break;
+    case'lobby':clView='lobby';renderCl();break;
+    case'enter':await clEnter(t.dataset.id,false);break;
+    case'rev':await clEnter(t.dataset.id,true);break;
+    case'del':armed(t,T('再点一次确认删除'),async()=>{const{db}=await clDb();await clRef(db,t.dataset.id).update({removed:true});await clLoadRooms()});break;
+    case'leave':clLeave();await clLoadRooms();break;
+    case'end':armed(t,T('再点一次：下课'),async()=>{const{db}=await clDb(),ref=clRef(db,cl.rid);await clPush();if(cl.ink.length)cl.inkLog[cl.pk]=cl.ink;
+      await ref.collection('live').doc('rev').set(clPack({pages:cl.pages,ink:cl.inkLog,board:cl.board}));await clSaveWare();await ref.update({status:'end',end:Date.now()});clLeave();clMsg=T('已下课，整堂课已存好给学生复习。');await clLoadRooms()});break;
+    case'tool':cl.tool=t.dataset.v;cl.pen=null;renderCl();break;
+    case'pen':cl.pen=cl.pen?null:{c:CL_INK[0],w:3,cur:null};renderCl();break;
+    case'pc':cl.pen.c=t.dataset.v;renderCl();break;
+    case'pw':cl.pen.w=+t.dataset.v;renderCl();break;
+    case'inkundo':cl.ink.pop();cl.last='';clOut();clInkDraw();break;
+    case'inkclr':cl.ink=[];cl.last='';clOut();clInkDraw();break;
+    case'judge':judging=!judging;$('#judgeToggle').setAttribute('aria-pressed',judging);if(judging&&scoring)stopScoring();render();renderCl();break;
+    case'hint':setAiHint(!aiHint);clearInterval(cl.candT);if(aiHint)cl.candT=setInterval(clCands,1500);else{cl.cands=null;clOut()}renderCl();break;
+    case'clear':armed(t,T('再点一次清空'),()=>{snap();const n=sizeOf(root());cl.pages[cl.page]=`(;GM[1]FF[4]SZ[${n}])`;clShowPage(cl.page)});break;
+    case'pg':{const i=cl.page+(+t.dataset.v);if(i<0||i>=cl.pages.length)break;cl.pages[cl.page]=toSGF(G.root);clShowPage(i);clSaveWare().catch(()=>{});renderCl();break}
+    case'pgnew':cl.pages[cl.page]=toSGF(G.root);cl.pages.splice(cl.page+1,0,`(;GM[1]FF[4]SZ[${sizeOf(root())}])`);clShowPage(cl.page+1);clSaveWare().catch(()=>{});renderCl();break;
+    case'pgdel':armed(t,T('再点一次删除这页'),()=>{cl.pages.splice(cl.page,1);clShowPage(Math.min(cl.page,cl.pages.length-1));clSaveWare().catch(()=>{});renderCl()});break;
+    case'pick':clPick=clPick?null:{q:''};renderCl();break;
+    case'pickgo':{const g=store.games[t.dataset.id];if(!g)break;cl.pages[cl.page]=toSGF(G.root);cl.pages.splice(cl.page+1,0,g.sgf);clPick=null;clShowPage(cl.page+1);clSaveWare().catch(()=>{});renderCl();break}
+    case'qstart':cl.quiz={id:tsId(6),on:true};cl.last='';clOut();renderCl();break;
+    case'qend':cl.quiz={...cl.quiz,on:false,res:clAnsCount(cl.quiz.id)};cl.last='';clOut();renderCl();clInkDraw();break;
+    case'qhide':cl.quiz=null;cl.last='';clOut();renderCl();clInkDraw();break;
+    case'mute':{const{db}=await clDb();await clRef(db,cl.rid).update({chatOff:!cl.room.chatOff});break}
+    case'say':await clSay();break;
+    case'try':cl.follow=false;renderCl();clInkDraw();break;
+    case'follow':cl.follow=true;clApply();break;
+  }}catch(err){clMsg=err.message;renderCl()}}
+function clChange(e){const t=e.target;if(t.dataset.k==='size'){const n=+t.value;snap();cl.pages[cl.page]=`(;GM[1]FF[4]SZ[${n}])`;clShowPage(cl.page)}}
+function clPanelOpen(){if(curMode()!=='play')setMode('play');$('#clBox').hidden=false;if(!cl){clView='lobby';clLoadRooms()}else renderCl()}
+function clPanelClose(){clLeave(true);clView='lobby';$('#clBox').hidden=true;clInkDraw()}
+{const b=$('#clBody');if(b){b.addEventListener('click',clAct);b.addEventListener('change',clChange)}const x=$('#clClose');if(x)x.onclick=clPanelClose}
+{const _r=render;render=function(){_r.apply(this,arguments);if(cl){if(cl.review&&G&&G.id===cl.lid)setTimeout(clInkDraw,0);else{clOut();clInkDraw()}}}}
 /* ===================== 吃子关卡、限时挑战 ===================== */
 // 小型吃子计算：黑要在 k 手内吃掉目标白棋（t），白尽力逃。棋盘是一维数组：0 空、1 黑、2 白
 const Cap=(()=>{
@@ -8815,6 +9119,7 @@ function boardClick(ev){
   if(train){trainClick(x,y);return}
   if(G&&G.id==='__blank'){flash(T('先在下面选好，按「开始」'));return}
   if(ts){if(ts.mode==='solve'){tsClick(x,y);return}if(ts.mode==='edit'&&tsEditClick(x,y))return}
+  if(typeof clClick==='function'&&clClick(x,y))return;
   if(ol&&ol.st&&G&&G.id===ol.lid){olClick(x,y);return}
   if(typeof cgOn==='function'&&cgOn()&&curMode()==='play'&&!scoring){cgClick(x,y);return}
   if(scoring){ // 点棋子：整块标成死子 / 取消

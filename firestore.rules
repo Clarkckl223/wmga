@@ -84,6 +84,38 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // ---- 网课课堂：老师和管理员开课；本班学生（或开放给所有人）可以进入 ----
+    function room(rid) { return get(/databases/$(database)/documents/rooms/$(rid)).data; }
+    function roomOk(r) { return isAdmin() || r.teacher == request.auth.uid || r.open == true
+      || (r.cls is string && r.cls.matches('cls_.*') && (ownsClass(r.cls) || inClass(r.cls))); }
+    function roomT(rid) { return isAdmin() || room(rid).teacher == request.auth.uid; }
+    match /rooms/{rid} {
+      allow read: if signed() && roomOk(resource.data);
+      allow create: if signed() && isTeacher() && request.resource.data.teacher == request.auth.uid;
+      allow update: if signed() && (isAdmin() || resource.data.teacher == request.auth.uid) && request.resource.data.teacher == resource.data.teacher;
+      allow delete: if isAdmin();
+      match /live/{d} {
+        allow read: if signed() && roomOk(room(rid));
+        allow write: if signed() && roomT(rid) && small();
+      }
+      match /people/{uid} {
+        allow read: if signed() && roomOk(room(rid));
+        allow write: if signed() && request.auth.uid == uid && roomOk(room(rid));
+      }
+      match /ans/{uid} {
+        allow read: if signed() && roomOk(room(rid));
+        allow write: if signed() && request.auth.uid == uid && roomOk(room(rid));
+        allow delete: if signed() && roomT(rid);
+      }
+      match /chat/{id} {
+        allow read: if signed() && roomOk(room(rid));
+        allow create: if signed() && roomOk(room(rid)) && request.resource.data.uid == request.auth.uid
+          && request.resource.data.text is string && request.resource.data.text.size() <= 100
+          && (room(rid).chatOff != true || roomT(rid));
+        allow delete: if signed() && roomT(rid);
+      }
+    }
+
     // ---- 棋谱分享、线上对弈、家里电脑（不是班级）：维持原来的做法 ----
     // wmga_global：内建练习册的「全站原版」修改，大家都能读，只有管理员能改
     match /games/{gid} {

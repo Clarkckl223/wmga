@@ -259,7 +259,7 @@ body.is-training #tree,body.is-training #vars{visibility:hidden}
 .bugdot{display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:#D93025;color:#fff;font-size:12px;text-align:center;padding:0 5px;margin-left:2px}.bugin{width:min(96vw,720px);gap:8px}.bugin textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;background:var(--panel,#fff);color:var(--ink)}.bugimg{max-height:90px;max-width:160px;border-radius:6px;border:1px solid var(--line)}.bugck{display:flex;gap:6px;align-items:center}.bugpre{white-space:pre-wrap;font-size:12px;max-height:180px;overflow:auto;background:var(--accent-soft);padding:6px;border-radius:6px}.bugit{border:1px solid var(--line);border-left:4px solid #D93025;border-radius:8px;padding:8px;margin:6px 0;display:flex;flex-direction:column;gap:4px}.bugit.doing{border-left-color:#C27C0E}.bugit.done{border-left-color:#2E8B57;opacity:.8}.bugst{margin-left:auto;font-size:13px;font-weight:600}.bugst.new{color:#D93025}.bugst.doing{color:#C27C0E}.bugst.done{color:#2E8B57}.bugtx{white-space:pre-wrap}.bugrep{background:var(--accent-soft);border-radius:6px;padding:6px}.bugexp{font-size:12px}
 #clInk{position:absolute;z-index:4;pointer-events:none;touch-action:none}#clInk.pen{pointer-events:auto;cursor:crosshair}.clst{font-size:13px;font-weight:600;padding:1px 8px;border-radius:10px;background:var(--accent-soft)}.clst.live{background:#2E8B57;color:#fff}.clst.end{opacity:.7}.clcol{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer}.clcol.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--panel,#fff) inset}.clboard{white-space:pre-wrap;background:var(--accent-soft);border-radius:8px;padding:8px}#clBoardIn{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;background:var(--bg);color:var(--ink)}.clchat{border-top:1px solid var(--line);padding-top:6px;display:flex;flex-direction:column;gap:6px}.clmsgs{max-height:220px;overflow:auto;font-size:14px;display:flex;flex-direction:column;gap:2px}.clpick{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px}.clstat{background:var(--accent-soft);border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:2px}
 .apgive{border:1px solid var(--line);border-radius:10px;padding:8px;margin:8px 0;display:flex;flex-direction:column;gap:6px}.apstu{display:flex;flex-wrap:wrap;gap:4px 12px;max-height:200px;overflow:auto}.apstu label{display:flex;gap:4px;align-items:center;cursor:pointer}.aplog{display:flex;flex-direction:column;gap:3px;max-height:300px;overflow:auto}.aplog>div{display:flex;gap:6px;align-items:center}.aplog b{margin-left:auto}.appos{color:#2E8B57}.apneg{color:#C0392B}
-body.play-idle main>.board-wrap,body.play-idle main>.players,body.play-idle main>.nav,body.play-idle #revDots{display:none!important}body[data-sub] #playMenu{display:none!important}
+body.play-idle main>.board-wrap,body.play-idle main>.players,body.play-idle main>.nav,body.play-idle #revDots{display:none!important}body[data-sub] #playMenu{display:none!important}body:not([data-sub="snap"]) #snapBox{display:none!important}
 .clroster summary,.clrank summary,.clgame summary{cursor:pointer;font-weight:600}.clp{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--line)}.clp .btn{padding:2px 8px;font-size:13px}.clans{font-size:12px;padding:1px 6px;border-radius:8px;background:#FBE3E1;color:#C0392B}.clans.ok{background:#DFF3E6;color:#2E8B57}
 body.cl-proj header,body.cl-proj #playMenu,body.cl-proj main>.players,body.cl-proj main>.nav,body.cl-proj .homebar{display:none!important}body.cl-proj main{max-width:none!important}body.cl-proj .app{grid-template-columns:minmax(0,1fr) 320px!important;max-width:none}body.cl-proj main{width:100%!important}body.cl-proj main>.board-wrap{width:min(calc(100vw - 340px),calc(100vh - 16px))!important;max-width:none!important;margin:0}body.cl-proj #clBox{position:fixed;right:8px;top:8px;width:310px;max-height:calc(100vh - 16px);overflow:auto;z-index:20}
 .olmine{display:flex;flex-direction:column;gap:6px}.olg{display:flex;flex-wrap:wrap;align-items:center;gap:6px;text-align:left;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--panel);color:var(--ink);cursor:pointer;font:inherit}.olg.my{border-color:#D93025;box-shadow:0 0 0 2px #FBE3E1}.olgs{margin-left:auto;font-size:13px;font-weight:600}.olchat{border-top:1px solid var(--line);padding-top:6px;display:flex;flex-direction:column;gap:4px}.olmsgs{max-height:180px;overflow:auto;font-size:14px}
@@ -742,9 +742,14 @@ body.pick #undoBtn,body.pick #redoBtn,body.pick #saveBtn,body.pick #shareBtn{dis
         <button class="btn warn" id="vsResign">认输</button>
         <button class="btn pri" id="vsExit">结束对局</button>
       </div>
-      <div class="row" id="vsEndRow" hidden><button class="btn pri" id="vsAgain">再下一盘</button><button class="btn" id="vsRevBtn">看整盘分析</button><button class="btn" id="vsAppeal" hidden>🐞 AI 判错了，申请复核</button><button class="btn" id="vsHomeBtn">🏠 回主页</button></div>
+      <div class="row" id="vsEndRow" hidden><button class="btn pri" id="vsAgain">再下一盘</button><button class="btn" id="vsOpenRev">📖 进入这棋谱</button><button class="btn" id="vsRevBtn">整盘分析</button><button class="btn" id="vsCertBack" hidden>回到认证</button><button class="btn" id="vsAppeal" hidden>🐞 AI 判错了，申请复核</button><button class="btn" id="vsHomeBtn">🏠 回主页</button></div>
+      <div class="row" id="vsQuest" hidden></div>
     </div>
 
+    <div class="score" id="snapBox" hidden>
+      <div class="score-head"><b>📷 拍照数子</b><span>结果在下面；死子点一下可以改。</span></div>
+      <div class="row"><button class="btn pri" data-sn="again">重新数子（再拍一张）</button><button class="btn" data-sn="adjust">调整辨认（回到照片）</button><button class="btn" data-sn="torev">📖 进入这棋谱</button><button class="btn" data-sn="home">🏠 回主页</button></div>
+    </div>
     <div class="score" id="scoreBox" hidden>
       <div class="score-head"><b>数子 / 数目</b><span>死子已经自动判断，点棋子可以修改。</span></div>
       <div class="score-opts">
@@ -2545,6 +2550,77 @@ const EN={
 ,"（到期超时）":" (deadline timeout)"
 ,"（手动改）":" (manual)"
 ,"（没有看得出的改变）":"(no visible change)"
+,"小棋士之旅":"Little Go Player's Journey"
+,"冒险故事：上围棋课、解谜题、挑战大壮":"Adventure: Go lessons, puzzles, beat the bully"
+,"📖 进入这棋谱":"📖 Open this game"
+,"进入这棋谱":"Open this game"
+,"整盘分析":"Whole-game analysis"
+,"回到认证":"Back to certification"
+,"再看一盘":"Watch another"
+,"复习这堂课":"Review this lesson"
+,"回到课堂列表":"Back to lesson list"
+,"换难度":"Change level"
+,"再来一盘":"Play again"
+,"下课了！":"Class is over!"
+,"登入后用户口名字":"Logged in: uses your account name"
+,"小棋士之旅过关":"Journey chapter cleared"
+,"📷 拍照数子":"📷 Photo count"
+,"结果在下面；死子点一下可以改。":"Result below; tap a stone to toggle dead."
+,"重新数子（再拍一张）":"Count again (new photo)"
+,"调整辨认（回到照片）":"Adjust recognition (back to photo)"
+,"继续剧情":"Continue story"
+,"再挑战":"Try again"
+,"回到地图":"Back to map"
+,"地图":"Map"
+,"我的角色":"My character"
+,"星石岛":"Starstone Island"
+,"名字":"Name"
+,"我是":"I am a"
+,"男生":"Boy"
+,"女生":"Girl"
+,"选一个样子":"Pick a look"
+,"出发！":"Let's go!"
+,"欢迎来到星石岛！":"Welcome to Starstone Island!"
+,"你是星石小学的学生。先设定你的角色吧。":"You are a pupil at Starstone Primary. Set up your character first."
+,"点地图上的地点开始冒险。":"Tap a place on the map to start."
+,"角色卡":"Character cards"
+,"从冒险拿到 {0} 个苹果":"{0} apples from the adventure"
+,"从头开始":"Start over"
+,"再玩一次":"Play again"
+,"已经完成":"Completed"
+,"上次玩到一半。":"You stopped halfway last time."
+,"新的故事！":"A new story!"
+,"新的故事正在准备中，敬请期待！":"A new story is coming soon!"
+,"🔒 还没有解锁，先完成前面的故事吧。":"🔒 Locked. Finish the earlier story first."
+,"浓浓的云雾挡住了山路……好像要等到很久以后才能进去。":"Thick fog blocks the mountain path… maybe much later."
+,"（你要说什么？）":"(What will you say?)"
+,"不对哦。":"Not quite."
+,"不对哦，再想想。":"Not quite, think again."
+,"看答案":"Show answer"
+,"黑棋下，找出正确的一手。":"Black to play: find the right move."
+,"开始对局":"Start game"
+,"准备好了吗？":"Ready?"
+,"不用紧张，输赢都没关系，好好练习！":"Relax — win or lose, just practise!"
+,"赢了！":"You won!"
+,"过关了！":"Chapter cleared!"
+,"完成「{0}」！":"Finished “{0}”!"
+,"获得角色卡：{0}":"New character card: {0}"
+,"（这一章已经拿过奖励）":"(Reward already claimed)"
+,"地图上解锁了新的地点！":"A new place is unlocked on the map!"
+,"下一章「渔村码头」正在准备中，敬请期待！":"The next chapter, Fishing Village Pier, is coming soon!"
+,"请选男生或女生":"Please choose boy or girl"
+,"小棋士之旅：对 {0}":"Journey: vs {0}"
+,"答对了！":"Correct!"
+,"很好！":"Well done!"
+,"完全正确！":"Exactly right!"
+,"真厉害！":"Amazing!"
+,"弯月河":"Crescent River"
+,"星石小学":"Starstone Primary"
+,"弯月河畔":"Crescent Riverbank"
+,"渔村码头":"Fishing Village Pier"
+,"小镇市集":"Town Market"
+,"灯塔":"Lighthouse"
+,"雾峰深山":"Misty Peak"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -5306,7 +5382,7 @@ function renderNew(){if(G&&G.id==='__blank'&&sizeOf(G.root)!==ng.size)blankBoard
   $('#ngLadder').hidden=!lad;if(lad){const k=L.streak>0?T('已连赢 {0} 盘',L.streak):L.streak<0?T('已连输 {0} 盘',-L.streak):'';
     $('#ngLadder').innerHTML=`<b>${T('{0} 路升级赛 · 你的级位：{1}',ng.size,lvName(L.lv))}</b><br>${T('对手是同级的 AI，黑白轮流。连赢 {0} 盘升一级，连输 {1} 盘降一级。',LAD_UP,LAD_DOWN)}${k?' '+k+'。':''}${L.games?' '+T('共 {0} 盘，赢 {1} 盘，最高 {2}。',L.games,L.wins,lvName(L.best)):''}`}
   const cl=ngLevel();$('#ngLevel').innerHTML=oppIds(ng.size,eng).map(id=>`<option value="${id}"${id===cl?' selected':''}>${lvName(id)}${id==='max'?T('（按思考时间）'):''}</option>`).join('');
-  if(document.activeElement!==$('#ngName'))$('#ngName').value=ng.name||me()||'';$('#ngAuto').checked=ng.auto!==false;
+  {const an=acctName(),ni=$('#ngName');if(an)ng.name=an;ni.readOnly=!!an;ni.title=an?T('登入后用户口名字'):'';if(an||document.activeElement!==ni)ni.value=an||ng.name||me()||''}$('#ngAuto').checked=ng.auto!==false;
   if(document.activeElement!==$('#ngKomi'))$('#ngKomi').value=ng.komi;{const kn=$('#ngKomiNote');if(kn)kn.textContent=ng.size===7&&+ng.komi===0.5?T('不贴目，黑 25 子胜'):''}
   $('#ngAiRow').hidden=ng.opp==='self';$('#ngTimeL').hidden=lad||cl!=='max';if(document.activeElement!==$('#ngTime'))$('#ngTime').value=String(prefs.aiPlayTime??5);
   $('#ngPcL').hidden=!(PC.on()&&ng.opp!=='self');$('#ngPc').checked=prefs.vsPc!==false;
@@ -5418,7 +5494,7 @@ async function vsAiMove(){
 function vsUserPass(){if(!vs||vs.over||vs.thinking)return;const n=sizeOf(root());if(nextColor(cur)===vsAiCol())return vsAiMove();
   const prev=cur;snap();vsAddMove(vs.ai===1?'W':'B','');flash(T('你停一手'));if(isPassNode(prev,n))vsEnd();else vsAiMove()}
 function vsResult(re,msg){vsFinish(re,msg)}
-function vsFinish(re,msg){ // 对局结束：实战走成主线、写结果、自动调整棋力、自动整盘分析
+function vsFinish(re,msg){ // 对局结束：实战走成主线、写结果、自动调整棋力（整盘分析要自己按）
   if(!vs||vs.over&&vs.finished)return;vs.over=true;vs.finished=true;vs.endMsg=msg;
   if(vs.relay){relayMark();relayNote(cur,T('【结果】{0}',resultText(re)));changed();vs.endMsg=msg+' '+T('（存成这盘棋的变化，原本的主线和结果没有改）');renderVs();render();return} // 从棋谱接着下：不改原本的主线和结果
   for(let x=cur;x.parent;x=x.parent){const q=x.parent,k=q.children.indexOf(x);if(k>0){q.children.splice(k,1);q.children.unshift(x)}q._sel=0}
@@ -5436,7 +5512,7 @@ function vsFinish(re,msg){ // 对局结束：实战走成主线、写结果、�
     if(i>=0){const j=win?Math.min(ids.length-(eng==='gnugo'?1:2),i+1):Math.max(0,i-1);if(j!==i){ng.lv=ng.lv||{};ng.lv[ngKey(n,eng)]=ids[j];ngSave();
       vs.endMsg+=' '+(win?T('下一盘 AI 升到 {0}。',lvName(ids[j])):T('下一盘 AI 降到 {0}。',lvName(ids[j])))}}}
   renderVs();render();
-  const uc=user==='B'?1:2,vid=vs.id;setTimeout(()=>{if(G&&G.id===vid){revOpen();revStart('std',uc)}},400);
+  if(vs.quest&&typeof qBattleEnd==='function')qBattleEnd(win);
 }
 function vsEnd(){ // 双方停一手：用 AI 判断死子并算出胜负
   vs.over=true;vs.endMsg=T('双方停一手，AI 正在判断胜负…');renderVs();const node=cur;
@@ -5468,7 +5544,9 @@ function renderVs(){if(vs&&vs.relay)relayMark();
   else if(vs.msg)t=vs.msg;
   else t=nextColor(cur)===user?T('轮到你下（{0}）',user==='B'?T('黑棋'):T('白棋')):T('轮到 AI');
   msg.textContent=t;
-  $('#vsEndRow').hidden=!vs.over;const lk=!!(vs.ladder||vs.cert)&&!vs.over;$('#vsJudge').hidden=lk;$('#vsCount').hidden=lk;$('#vsCount').setAttribute('aria-pressed',!!scoring);$('#vsAppeal').hidden=!(vs.over&&(vs.ladder||vs.cert));if(vs.cert){$('#vsHint').disabled=true;if(aiHint)setAiHint(false)}$('#vsJudge').setAttribute('aria-pressed',judging);
+  $('#vsEndRow').hidden=!vs.over||!!vs.quest;{const q=$('#vsQuest');if(q){q.hidden=!(vs.quest&&vs.over);if(!q.hidden&&typeof qEndHtml==='function')q.innerHTML=qEndHtml()}}
+  if(vs.over&&!vs.quest){const A=vs.cert&&typeof cert!=='undefined'&&cert.active;$('#vsAgain').hidden=!!vs.cert&&!A;$('#vsAgain').textContent=vs.cert?(A&&A.gamesOk?T('开始考卷'):T('下一局')):T('再下一盘');$('#vsRevBtn').hidden=!!vs.cert;$('#vsCertBack').hidden=!vs.cert}
+  const lk=!!(vs.ladder||vs.cert)&&!vs.over;$('#vsJudge').hidden=lk;$('#vsCount').hidden=lk;$('#vsCount').setAttribute('aria-pressed',!!scoring);$('#vsAppeal').hidden=!(vs.over&&(vs.ladder||vs.cert));if(vs.cert){$('#vsHint').disabled=true;if(aiHint)setAiHint(false)}$('#vsJudge').setAttribute('aria-pressed',judging);
   $('#vsPass').disabled=$('#vsResign').disabled=vs.over||vs.thinking;$('#vsUndo').disabled=vs.thinking;
   $('#vsHint').setAttribute('aria-pressed',aiHint);
   $('#vsTimeL').hidden=!vs.level.search;$('#vsUndo').disabled=vs.thinking||!!vs.finished||!!vs.cert;if(document.activeElement!==$('#vsTime'))$('#vsTime').value=String(prefs.aiPlayTime??5);
@@ -6288,9 +6366,17 @@ async function picMultiAdd(){const M=picMulti;let b=tsBook(M.bookId);
 function snapPick(){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files[0];if(f)picOpen(f,{purpose:'score'})};i.click()}
 function picScoreApply(){const P=picP,{n,B,W}=picStonesSgf();
   if(![9,13,19].includes(n)){flash(T('请选 9、13 或 19 路'));return}
-  const r=parseSGF(`(;GM[1]FF[4]CA[UTF-8]SZ[${n}]KM[${n===19?7.5:5.5}]RU[Chinese]XP[1]DT[${new Date().toISOString().slice(0,10)}]GN[${T('拍照数子')}])`);if(B.length)r.props.AB=B;if(W.length)r.props.AW=W;
-  const id=newId();store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};picClose();
-  setMode('review');document.body.classList.remove('pick');if(scoring)stopScoring();openRoot(r,{id});startScoring()}
+  const d=new Date(),z=x=>String(x).padStart(2,'0'),day=`${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`,tm=`${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`;
+  const r=parseSGF(`(;GM[1]FF[4]CA[UTF-8]SZ[${n}]KM[${n===19?7.5:5.5}]RU[Chinese]XP[1]DT[${day}]GN[${T('拍照数子')} ${day} ${tm}])`);if(B.length)r.props.AB=B;if(W.length)r.props.AW=W;
+  const id=newId();store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};picLast=P;picClose();
+  if(vs)vsStop();if(typeof cg!=='undefined'&&cg){cg=null;$('#cgBox').hidden=true}closeNew();
+  setMode('play');document.body.dataset.sub='snap';if(scoring)stopScoring();openRoot(r,{id});startScoring();$('#snapBox').hidden=false;$('#scoreBox').scrollIntoView({block:'nearest',behavior:'smooth'})} // 留在原地：显示数子结果和选择
+let picLast=null; // 上一次拍照数子的照片（「调整辨认」用）
+function snapAct(a){if(a==='again'){snapPick();return}
+  if(a==='adjust'){if(!picLast)return;picP=picLast;picUi();return}
+  if(a==='torev'){$('#snapBox').hidden=true;gotoReview();return}
+  if(a==='home'){$('#snapBox').hidden=true;if(scoring)stopScoring();goHome()}}
+document.addEventListener('click',e=>{const t=e.target.closest('#snapBox [data-sn]');if(t)snapAct(t.dataset.sn)});
 
 /* ---- 照片数子：看颜色认棋子、自动找角、自动判断几路 ----
    棋盘（木、绒布、黄板）有颜色，棋子（黑、白）几乎没有颜色：先看「颜色像不像棋盘」分有没有棋子，再看亮度分黑白。
@@ -6417,7 +6503,8 @@ const olLocal=()=>{try{let u=localStorage.getItem('goReview.olId');if(!u){u=tsId
 const olAcct=()=>{try{const u=firebase.auth().currentUser;return u&&!u.isAnonymous?u.uid:''}catch(e){return''}};
 const olUid=()=>olAcct()||olLocal(); // 登录了就用账号（换手机、电脑都是同一个人）；没登录用这台设备的代号
 const olIsMe=p=>!!p&&!!p.uid&&(p.uid===olAcct()||p.uid===olLocal());
-const olName=()=>(ng&&ng.name)||me()||'';
+function acctName(){try{const L=typeof tsLogin==='function'&&tsLogin();return(L&&L.name)||(typeof acct!=='undefined'&&acct&&acct.name)||''}catch(e){return''}} // 登入了：「我的名字」一律用户口名字
+const olName=()=>acctName()||(ng&&ng.name)||me()||'';
 async function olDoc(gid,name){const db=await Shared.db();return db.collection('games').doc(gid).collection('layers').doc(name)}
 const olPack=o=>({sgf:JSON.stringify(o),name:'state',updated:Date.now()});
 const olUnpack=d=>{try{return d&&d.exists?JSON.parse(d.data().sgf):null}catch(e){return null}};
@@ -6556,7 +6643,7 @@ function olOptHtml(){const seg=(id,arr,v)=>`<span class="seg" data-o="${id}">${a
   <p class="note" style="margin:0">${corr?T('通信对局：不用同时在线，轮到你时会有红点提醒；可以同时下好几盘。'):T('实时对局：双方要同时在线。')}</p>`}
 function renderOl(){
   const box=$('#olBox');if(!box||box.hidden)return;const body=$('#olBody');let h='';const name=olName();
-  const nameRow=`<div class="score-opts"><label>${T('我的名字')} <input id="olName" maxlength="16" value="${tsE(name)}" placeholder="${T('必填')}" style="width:9em"></label><span id="olMyR" class="note" style="margin:0"></span></div>`;
+  const nameRow=`<div class="score-opts"><label>${T('我的名字')} <input id="olName" maxlength="16" value="${tsE(name)}" placeholder="${T('必填')}" style="width:9em"${acctName()?` readonly title="${T('登入后用户口名字')}"`:''}></label><span id="olMyR" class="note" style="margin:0"></span></div>`;
   const tabs=`<div class="row" style="margin:0"><span class="seg"><button data-p="mine" aria-pressed="${olView==='mine'}">${T('我的对局')}${olTurnN?` <span class="bugdot">${olTurnN}</span>`:''}</button><button data-p="home" aria-pressed="${olView==='home'}">${T('开新对局')}</button><button data-p="lobby" aria-pressed="${olView==='lobby'}">${T('大厅')}</button>${olTeacher()?`<button data-p="pairv" aria-pressed="${olView==='pair'}">${T('帮学生开对局')}</button>`:''}<button data-p="tours">🏆 ${T('比赛和联赛')}</button></span></div>`;
   if(olView==='home'){
     h=tabs+nameRow+`<b class="sub">${T('邀请朋友')}</b>`+olOptHtml()+`<div class="row"><button class="btn pri" data-p="create">${T('建立对局，拿邀请链接')}</button></div>`;
@@ -6582,14 +6669,14 @@ function renderOl(){
       if(ol.pend&&!ol.trial)h+=`<div class="row" style="align-items:center"><b>${T('下在 {0}？',coordName(['B',ol.pend],st.n))}</b><button class="btn pri" data-p="confirm">✔ ${T('确认送出')}</button><button class="btn" data-p="unpend">${T('取消')}</button></div>`;
       if(st.status==='wait')h+=`<div class="row"><input readonly id="olLinkI" value="${tsE(olLink(st.id))}" style="flex:1;min-width:10em;height:34px"><button class="btn pri" data-p="copy">${T('复制链接')}</button><button class="btn" data-p="cancel">${T('取消对局')}</button></div>`;
       else if(st.status==='play'&&ol.me)h+=`<div class="row"><button class="btn" data-p="pass">${T('停一手')}</button><button class="btn warn" data-p="resign">${T('认输')}</button>${ol.trial?`<button class="btn pri" data-p="trial">↩ ${T('回到对局')}</button>`:`<button class="btn" data-p="trial">🧪 ${T('试下')}</button>`}</div>${ol.trial?`<p class="note" style="margin:0">${T('试下中：自己摆变化，对手看不到；按「回到对局」回来。')}</p>`:''}`;
-      h+=`<div class="row">${st.status!=='wait'?`<button class="btn" data-p="copy">${T('复制观战链接')}</button>`:''}${st.status==='end'?`<button class="btn pri" data-p="again">${T('再下一盘')}</button><button class="btn" data-p="review">${T('整盘分析')}</button><button class="btn" data-p="gohome">🏠 ${T('回主页')}</button>`:''}<button class="btn" data-p="leave">${T('离开')}</button></div>`;
+      h+=`<div class="row">${st.status!=='wait'?`<button class="btn" data-p="copy">${T('复制观战链接')}</button>`:''}${st.status==='end'?`<button class="btn pri" data-p="again">${T('再下一盘')}</button><button class="btn" data-p="count" aria-pressed="${!!scoring}">${T('数子 / 数目')}</button><button class="btn" data-p="torev">📖 ${T('进入这棋谱')}</button><button class="btn" data-p="review">${T('整盘分析')}</button>`:''}<button class="btn" data-p="leave">${st.status==='end'?T('我的对局'):T('离开')}</button>${st.status==='end'?`<button class="btn" data-p="gohome">🏠 ${T('回主页')}</button>`:''}</div>`;
       h+=`<div class="olchat"><b class="sub">💬 ${T('留言')}</b><div class="olmsgs">${(st.chat||[]).map(m=>`<div><b>${m.c==='B'?'⚫':m.c==='W'?'⚪':''} ${tsE(m.n)}</b>：${tsE(m.m)} <span class="note" style="margin:0">${new Date(m.t).toLocaleString([], {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>`).join('')||`<span class="note">${T('还没有留言。')}</span>`}</div>
         <div class="row" style="margin:0"><input id="olSayI" maxlength="200" placeholder="${T('写几句话给对手…')}" style="flex:1;height:34px"><button class="btn" data-p="say">${T('发送')}</button></div></div>`;
     }
   }
   if(olMsg)h+=`<p class="note" style="color:var(--bad,#C0392B)">${tsE(olMsg)}</p>`;
   body.innerHTML=h;renderOlClock();
-  const ni=$('#olName');if(ni)ni.onchange=()=>{ng.name=ni.value.trim();ngSave();if(olPending&&ng.name){const p=olPending;olPending=null;olMsg='';olOpen(p)}};
+  const ni=$('#olName');if(ni)ni.onchange=()=>{if(acctName())return;ng.name=ni.value.trim();ngSave();if(olPending&&ng.name){const p=olPending;olPending=null;olMsg='';olOpen(p)}};
   body.querySelectorAll('select[data-o]').forEach(sel=>sel.onchange=()=>{const k=sel.dataset.o;olOpt[k]=k==='ha'?+sel.value:sel.value;olOptSave()});
   const si=$('#olSayI');if(si)si.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();olSay(si.value).catch(x=>flash(x.message))}};
   const myR=$('#olMyR');if(myR)olRating(olUid()).then(R=>{if(myR.isConnected)myR.textContent=T('等级分 {0}（{1}，{2} 盘）',R.r,olRankName(R.r),R.g)}).catch(()=>{});
@@ -6648,8 +6735,10 @@ async function olAct(e){
     case'pass':olMove('');break;
     case'resign':armed(t,T('再点一次确认认输'),olResign);break;
     case'cancel':await olCancel();break;
-    case'leave':olClose(true);olView='mine';renderOl();break;
-    case'review':olClose();setMode('review');revOpen();revStart();break;
+    case'leave':if(scoring)stopScoring();olClose(true);olView='mine';renderOl();break;
+    case'review':revOpen();revStart();break;
+    case'count':if(scoring)stopScoring();else startScoring();renderOl();break;
+    case'torev':gotoReview();break;
     case'again':olClose();break;
     case'gohome':olClose(true);goHome();break;
   }}catch(err){olMsg=err.message||String(err);renderOl()}
@@ -6685,6 +6774,9 @@ function blankBoard(){ // 下棋、记谱：先显示空棋盘（不存进棋谱
   renderTree();render();renderInfo();renderWho&&renderWho()}
 function restoreLast(){const id=store.lastId&&store.games[store.lastId]?store.lastId:Object.keys(store.games)[0];
   if(id){try{openRoot(parseSGF(store.games[id].sgf),{id});return}catch(e){}}blankBoard()}
+function gotoReview(){ // 「进入这棋谱」：把棋盘上这盘棋打开在复盘
+  if(vs)vsStop();if(typeof cg!=='undefined'&&cg){cg=null;$('#cgBox').hidden=true}if(typeof ol!=='undefined'&&ol){olClose(true);$('#olBox').hidden=true}
+  if(scoring)stopScoring();setMode('review');document.body.classList.remove('pick');render()}
 function goHome(){
   if(ol&&ol.st&&ol.st.status==='play'&&ol.me&&!ol.st.corr){flash(T('对局还在进行，请先认输或下完'));return}
   if(ol&&ol.st&&ol.st.corr){olClose(true);$('#olBox').hidden=true}
@@ -6695,6 +6787,7 @@ function goHome(){
 const HOME_CARDS=[ // [代号, 图示, 名称, 说明, 分组]
   ['ts','🧩','做题','死活题、手筋题、作业、闯关','learn'],
   ['game','🎮','游戏练习','吃子关卡、60 秒速吃、限时挑战','learn'],
+  ['quest','🗺️','小棋士之旅','冒险故事：上围棋课、解谜题、挑战大壮','learn'],
   ['review','📖','复盘','打开棋谱、AI 分析、找出好手和要改进的手','learn'],
   ['play','⚔️','下棋','吃子棋、与 AI 练棋、在线手谈、观战 AI vs AI、自己摆谱','play'],
   ['ladder','📈','升级赛','和同级 AI 下，连赢就升级','play'],
@@ -6706,7 +6799,7 @@ const HOME_CARDS=[ // [代号, 图示, 名称, 说明, 分组]
   ['class','🏫','班级','排行榜、作业、学生账号、报告','class'],
   ['admin','🛡️','管理','批准老师账号','class'],
   ['prefs','⚙️','设置','AI 网络、家里电脑、Google Drive、声音','class']];
-const HOME_ROLE={guest:['ts','game','play','ladder','cert','room','tour','snap','record','prefs'],stu:['ts','game','review','play','ladder','cert','room','tour','snap','record','class','prefs'],tea:['ts','game','review','play','ladder','cert','room','tour','snap','record','class','prefs'],adm:['ts','game','review','play','ladder','cert','room','tour','snap','record','class','prefs','admin']};
+const HOME_ROLE={guest:['ts','game','quest','play','ladder','cert','room','tour','snap','record','prefs'],stu:['ts','game','quest','review','play','ladder','cert','room','tour','snap','record','class','prefs'],tea:['ts','game','quest','review','play','ladder','cert','room','tour','snap','record','class','prefs'],adm:['ts','game','quest','review','play','ladder','cert','room','tour','snap','record','class','prefs','admin']};
 const HOME_SEC=[['learn','学习'],['play','对弈'],['class','班级与设定']];
 function homeGreet(){const h=new Date().getHours();return h<5?T('夜深了'):h<12?T('早安'):h<18?T('午安'):T('晚上好')}
 function renderHome(){
@@ -6728,6 +6821,7 @@ function renderHome(){
 function homeGo(k){
   if(k==='admin'){setMode('ts');tsView='admin';tsOpenPanel();return}
   if(k==='snap'){snapPick();return}
+  if(k==='quest'){qOpen();return}
   if(k==='game'){setMode('ts');tsView='games';tsOpenPanel();renderTs();return}
   if(k==='ts'){setMode('ts');if(tsView==='login'||tsView==='rank')tsView='home';tsOpenPanel();return}
   if(k==='class'){setMode('ts');tsView=tsLogin()?'rank':'login';tsOpenPanel();if(tsLogin())tsRefreshCloud().then(renderTs);return}
@@ -6773,7 +6867,7 @@ function renderDuel(){
     <label>${T('每手间隔')} <select data-d="delay">${[[0,T('最快')],[300,'0.3 s'],[1000,'1 s']].map(([v,l])=>`<option value="${v}"${v===o.delay?' selected':''}>${l}</option>`).join('')}</select></label></div>
     <div class="score-opts"><label>${T('AI 甲')} ${sel('a')}</label><span>vs</span><label>${T('AI 乙')} ${sel('b')}</label><label class="chk" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-d="swap"${o.swap?' checked':''}> ${T('轮流执黑')}</label></div>`;
   if(duel){const d=duel;h+=`<p class="big">${T('甲 {0} : {1} 乙',d.score.a,d.score.b)}${d.draw?' · '+T('和 {0}',d.draw):''} · ${d.running?T('第 {0} / {1} 盘',d.gi+1,d.games):T('完成')}</p>${d.last?`<p class="note" style="margin:0">${tsE(d.last)}</p>`:''}`}
-  h+=`<div class="row">${duel&&duel.running?`<button class="btn warn" data-dx="stop">${T('停止')}</button>`:`<button class="btn pri" data-dx="go">${T('开始对战')}</button>`}<button class="btn" data-dx="sgf">📂 ${T('从棋谱开始')}</button><button class="btn" data-dx="close">${T('关闭')}</button></div>
+  h+=`<div class="row">${duel&&duel.running?`<button class="btn warn" data-dx="stop">${T('停止')}</button>`:`<button class="btn pri" data-dx="go">${duel&&!duel.running?T('再看一盘'):T('开始对战')}</button>`}${duel&&!duel.running?`<button class="btn" data-dx="torev">📖 ${T('进入这棋谱')}</button><button class="btn" data-dx="home">🏠 ${T('回主页')}</button>`:''}<button class="btn" data-dx="sgf">📂 ${T('从棋谱开始')}</button><button class="btn" data-dx="close">${T('关闭')}</button></div>
     <p class="note" style="margin:0">${T('棋谱会存进「我的棋谱」。大量对战（几百盘）请用家里电脑的 calibrate.py，比较快。')}</p>`;
   $('#duelBody').innerHTML=h;
 }
@@ -6800,7 +6894,7 @@ function duelClose(){if(duel&&duel.running)duel.stop=true;$('#duelBox').hidden=t
 function duelAct(e){const t=e.target;
   const dn=t.closest('[data-dn] button');if(dn){duelOpt.n=+dn.dataset.v;const ids=duelIds(duelOpt.n);if(!ids.includes(duelOpt.a))duelOpt.a='g10';if(!ids.includes(duelOpt.b))duelOpt.b='10k';duelSave();renderDuel();return}
   const x=t.closest('[data-dx]');if(!x)return;const a=x.dataset.dx;
-  if(a==='go'){if(!(duel&&duel.running))duelRun()}else if(a==='stop'){if(duel)duel.stop=true;renderDuel()}else if(a==='close')duelClose();else if(a==='sgf'){duelClose();relayOpen({pick:true,mode:'ai'})}}
+  if(a==='go'){if(!(duel&&duel.running))duelRun()}else if(a==='stop'){if(duel)duel.stop=true;renderDuel()}else if(a==='close')duelClose();else if(a==='torev'){duelClose();gotoReview()}else if(a==='home'){duelClose();goHome()}else if(a==='sgf'){duelClose();relayOpen({pick:true,mode:'ai'})}}
 function duelChange(e){const t=e.target.closest('[data-d]');if(!t)return;const k=t.dataset.d;duelOpt[k]=k==='swap'?t.checked:k==='games'||k==='delay'?+t.value:t.value;duelSave()}
 
 /* ===================== 棋力认证：对同级 AI 下三局，赢两局通过 =====================
@@ -6838,7 +6932,7 @@ function renderCert(){
     h+=`<p class="big">${T('{0} 路 {1} 认证 · 第 {2} 局 · {3} 胜 {4} 败',A.n,lvName(A.lv),Math.min(3,A.res.length+1),w,l)}</p>`;
     h+=`<div class="row"><button class="btn pri" data-c="next"${vs&&!vs.over?' disabled':''}>${A.res.length?T('下一局'):T('开始第一局')}</button><button class="btn warn" data-c="quit">${T('放弃这次认证')}</button></div>`;
     h+=`<p class="note" style="margin:0">${T('第 1 局执黑、第 2 局执白、第 3 局猜先；{0}（中国数子）。',komiText(A.n))} ${T('认证中不能悔棋、不能看提示和形势判断。')}</p>`}
-  else{h+=`<div class="score-opts"><label>${T('我的名字')} <input id="certName" maxlength="16" value="${tsE(name)}" placeholder="${T('必填，会写在证书上')}" style="width:10em"></label>
+  else{h+=`<div class="score-opts"><label>${T('我的名字')} <input id="certName" maxlength="16" value="${tsE(name)}"${acctName()?' readonly':''} placeholder="${T('必填，会写在证书上')}" style="width:10em"></label>
       <span>${T('棋盘')}</span><span class="seg" data-cn>${[13,19].map(v=>`<button data-v="${v}" aria-pressed="${o.n===v}">${v} 路</button>`).join('')}</span>
       <label>${T('要考的级位')} <select id="certLv">${ids.map(id=>`<option value="${id}"${id===o.lv?' selected':''}>${lvName(id)}</option>`).join('')}</select></label></div>
       <p class="note" style="margin:0">${certReqText(certReq(o.n+':'+o.lv))}</p>
@@ -6976,7 +7070,7 @@ function certAct(e){const t=e.target;
   if(a==='pick'){certOpt.lv=b.dataset.l;certSave();renderCert();return}
   if(a==='show'){certCertificate(certOpt.n+':'+b.dataset.l);return}
 }
-function certChange(e){if(e.target.id==='certName'){ng.name=e.target.value.trim();ngSave()}if(e.target.id==='certLv'){certOpt.lv=e.target.value;certSave();renderCert()}}
+function certChange(e){if(e.target.id==='certName'&&!acctName()){ng.name=e.target.value.trim();ngSave()}if(e.target.id==='certLv'){certOpt.lv=e.target.value;certSave();renderCert()}}
 
 /* ---- 猜先：AI 抓一把白子，你猜单或双；猜对执黑 ---- */
 function nigiri(){return new Promise(res=>{
@@ -8633,7 +8727,7 @@ async function clEnter(rid,review){const r=(clRooms||[]).find(x=>x.id===rid);if(
     cl.unsubs.push(ref.collection('ctl').onSnapshot(qs=>{if(!cl)return;qs.forEach(d=>clCtlIn(d.id,d.data()))},()=>{}))}
   else{cl.unsubs.push(ref.collection('live').doc('state').onSnapshot(d=>{const st=clUnpack(d);if(st&&cl&&cl.rid===rid)clIn(st)},e=>{clMsg=e.message;renderCl()}));
     cl.unsubs.push(ref.collection('live').doc('rank').onSnapshot(d=>{const o=clUnpack(d);if(cl&&o){cl.rank=o.u||{};renderCl()}},()=>{}))}
-  cl.unsubs.push(ref.onSnapshot(d=>{if(!cl||!d.exists)return;cl.room={...d.data(),id:rid};if(cl.room.status==='end'&&!cl.teacher&&!cl.ended){cl.ended=true;clMsg=T('下课了！可以在课堂列表按「复习」看回整堂课。')}renderCl()},()=>{}));
+  cl.unsubs.push(ref.onSnapshot(d=>{if(!cl||!d.exists)return;cl.room={...d.data(),id:rid};if(cl.room.status==='end'&&!cl.teacher&&!cl.ended){cl.ended=true;clMsg=T('下课了！')}renderCl()},()=>{}));
   cl.unsubs.push(ref.collection('chat').orderBy('t').limitToLast(100).onSnapshot(qs=>{if(!cl)return;cl.chat=qs.docs.map(d=>({...d.data(),id:d.id}));renderCl()},()=>{}));
   cl.unsubs.push(ref.collection('people').onSnapshot(qs=>{if(!cl)return;const p={};qs.forEach(d=>p[d.id]=d.data());cl.people=p;
     if(cl.teacher){for(const k in p)if(p[k].hand&&!cl.hands.has(k)){cl.hands.add(k);clBeep()}for(const k of[...cl.hands])if(!p[k]||!p[k].hand)cl.hands.delete(k)}
@@ -8803,6 +8897,7 @@ function clChatHtml(on){const off=cl.room.chatOff&&!cl.teacher;
     <div class="row" style="margin:0"><input id="clSay" maxlength="100" placeholder="${off?T('老师已关闭发言'):T('输入要说的话（最多 100 字）')}"${off?' disabled':''} style="flex:1;height:34px"><button class="btn" data-k="say"${off?' disabled':''}>${T('发送')}</button></div></div>`}
 function renderCl(){const b=$('#clBody');if(!b)return;let h='';
   if(clMsg)h+=`<p class="status">${tsE(clMsg)}</p>`;
+  if(clView==='room'&&cl&&cl.ended&&!cl.teacher)h+=`<div class="row"><button class="btn pri" data-k="rev2">📖 ${T('复习这堂课')}</button><button class="btn" data-k="leave">${T('回到课堂列表')}</button><button class="btn" data-k="gohome">🏠 ${T('回主页')}</button></div>`;
   h+=clView==='room'&&cl?clRoomHtml():clView==='create'&&clForm?clFormHtml():clLobbyHtml();
   const ae=document.activeElement,keep=ae&&ae.id&&b.contains(ae)?{id:ae.id,v:ae.value,s:ae.selectionStart}:null;
   b.innerHTML=h;
@@ -8822,6 +8917,8 @@ async function clAct(e){const t=e.target.closest('[data-k]');if(!t||t.tagName===
     case'lobby':clView='lobby';renderCl();break;
     case'enter':await clEnter(t.dataset.id,false);break;
     case'rev':await clEnter(t.dataset.id,true);break;
+    case'rev2':{const id=cl.rid;clLeave();await clEnter(id,true);break}
+    case'gohome':clLeave();goHome();break;
     case'del':armed(t,T('再点一次确认删除'),async()=>{const{db}=await clDb();await clRef(db,t.dataset.id).update({removed:true});await clLoadRooms()});break;
     case'leave':clLeave();await clLoadRooms();break;
     case'end':armed(t,T('再点一次：下课'),async()=>{const{db}=await clDb(),ref=clRef(db,cl.rid);await clPush();if(cl.ink.length)cl.inkLog[cl.pk]=cl.ink;
@@ -8882,7 +8979,7 @@ function clPanelClose(){clLeave(true);clView='lobby';$('#clBox').hidden=true;clI
    学生的苹果存在班级纪录 u_<doc>：ap（数量）、apDay（今天每种来源拿了几次）、apLog（最近 60 笔）
    班级的老师额度存在 apq：{m:'2026-11', left}；每月加 学生人数 × 500，没用完会累积；管理员不限量
    赚法和每日上限存在全站 apcfg，管理员可以在网页里改 */
-const AP_SRC=[['q','做题第一次答对',1,50],['hw','作业本全对',5,3],['ck','每日签到',2,1],['exam','考卷合格',20,0],['cert','棋力认证通过',50,0],['cls','课堂答对',2,0]];
+const AP_SRC=[['q','做题第一次答对',1,50],['hw','作业本全对',5,3],['ck','每日签到',2,1],['exam','考卷合格',20,0],['cert','棋力认证通过',50,0],['cls','课堂答对',2,0],['quest','小棋士之旅过关',20,0]];
 const AP_NAME={q:'做题答对',hw:'作业本全对',ck:'每日签到',exam:'考卷合格',cert:'棋力认证通过',cls:'课堂答对',t:'老师奖励',adj:'管理员调整'};
 const AP_PER=500;
 let tsApCfg={},apQ=Promise.resolve(),apV=null;
@@ -8964,7 +9061,7 @@ function renderRelay(){const box=$('#relayBox');if(!box||box.hidden)return;const
     el.innerHTML=`<p class="big">${T('黑 {0} vs 白 {1}',lvName(levelObj(r.b,r.n)),lvName(levelObj(r.w,r.n)))}</p>
       <p class="note" style="margin:0">${r.done?tsE(r.msg||T('下完了')):r.paused?T('暂停中：可以在棋盘上自己改一手，再按「继续」。'):T('AI 正在下… 第 {0} 手',moveNo(cur))}</p>
       <div class="score-opts"><span>${T('速度')}</span><span class="seg">${RELAY_SPD.map(([k,l])=>`<button data-rl="spd" data-v="${k}" aria-pressed="${r.spd===k}">${T(l)}</button>`).join('')}</span></div>
-      <div class="row">${r.done?'':r.paused?`<button class="btn pri" data-rl="resume">▶ ${T('继续')}</button>`:`<button class="btn" data-rl="pause">⏸ ${T('暂停')}</button>`}${r.done?'':`<button class="btn warn" data-rl="stop">${T('停止')}</button>`}<button class="btn" data-rl="close">${T('关闭')}</button></div>`;return}
+      <div class="row">${r.done?'':r.paused?`<button class="btn pri" data-rl="resume">▶ ${T('继续')}</button>`:`<button class="btn" data-rl="pause">⏸ ${T('暂停')}</button>`}${r.done?'':`<button class="btn warn" data-rl="stop">${T('停止')}</button>`}${r.done?`<button class="btn pri" data-rl="again">${T('再看一盘')}</button><button class="btn" data-rl="torev">📖 ${T('进入这棋谱')}</button><button class="btn" data-rl="home">🏠 ${T('回主页')}</button>`:`<button class="btn" data-rl="close">${T('关闭')}</button>`}</div>`;return}
   const has=G&&store.games[G.id]&&G.id!=='__blank',n=has?sizeOf(root()):19,ids=relayIds(n),sel=(k,val)=>`<select data-ro="${k}">${ids.map(id=>`<option value="${id}"${id===val?' selected':''}>${lvName(id)}</option>`).join('')}</select>`;
   if(!ids.includes(o.lv))o.lv=ids[Math.min(ids.length-1,Math.floor(ids.length/2))];if(!ids.includes(o.b))o.b=o.lv;if(!ids.includes(o.w))o.w=o.lv;
   let h='';
@@ -9007,6 +9104,9 @@ async function relayAi(){const o=relayOpt,n=sizeOf(root()),LB=levelObj(o.b,n),LW
   relay.running=false;relay.done=true;renderRelay();renderTree();render()}
 document.addEventListener('click',async e=>{const t=e.target.closest('#relayBox [data-rl]');if(!t)return;const a=t.dataset.rl,o=relayOpt;
   if(a==='close'){relayClose();return}
+  if(a==='again'){relay=null;relayOpen({pick:true,mode:'ai'});return}
+  if(a==='torev'){relay=null;relayClose();gotoReview();return}
+  if(a==='home'){relay=null;relayClose();goHome();return}
   if(a==='mode'){relayV.mode=o.mode=t.dataset.v;relaySave();renderRelay();return}
   if(a==='me'){o.me=t.dataset.v;relaySave();renderRelay();return}
   if(a==='ospd'){o.spd=t.dataset.v;relaySave();renderRelay();return}
@@ -9241,6 +9341,348 @@ setInterval(async()=>{if(trCur&&trView==='view'&&!$('#trBox').hidden&&trIsOrg(tr
 /* 对局结束时记一笔（比赛的对局）：主办和管理员可以对照棋谱 */
 async function trGameLog(st){try{if(!st||!st.tour)return;const k='glog_'+st.id;if(localStorage.getItem(k))return;localStorage.setItem(k,'1');const db=await Shared.db(),u=firebase.auth().currentUser;
   await db.collection('tlog').doc(tsId(14)).set({uid:u?u.uid:'',name:olName()||'',tid:st.tour,kind:'game',act:'game',gid:st.id,desc:T('{0} vs {1}：{2}，{3} 手',(st.B||{}).name||'?',(st.W||{}).name||'?',st.re==='Void'?T('取消'):resultText(st.re),st.moves.length),before:'',t:trSrvT()})}catch(e){}}
+
+/* ===================== 小棋士之旅（冒险故事）：星石岛地图、剧情对话、规则问答、谜题、对战 =====================
+   存档：localStorage（每个登入身份一份）；登入的学生另外存在班级 u_ 文件的 quest 栏位（TsCloud）。
+   对战借用现有的吃子棋（cg）和与 AI 对局（vs）：开局时加上 quest 记号，结束时由 cgEnd / vsFinish 叫 qBattleEnd。 */
+const Q_VER=1;
+let Q=null,qs=null,qBattle=null; // Q：存档；qs：目前画面 {view,ch,i,typed,full,pick,wrong,done,order,cur}；qBattle：对战中 {ch,i,win,over,hintI}
+const qKey=()=>{const L=typeof tsLogin==='function'&&tsLogin();return'goReview.quest.'+(L&&L.doc?L.cls+'.'+L.doc:(typeof acct!=='undefined'&&acct&&acct.uid)||'guest')};
+function qLoad(){let o=null;try{o=JSON.parse(localStorage.getItem(qKey())||'null')}catch(e){}
+  Q=o&&o.v===Q_VER?o:{v:Q_VER,name:'',g:'',av:0,unl:1,done:{},at:null,cards:[],apples:0,t:0}}
+function qSave(cloud){Q.t=Date.now();try{localStorage.setItem(qKey(),JSON.stringify(Q))}catch(e){}if(cloud)qCloudSave()}
+function qStu(){const L=typeof tsLogin==='function'&&tsLogin();return L&&L.role==='student'&&L.doc?L:null}
+function qCloudSave(){const L=qStu();if(!L||typeof TsCloud==='undefined')return;const data=JSON.parse(JSON.stringify(Q));
+  apQ=apQ.then(async()=>{try{const u=(await TsCloud.get(L.cls,L.doc))||{name:L.name};u.quest=data;await TsCloud.set(L.cls,L.doc,u)}catch(e){}})}
+async function qCloudLoad(){const L=qStu();if(!L||typeof TsCloud==='undefined')return;
+  try{const u=await TsCloud.get(L.cls,L.doc);if(u&&u.quest&&u.quest.v===Q_VER&&(u.quest.t||0)>(Q.t||0)){Q=u.quest;qSave();if(qs&&qs.view==='map')qRender()}}catch(e){}}
+
+/* ---- 人物：像素头像（16×16） ---- */
+const QSKIN='#f4cba3',QSKIN2='#e9b78c';
+function qSpriteGrid(o){const g=Array.from({length:16},()=>Array(16).fill(null)),w=o.big?1:0;
+  const put=(x,y,c)=>{if(x>=0&&y>=0&&x<16&&y<16)g[y][x]=c},rect=(a,b,c,d,col)=>{for(let y=b;y<=d;y++)for(let x=a;x<=c;x++)put(x,y,col)};
+  const sk=o.skin||QSKIN,H=o.hair;
+  rect(3-w,12,12+w,15,o.shirt);rect(6,12,9,12,o.collar||'#fff');rect(7,11,8,11,sk);if(o.tie)rect(7,13,8,14,o.tie);
+  rect(4-w,3,11+w,10,sk);put(4-w,3,null);put(11+w,3,null);put(4-w,10,null);put(11+w,10,null);rect(3-w,6,3-w,7,sk);rect(12+w,6,12+w,7,sk);
+  if(o.hs==='short'){rect(5,1,10,1,H);rect(4,2,11,3,H);put(4,4,H);put(11,4,H);put(10,4,H)}
+  if(o.hs==='spike'){put(5,1,H);put(8,1,H);put(10,1,H);rect(4,2,11,3,H);put(4,4,H);put(11,4,H);put(6,4,H)}
+  if(o.hs==='buzz'){rect(5-w,2,10+w,2,H);rect(4-w,3,11+w,3,H)}
+  if(o.hs==='long'){rect(5,1,10,1,H);rect(4,2,11,3,H);rect(3,3,3,12,H);rect(12,3,12,12,H);put(4,4,H);put(11,4,H);put(5,4,H)}
+  if(o.hs==='pig'){rect(5,1,10,1,H);rect(4,2,11,3,H);put(4,4,H);put(11,4,H);rect(1,4,2,8,H);rect(13,4,14,8,H);put(3,4,o.bow||'#e74c3c');put(12,4,o.bow||'#e74c3c')}
+  if(o.hs==='bob'){rect(5,1,10,1,H);rect(4,2,11,4,H);rect(3,3,3,9,H);rect(12,3,12,9,H);put(4,5,H);put(11,5,H)}
+  if(o.hs==='side'){rect(5,2,10,2,H);rect(4,3,4,7,H);rect(11,3,11,7,H)}
+  if(o.hat){rect(5,0,10,2,o.hat);rect(2,3,13,3,o.hat2||o.hat);put(5,2,'#9b6b2f');put(10,2,'#9b6b2f')}
+  put(6,6,'#222');put(9,6,'#222');
+  if(o.angry){put(5,5,'#222');put(6,5,'#222');put(9,5,'#222');put(10,5,'#222');put(6,4,null);put(9,4,null)}
+  if(o.gl){rect(5,5,7,5,'#333');rect(8,5,10,5,'#333');put(5,6,'#bfe3f0');put(7,6,'#bfe3f0');put(8,6,'#bfe3f0');put(10,6,'#bfe3f0')}
+  put(5,8,o.blush||'#f3a6a0');put(10,8,o.blush||'#f3a6a0');
+  if(o.beard){rect(5,8,10,11,'#f1f1f1');rect(6,12,9,12,'#f1f1f1');rect(6,8,9,8,'#ddd');put(7,9,'#b55');put(8,9,'#b55')}
+  else if(o.grin){rect(6,9,9,9,'#fff');put(6,9,'#a33');put(9,9,'#a33')}
+  else{put(7,9,'#b55');put(8,9,'#b55')}
+  return g}
+function qSvg(o,cls){const g=qSpriteGrid(o);let r='';g.forEach((row,y)=>row.forEach((c,x)=>{if(c)r+=`<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${c}"/>`}));
+  return`<svg class="${cls||'qspr'}" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
+const Q_AV=[ // 玩家可选的头像 [男, 女]
+  [{hs:'short',hair:'#3a2a1a',shirt:'#3b82c4',tie:'#c0392b'},{hs:'pig',hair:'#3a2a1a',shirt:'#e96aa0',bow:'#ffd23f'}],
+  [{hs:'spike',hair:'#222',shirt:'#2e9e5b'},{hs:'long',hair:'#222',shirt:'#8e5bd6'}],
+  [{hs:'buzz',hair:'#6b4423',shirt:'#f39c12',skin:QSKIN2},{hs:'bob',hair:'#6b4423',shirt:'#16a3a3',skin:QSKIN2}]];
+function qMe(){const a=Q_AV[Q.av||0]||Q_AV[0];return a[Q.g==='f'?1:0]}
+const Q_PPL={
+  zhong:{n:'锺老师',s:{hs:'side',hair:'#888',shirt:'#5a6b7d',collar:'#fff',tie:'#2c3e50',gl:1}},
+  ban:{n:'王老师（班主任）',s:{hs:'bob',hair:'#2a2a2a',shirt:'#c0504d'}},
+  dz:{n:'雷大壮',s:{hs:'buzz',hair:'#1c1c1c',shirt:'#d63a2f',big:1,angry:1,skin:QSKIN2}},
+  vicm:{n:'林小安',s:{hs:'short',hair:'#5a3a22',shirt:'#9fb8c9',collar:'#fff'}},
+  vicf:{n:'林小雨',s:{hs:'pig',hair:'#5a3a22',shirt:'#9fc9a8',bow:'#7ec8e3'}},
+  shi:{n:'石伯',s:{hs:'side',hair:'#ddd',shirt:'#4a6f8a',collar:'#4a6f8a',beard:1,hat:'#e0c068',hat2:'#c9a24a',skin:'#d9a878'}},
+  cls:{n:'同学们',s:null},nar:{n:'',s:null}};
+function qWho(k){if(k==='me')return{n:Q.name||T('我'),s:qMe()};if(k==='vic')return Q_PPL[Q.g==='f'?'vicf':'vicm'];return Q_PPL[k]||{n:k,s:null}}
+function qTxt(t){const f=Q.g==='f';return String(t).replace(/\{name\}/g,Q.name||T('我')).replace(/\{vic\}/g,f?'林小雨':'林小安').replace(/\{v\}/g,f?'小雨':'小安').replace(/\{ta\}/g,f?'她':'他')}
+
+/* ---- 场景：程序画的像素风背景（160×90） ---- */
+function qBg(k){const R=(x,y,w,h,c,ex)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}"${ex||''}/>`;let s='';
+  if(k==='class'||k==='class2'){s=R(0,0,160,90,'#f3e3c3')+R(0,66,160,24,'#b98a5a')+R(0,64,160,3,'#8b5a2b')+R(38,8,84,38,'#8b5a2b')+R(40,10,80,34,'#2f5d46')
+    +`<text x="80" y="25" text-anchor="middle" font-size="9" fill="#fff" font-family="sans-serif">${k==='class2'?'连接与切断':'围棋课'}</text>`
+    +(k==='class2'?`<g fill="#222" stroke="#fff" stroke-width=".4"><circle cx="70" cy="35" r="2.6"/><circle cx="75" cy="35" r="2.6"/></g><g fill="#fff" stroke="#222" stroke-width=".4"><circle cx="85" cy="35" r="2.6"/><circle cx="90" cy="40" r="2.6"/></g>`
+      :`<text x="80" y="38" text-anchor="middle" font-size="5" fill="#cfe" font-family="sans-serif">● ○ 黑先 · 气 · 提子</text>`)
+    +R(6,12,24,22,'#9fd3f5')+R(17,12,2,22,'#fff')+R(6,22,24,2,'#fff')+R(130,12,24,22,'#9fd3f5')+R(141,12,2,22,'#fff')+R(130,22,24,2,'#fff')
+    +R(10,70,30,5,'#d9a066')+R(14,75,3,12,'#8b5a2b')+R(33,75,3,12,'#8b5a2b')+R(120,70,30,5,'#d9a066')+R(124,75,3,12,'#8b5a2b')+R(143,75,3,12,'#8b5a2b')}
+  else if(k==='play'){s=R(0,0,160,52,'#9fd3f5')+`<circle cx="140" cy="14" r="7" fill="#ffd84a"/>`+R(10,20,60,32,'#e8d3a8')+R(10,16,60,5,'#c0504d')+R(16,26,8,8,'#9fd3f5')+R(30,26,8,8,'#9fd3f5')+R(44,26,8,8,'#9fd3f5')+R(58,26,8,8,'#9fd3f5')+R(34,40,10,12,'#8b5a2b')
+    +R(0,52,160,38,'#7cc25c')+R(0,52,160,2,'#6aab4c')+R(118,26,6,28,'#7a5230')+R(104,12,34,18,'#3f9a3f')+R(110,6,22,8,'#4fb04f')
+    +R(70,68,26,4,'#a0703c')+R(72,72,3,8,'#7a5230')+R(91,72,3,8,'#7a5230')+R(76,64,14,4,'#e0b878')+`<circle cx="80" cy="66" r="1" fill="#222"/><circle cx="84" cy="66" r="1" fill="#fff"/>`}
+  else if(k==='river'){s=R(0,0,160,40,'#b5e0f7')+`<circle cx="30" cy="12" r="6" fill="#ffe27a"/>`+`<path d="M0 40 L20 28 L45 36 L70 24 L100 34 L130 22 L160 32 L160 44 L0 44Z" fill="#6aa86a"/>`
+    +R(0,42,160,48,'#8fcf6a')+`<path d="M60 44 Q90 54 80 66 T110 90 L150 90 Q130 70 140 60 T110 44Z" fill="#4aa3df"/>`
+    +`<g stroke="#bfe6ff" stroke-width=".8"><path d="M90 58h6M100 72h7M118 82h6M112 50h5"/></g>`
+    +R(18,30,8,40,'#7a5230')+R(12,60,4,14,'#7a5230')+R(28,62,3,12,'#7a5230')+`<ellipse cx="22" cy="24" rx="22" ry="14" fill="#3f8f3f"/><ellipse cx="34" cy="18" rx="12" ry="8" fill="#4fa64f"/>`
+    +R(36,66,22,14,'#9a9a92')+R(36,64,22,2,'#b8b8b0')+`<g stroke="#555" stroke-width=".35">${[0,1,2,3,4,5,6].map(i=>`<path d="M${38+i*3} 67v12M38 ${67+i*2}h18"/>`).join('')}</g>`}
+  return`<svg class="qbg" viewBox="0 0 160 90" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges">${s}</svg>`}
+
+/* ---- 7 路小棋盘（谜题） ---- */
+const qPt=s=>[s.charCodeAt(0)-97,s.charCodeAt(1)-97];
+function qBoardSvg(B,W,last,mark){const n=7,u=10,p=8,L=p+u*(n-1);let h=`<rect x="0" y="0" width="${L+p}" height="${L+p}" rx="2" fill="#e3b866"/>`;
+  for(let i=0;i<n;i++)h+=`<path d="M${p} ${p+i*u}H${L}M${p+i*u} ${p}V${L}" stroke="#5a3d1a" stroke-width=".5"/>`;
+  h+=`<circle cx="${p+3*u}" cy="${p+3*u}" r="1" fill="#5a3d1a"/>`;
+  const st=(s,c)=>{const[x,y]=qPt(s);return`<circle cx="${p+x*u}" cy="${p+y*u}" r="4.5" fill="${c==='B'?'#1b1b1b':'#fafafa'}" stroke="#222" stroke-width=".5"/>`};
+  B.forEach(s=>h+=st(s,'B'));W.forEach(s=>h+=st(s,'W'));
+  if(last){const[x,y]=qPt(last);h+=`<circle cx="${p+x*u}" cy="${p+y*u}" r="1.6" fill="#e74c3c"/>`}
+  if(mark){const[x,y]=qPt(mark);h+=`<path d="M${p+x*u-3} ${p+y*u-3}l6 6m0-6l-6 6" stroke="#e74c3c" stroke-width="1.2"/>`}
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++)h+=`<rect data-qp="${String.fromCharCode(97+x,97+y)}" x="${p+x*u-5}" y="${p+y*u-5}" width="10" height="10" fill="transparent" style="cursor:pointer"/>`;
+  return`<svg class="qboard" viewBox="0 0 ${L+p} ${L+p}">${h}</svg>`}
+function qCapture(B,W,mv){ // 黑下 mv 之后，提掉没有气的白子
+  const n=7,at=new Map();B.forEach(s=>at.set(s,'B'));W.forEach(s=>at.set(s,'W'));at.set(mv,'B');
+  const key=(x,y)=>String.fromCharCode(97+x,97+y),nb=s=>{const[x,y]=qPt(s);return[[x+1,y],[x-1,y],[x,y+1],[x,y-1]].filter(([a,b])=>a>=0&&b>=0&&a<n&&b<n).map(([a,b])=>key(a,b))};
+  const dead=new Set();for(const s of W){if(dead.has(s))continue;const grp=new Set([s]),stk=[s];let lib=false;
+    while(stk.length){const c=stk.pop();for(const q of nb(c)){const v=at.get(q);if(!v)lib=true;else if(v==='W'&&!grp.has(q)){grp.add(q);stk.push(q)}}}
+    if(!lib)grp.forEach(x=>dead.add(x))}
+  return{B:[...B,mv],W:W.filter(s=>!dead.has(s)),cap:dead.size}}
+
+/* ---- 剧情 ---- */
+const Q_CH={
+1:{t:'第一章　黑白的第一堂课',place:'星石小学',card:{k:'dz',n:'雷大壮',d:'星石小学的「吃子大王」，出手很快，嘴巴很坏。输了会不服气，但说话算话。'},steps:[
+ {bg:'class',cast:['ban']},
+ {s:'nar',t:'星石岛，一座被大海围着的小岛。岛的北边，是终年被云雾盖住的雾峰。'},
+ {s:'nar',t:'星石小学的早上。{name}刚坐好，班主任王老师就走进了教室。'},
+ {s:'ban',t:'同学们，安静一下！从今天开始，学校为每一班都安排了围棋课。'},
+ {s:'cls',t:'围棋？就是那个黑白棋子的游戏吗？'},
+ {s:'ban',t:'对！我们请来了一位很厉害的老师——锺老师！'},
+ {cast:['zhong']},
+ {s:'zhong',t:'大家好，我姓锺，你们叫我锺老师就好。'},
+ {s:'zhong',t:'围棋已经有几千年的历史。棋盘上只有黑白两种棋子，变化却比天上的星星还要多。'},
+ {s:'zhong',t:'第一堂课，我们先认识围棋的规则。我来问，你们来答——答错了也没关系，我会讲给你听。'},
+ {quiz:{q:'围棋是哪一方先下？',o:['黑棋','白棋','谁都可以先下'],a:0,ex:'围棋是黑棋先下，然后黑白轮流，一人下一手。'}},
+ {quiz:{q:'棋子要下在棋盘的什么地方？',o:['线和线的交叉点上','格子里面','棋盘的边框上'],a:0,ex:'棋子要下在线和线交叉的点上，不是下在格子里。'}},
+ {quiz:{q:'一颗棋子的「气」是什么？',o:['上下左右紧挨着的空点','四个斜角上的空点','周围所有的空点（包括斜角）'],a:0,ex:'气是上下左右紧挨着的空点，斜角的点不算气。棋盘中间的一颗子有 4 口气。'}},
+ {quiz:{q:'怎样才能吃掉对方的棋子？',o:['把它所有的气都堵住','把它四个斜角都围住','连续下两手'],a:0,ex:'把对方棋子的气全部堵住，它没有气了，就要从棋盘上拿掉，这叫「提子」。'}},
+ {quiz:{q:'下在某一点后，自己的棋子马上没有气，又吃不到对方的子，可以下吗？',o:['不可以，这叫禁着点','可以，下了再被提掉就好','可以，而且对方要停一手'],a:0,ex:'这种点叫「禁着点」，不能下。不过，如果下去能先把对方的子吃掉，就可以下。'}},
+ {quiz:{q:'两颗黑子怎样才算「连在一起」？',o:['上下或左右紧挨着','斜对角挨着也算','只要在同一条线上就算'],a:0,ex:'只有上下左右紧挨着才算连在一起。斜着挨着的中间有缝，可能被对方切断。'}},
+ {quiz:{q:'对方刚刚提了你一颗子，形成「打劫」。你可以马上提回来吗？',o:['不可以，要先在别处下一手','可以马上提回来','永远都不能提回来'],a:0,ex:'打劫的时候不能马上提回来，要先在别的地方下一手，下一轮才可以提。不然两边一直提来提去，棋就下不完了。'}},
+ {quiz:{q:'「吃子棋」怎样算赢？',o:['先吃到规定数目的棋子','棋盘上自己的棋子比较多','先下到棋盘的四个角'],a:0,ex:'吃子棋比的是谁先吃到规定的子数，例如「先吃 3 子」就赢。'}},
+ {s:'zhong',t:'很好！规则记住了，接下来动手试试看。'},
+ {s:'zhong',t:'白子只剩一口气了。你执黑，找到它最后那口气，把它吃掉！'},
+ {puzzle:{B:['cd','de','ed'],W:['dd'],a:['dc'],hint:'数一数白子上下左右，哪一边还空着？',ex:'白子的四口气都被堵住，提掉了！这就是「吃子」。'}},
+ {s:'zhong',t:'这次是两颗连在一起的白子。连在一起的棋子，要一起数气。'},
+ {puzzle:{B:['cc','cd','ec','ed','de'],W:['dc','dd'],a:['db'],hint:'两颗白子一起算，它们只剩上面那一口气。',ex:'两颗白子一起被提掉！连在一起的棋子，气是一起算的。'}},
+ {s:'zhong',t:'太棒了！今天就上到这里。下课以后，可以到操场玩一玩吃子棋。'},
+ {bg:'play',cast:['dz','vic']},
+ {s:'nar',t:'下课后，操场的长椅边围了一群同学。'},
+ {s:'dz',t:'哈哈，又吃掉了！{v}，你已经连输三盘啦！'},
+ {s:'vic',t:'……'},
+ {s:'dz',t:'笨手笨脚的，连逃都不会逃，我看你学一百年也学不会！'},
+ {s:'nar',t:'{vic}低着头，眼眶红红的。'},
+ {choice:[{t:'大壮，你太过分了！',then:[{s:'dz',t:'过分？下棋输了就是输了，我又没说错！'}]},{t:'（默默走过去）{v}，你没事吧？',then:[{s:'vic',t:'我……我没事。谢谢你。'},{s:'dz',t:'哟，来了个出头的？'}]}]},
+ {s:'dz',t:'{name}，你不服气？那我们来一盘吃子棋，先吃三颗子的赢！'},
+ {s:'dz',t:'你赢了，我就跟{v}道歉；你输了——放学帮我背书包！'},
+ {s:'me',t:'好，一言为定！'},
+ {s:'nar',t:'9 路吃子棋，先吃 3 子赢。你执黑先下。'},
+ {battle:{kind:'cg',n:9,goal:3,lvl:1,opp:'雷大壮',who:'zhong',hints:['先看哪颗子只剩一口气。','被叫吃的时候，往空的地方逃，不要往边上逃。','两颗子连在一起，气比较多，比较不容易被吃。']}},
+ {bg:'play',cast:['dz','vic']},
+ {s:'dz',t:'怎么可能……我竟然输了……'},
+ {s:'dz',t:'……{v}，对、对不起，我不该笑你。'},
+ {cast:['zhong','dz','vic']},
+ {s:'nar',t:'这时，锺老师从走廊那边走了过来。'},
+ {s:'zhong',t:'你们知道吗？古代的棋书《棋经十三篇》里有一句话：「胜不言，败不语。」意思是赢了不炫耀，输了不抱怨，这才是真正的棋手。'},
+ {s:'zhong',t:'大壮，你吃子很快，是有天分的。下次赢了，记得跟对手说一声「谢谢指教」。'},
+ {s:'zhong',t:'{v}，每一盘输掉的棋，都在悄悄教你下一盘怎么赢。'},
+ {s:'dz',t:'……哼，下次我一定赢回来！'},
+ {s:'nar',t:'锺老师抬起头，望向远方被云雾盖住的雾峰，好像想起了什么。'},
+ {reward:{ap:20}}]},
+2:{t:'第二章　连接自己，包围别人',place:'弯月河畔',card:{k:'shi',n:'石伯',d:'在弯月河边打鱼几十年的老渔夫。大榕树下的石刻棋盘，好像藏着很多故事。'},steps:[
+ {bg:'class2',cast:['zhong']},
+ {s:'zhong',t:'上次我们学了吃子。今天要学一样更重要的：连接和切断。'},
+ {s:'zhong',t:'棋子连在一起，就像同学手拉手，很难被欺负；被切断的棋子，就会被一个一个吃掉。'},
+ {quiz:{q:'两颗黑子怎样才算「连接」？',o:['上下或左右紧贴着','斜对角挨着','中间隔一路'],a:0,ex:'上下左右紧贴着才算真正连在一起。斜着的、隔一路的，都还有缝。'}},
+ {quiz:{q:'什么是「断点」？',o:['对方下在那里，就能把我的棋子分开的地方','棋盘最外面的边线','已经被提掉的位置'],a:0,ex:'断点就是棋子之间的「缝」。对方下进去，就把我的棋切成两块。'}},
+ {quiz:{q:'为什么「虎口」也算连上了？',o:['对方下进虎口只剩一口气，马上会被吃掉','因为虎口里面不能下棋','因为虎口的两颗子离得很近'],a:0,ex:'虎口里看起来是空的，可是对方钻进去只剩一口气，我们一提就吃掉，所以等于连上了。'}},
+ {s:'zhong',t:'现在来做五道练习题。都是黑棋下。'},
+ {puzzle:{q:'把两颗黑子连起来，不让白棋切断。',B:['cc','ec'],W:['dd','db'],a:['dc'],hint:'两颗黑子中间的那个点，就是断点。',ex:'下在中间，三颗黑子连成一排，白棋再也切不断了。'}},
+ {puzzle:{q:'白棋有一个断点，切下去！',B:['dc'],W:['cc','dd'],a:['cd'],hint:'两颗白子是斜着的，另一个斜角是它们的缝。',ex:'切断成功！两颗白子被分开，变成两块弱棋。棋从断处生。'}},
+ {puzzle:{q:'白子在边线上，吃掉它！',B:['cg','df'],W:['dg'],a:['eg'],hint:'边线上的棋子只有三口气，看看还剩哪一口。',ex:'边线的棋子气比较少，很容易被吃。所以被叫吃时不要往边上逃！'}},
+ {puzzle:{q:'白棋想从中间切断黑棋。用「虎口」守住！',B:['cc','ec'],W:['cd'],a:['db','dd'],no:{dc:'这样直接连也可以，不过这一题要练「虎口」：试试上面或下面。'},hint:'在两颗黑子的上方或下方下一手，围出一个「口」。',ex:'这就是虎口！白棋如果钻进中间，只剩一口气，马上会被吃掉。'}},
+ {puzzle:{q:'两颗白子都只剩两口气。找一手同时叫吃它们！',B:['bd','ce','fd','ee'],W:['cd','ed'],a:['dd'],hint:'两颗白子中间共用的那一口气。',ex:'双吃！白棋只能救一颗，另一颗就被你吃掉了。先切断、再吃子。'}},
+ {s:'zhong',t:'全部做对了！放学后可以到弯月河畔走走，那里风景很好。'},
+ {bg:'river',cast:['shi']},
+ {s:'nar',t:'放学后，{name}沿着弯月河散步。河边有一棵很老很老的大榕树。'},
+ {s:'nar',t:'树下有一块大石头，上面刻着纵横七条线——是一个石刻棋盘！'},
+ {s:'shi',t:'小朋友，你也懂下棋？'},
+ {s:'me',t:'我刚在学校学围棋！老伯伯，您是……'},
+ {s:'shi',t:'大家都叫我石伯。我在这条河边打鱼，打了几十年啦。'},
+ {s:'shi',t:'吃子棋只是开始。真正的围棋，比的是谁围的地盘大。'},
+ {s:'shi',t:'下完以后，自己棋盘上的棋子，加上围住的空点，就是你的「子数」。'},
+ {s:'shi',t:'这块石盘是 7 路，一共 49 个点。7 路不贴目，黑 25 子胜，不到 25 子就是白棋赢。'},
+ {s:'shi',t:'还有一句老话，你要记住：「棋从断处生」。棋子被切断的地方，就是战斗开始的地方。'},
+ {s:'shi',t:'来，陪老头子下一盘吧。你执黑先下，下完了双方都停一手，就来数子。'},
+ {battle:{kind:'vs',n:7,lv:'30k',opp:'石伯',who:'shi',teach:1,hints:['把自己的棋子连好，再去围地盘。','石伯的棋有断点，切下去看看！']}},
+ {bg:'river',cast:['shi']},
+ {s:'shi',t:'好，好！你懂得把自己的棋连起来，也懂得找我的断点。'},
+ {s:'shi',t:'常来玩吧，这块石盘，很久没有人陪我下了。'},
+ {bg:'class',cast:['dz','vic']},
+ {s:'nar',t:'第二天早上，{name}一走进教室，大壮就拦在门口。'},
+ {s:'dz',t:'吃子棋只是小孩子玩的！我哥哥教了我真正的围棋，敢不敢用 7 路跟我比？输的人，帮赢的人值日一星期！'},
+ {s:'vic',t:'{name}，加油！'},
+ {s:'me',t:'好，我接受！'},
+ {s:'nar',t:'7 路围棋，不贴目，黑 25 子胜。你执黑先下。'},
+ {battle:{kind:'vs',n:7,lv:'20k',opp:'雷大壮',who:'zhong',hints:['你的棋子被切成两块了，先连好再进攻。','大壮那里有断点，切下去！','下完要数子：黑棋要有 25 子才赢，别让大壮围太大的地。']}},
+ {bg:'class',cast:['dz','vic']},
+ {s:'nar',t:'放学后，大壮拿着扫把，一边扫地，一边嘟囔。'},
+ {s:'dz',t:'哼，7 路太小了，下次用 9 路，你就死定了！'},
+ {s:'vic',t:'谢谢你，{name}！我也要好好练棋！'},
+ {bg:'river',cast:['shi']},
+ {s:'shi',t:'听说你赢了？哈哈，好！'},
+ {s:'shi',t:'顺着弯月河一直往下走，就是渔村码头。那里有很多会下棋的渔夫……等你准备好了，就去看看吧。'},
+ {reward:{ap:20}}]}};
+const Q_LOC=[ // 地图上的地点
+  {k:'school',x:70,y:94,ic:'🏫',n:'星石小学',ch:1},
+  {k:'river',x:113,y:76,ic:'🌳',n:'弯月河畔',ch:2},
+  {k:'dock',x:150,y:122,ic:'⚓',n:'渔村码头',ch:3},
+  {k:'market',x:46,y:66,ic:'🏮',n:'小镇市集',ch:4},
+  {k:'light',x:30,y:116,ic:'🗼',n:'灯塔',ch:5},
+  {k:'fog',x:104,y:24,ic:'⛰️',n:'雾峰深山',ch:9}];
+const Q_TOP=2; // 目前写好的章数
+
+/* ---- 画面 ---- */
+function qCss(){if($('#qCss'))return;const s=document.createElement('style');s.id='qCss';s.textContent=`
+#qBox{position:fixed;inset:0;z-index:60;background:#1d2b3a;display:flex;justify-content:center;overflow:auto;font-family:inherit}
+#qBox .qwrap{width:100%;max-width:760px;display:flex;flex-direction:column;min-height:100%;color:#fff}
+#qBox .qtop{display:flex;align-items:center;gap:8px;padding:8px 12px}#qBox .qtop b{flex:1;font-size:1rem}
+#qBox .qbtn{background:#fff;color:#1d2b3a;border:0;border-radius:10px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer;box-shadow:0 3px 0 #9aa9b8}
+#qBox .qbtn:active{transform:translateY(2px);box-shadow:0 1px 0 #9aa9b8}#qBox .qbtn.pri{background:#ffd23f}#qBox .qbtn.ghost{background:transparent;color:#fff;box-shadow:none;border:1px solid #fff6}
+#qBox .qstage{position:relative;aspect-ratio:16/9;width:100%;overflow:hidden;background:#000;border-radius:12px}
+#qBox .qbg{position:absolute;inset:0;width:100%;height:100%}
+#qBox .qcast{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:4%;align-items:flex-end;pointer-events:none}
+#qBox .qcast .qspr{width:20%;max-width:150px;transition:opacity .2s,transform .2s;filter:drop-shadow(0 3px 0 #0003)}#qBox .qcast .dim{opacity:.6;transform:scale(.94)}
+#qBox .qdlg{margin:10px 8px;background:#fffdf5;color:#222;border:4px solid #3b2a1a;border-radius:12px;padding:12px;min-height:7.5em;display:flex;gap:12px;cursor:pointer;position:relative;box-shadow:0 4px 0 #0005}
+#qBox .qdlg .qspr{width:64px;height:64px;flex:none;background:#e9f2f8;border-radius:8px}#qBox .qdlg .qn{font-weight:700;color:#8a4b12;margin-bottom:4px}
+#qBox .qdlg .qt{font-size:1.08rem;line-height:1.6;white-space:pre-wrap}#qBox .qdlg .qmore{position:absolute;right:12px;bottom:6px;animation:qb 1s infinite;color:#8a4b12}
+@keyframes qb{50%{transform:translateY(3px)}}
+#qBox .qopts{display:flex;flex-direction:column;gap:8px;margin-top:8px}#qBox .qopt{text-align:left;background:#eef5ff;border:2px solid #9bb8d6;border-radius:10px;padding:8px 12px;font:inherit;font-size:1rem;cursor:pointer;color:#1d2b3a}
+#qBox .qopt.ok{background:#d9f7d9;border-color:#3c9a3c}#qBox .qopt.no{background:#fde2e2;border-color:#d9534f}#qBox .qopt:disabled{cursor:default}
+#qBox .qpz{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#0006}#qBox .qboard{height:94%;max-width:94%}
+#qBox .qmap{width:100%;border-radius:12px;display:block}#qBox .qloc{cursor:pointer}#qBox .qloc.lock{cursor:not-allowed}
+#qBox .qcard{background:#fffdf5;color:#222;border-radius:12px;padding:12px;margin:10px 8px}#qBox .qcard h3{margin:0 0 6px}
+#qBox .qrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
+#qBox .qcards{display:flex;gap:8px;flex-wrap:wrap}#qBox .qcards div{background:#f3ead7;border-radius:10px;padding:6px;width:110px;text-align:center;font-size:.85rem}#qBox .qcards .qspr{width:64px;height:64px}
+#qBox .qavs{display:flex;gap:8px;flex-wrap:wrap}#qBox .qavs button{background:#e9f2f8;border:3px solid transparent;border-radius:10px;padding:4px;cursor:pointer}#qBox .qavs button[aria-pressed="true"]{border-color:#ffb100}#qBox .qavs .qspr{width:64px;height:64px;display:block}
+#qBox input.qin{font:inherit;font-size:1rem;padding:6px 10px;border-radius:8px;border:2px solid #9bb8d6;width:12em}
+#qBox .qok{color:#2e7d32;font-weight:700}#qBox .qno{color:#c62828;font-weight:700}
+.qhint{background:#fff8e1;border-left:4px solid #ffb100;padding:6px 10px;border-radius:6px;margin:4px 0;color:#5a4300}
+@media (max-width:560px){#qBox .qdlg .qspr{width:48px;height:48px}#qBox .qdlg .qt{font-size:1rem}}`;document.head.appendChild(s)}
+function qOpen(){qCss();qLoad();let b=$('#qBox');if(!b){b=document.createElement('div');b.id='qBox';document.body.appendChild(b);b.addEventListener('click',qClick);b.addEventListener('input',qInput)}
+  b.hidden=false;document.body.style.overflow='hidden';qs={view:Q.g?'map':'setup'};{const an=typeof acctName==='function'&&acctName();if(an)Q.name=an}qRender();qCloudLoad()}
+function qHide(){const b=$('#qBox');if(b)b.hidden=true;document.body.style.overflow=''}
+function qClose(){qHide();qs=null;if(typeof curMode==='function'&&curMode()!=='home')goHome()}
+function qTop(t){return`<div class="qtop"><b>${t}</b>${qs.view!=='map'&&qs.view!=='setup'?`<button class="qbtn ghost" data-q="map">🗺️ ${T('地图')}</button>`:''}${qs.view==='map'?`<button class="qbtn ghost" data-q="setup">👤 ${T('我的角色')}</button>`:''}<button class="qbtn ghost" data-q="close" aria-label="${T('关闭')}">✕</button></div>`}
+function qRender(){const b=$('#qBox');if(!b||!qs)return;let h='<div class="qwrap">';
+  if(qs.view==='setup')h+=qTop('🗺️ '+T('小棋士之旅'))+qSetupHtml();
+  else if(qs.view==='map')h+=qTop('🗺️ '+T('星石岛'))+qMapHtml();
+  else h+=qTop(tsE(Q_CH[qs.ch].t))+qSceneHtml();
+  b.innerHTML=h+'</div>';qType()}
+function qSetupHtml(){const lk=typeof acctName==='function'&&acctName();
+  return`<div class="qcard"><h3>${T('欢迎来到星石岛！')}</h3><p>${T('你是星石小学的学生。先设定你的角色吧。')}</p>
+    <p><label>${T('名字')} <input class="qin" id="qName" maxlength="12" value="${tsE(Q.name||'')}"${lk?' readonly':''}></label></p>
+    <div class="qrow"><span>${T('我是')}</span><button class="qbtn${Q.g==='m'?' pri':''}" data-q="g" data-v="m">👦 ${T('男生')}</button><button class="qbtn${Q.g==='f'?' pri':''}" data-q="g" data-v="f">👧 ${T('女生')}</button></div>
+    ${Q.g?`<p>${T('选一个样子')}</p><div class="qavs">${Q_AV.map((a,i)=>`<button data-q="av" data-v="${i}" aria-pressed="${(Q.av||0)===i}">${qSvg(a[Q.g==='f'?1:0])}</button>`).join('')}</div>`:''}
+    <div class="qrow"><button class="qbtn pri" data-q="setok">${T('出发！')}</button></div></div>`}
+function qMapHtml(){const unl=Q.unl||1;let m=`<rect width="200" height="150" fill="#3f8fd2"/>`;
+  for(let i=0;i<14;i++)m+=`<path d="M${(i*37)%190+4} ${(i*53)%140+6}h6" stroke="#8cc4f0" stroke-width="1"/>`;
+  m+=`<path d="M30 52 L58 26 L100 12 L146 20 L176 46 L184 86 L170 120 L132 140 L80 142 L42 130 L18 102 L20 70Z" fill="#8fcf6a" stroke="#ecd9a0" stroke-width="6" stroke-linejoin="round"/>`;
+  m+=`<g fill="#6f7f72"><path d="M78 40 L92 14 L106 40Z"/><path d="M96 42 L112 10 L128 42Z"/><path d="M118 40 L132 18 L146 40Z"/></g><g fill="#fff"><path d="M89 20 L92 14 L95 20Z"/><path d="M108 18 L112 10 L116 18Z"/></g>`;
+  m+=`<path d="M112 40 C96 56 98 70 114 78 S150 100 156 128" stroke="#5bb4ea" stroke-width="5" fill="none" stroke-linecap="round"/><text x="128" y="96" font-size="6" fill="#2d6fa6" font-family="sans-serif">${T('弯月河')}</text>`;
+  m+=`<g fill="#3f8f3f">${[[40,90],[52,100],[60,82],[90,120],[100,110],[140,60],[160,74],[150,90]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5"/>`).join('')}</g>`;
+  m+=`<g opacity=".93" fill="#eef3f6"><ellipse cx="90" cy="26" rx="26" ry="11"/><ellipse cx="118" cy="20" rx="28" ry="12"/><ellipse cx="140" cy="32" rx="18" ry="8"/><ellipse cx="74" cy="36" rx="14" ry="6"/></g>`;
+  for(const L of Q_LOC){const open=L.ch<=unl&&L.ch<=Q_TOP,soon=L.ch<=unl&&L.ch>Q_TOP,done=Q.done[L.ch],here=open&&(L.ch===Math.min(unl,Q_TOP));
+    m+=`<g class="qloc${open||soon?'':' lock'}" data-q="loc" data-v="${L.ch}"><circle cx="${L.x}" cy="${L.y}" r="9" fill="${open?'#fffdf5':soon?'#fff3c4':'#c9d3db'}" stroke="${here?'#ffb100':'#3b2a1a'}" stroke-width="${here?2:1}"/>
+      <text x="${L.x}" y="${L.y+3.5}" font-size="10" text-anchor="middle">${open||soon?L.ic:'🔒'}</text>
+      <text x="${L.x}" y="${L.y+17}" font-size="6.5" text-anchor="middle" fill="#1d2b3a" stroke="#fff" stroke-width="1.6" paint-order="stroke" font-weight="700" font-family="sans-serif">${T(L.n)}${done?' ✓':''}</text></g>`}
+  let h=`<div style="padding:0 8px"><svg class="qmap" viewBox="0 0 200 150">${m}</svg></div>`;
+  if(qs.loc){const L=Q_LOC.find(x=>x.ch===qs.loc),C=Q_CH[qs.loc];
+    if(!C)h+=`<div class="qcard"><h3>${L.ic} ${T(L.n)}</h3><p>${L.ch<=unl?T('新的故事正在准备中，敬请期待！'):L.k==='fog'?T('浓浓的云雾挡住了山路……好像要等到很久以后才能进去。'):T('🔒 还没有解锁，先完成前面的故事吧。')}</p></div>`;
+    else{const mid=Q.at&&Q.at.ch===qs.loc&&Q.at.i>0;h+=`<div class="qcard"><h3>${L.ic} ${tsE(C.t)}</h3><p>${Q.done[qs.loc]?'<span class="qok">✓ '+T('已经完成')+'</span>':mid?T('上次玩到一半。'):T('新的故事！')}</p>
+      <div class="qrow">${mid?`<button class="qbtn pri" data-q="resume">▶ ${T('继续')}</button><button class="qbtn" data-q="start">${T('从头开始')}</button>`:`<button class="qbtn pri" data-q="start">▶ ${Q.done[qs.loc]?T('再玩一次'):T('开始')}</button>`}</div></div>`}}
+  else h+=`<div class="qcard"><p>${T('点地图上的地点开始冒险。')}</p></div>`;
+  if(Q.cards.length)h+=`<div class="qcard"><h3>🃏 ${T('角色卡')}</h3><div class="qcards">${Q.cards.map(k=>{const c=Object.values(Q_CH).map(x=>x.card).find(c=>c.k===k);return c?`<div>${qSvg(Q_PPL[k].s)}<b>${tsE(c.n)}</b><br><small>${tsE(c.d)}</small></div>`:''}).join('')}</div><p>🍎 ${T('从冒险拿到 {0} 个苹果',Q.apples||0)}</p></div>`;
+  return h}
+function qState(ch,i){const S=Q_CH[ch].steps;let bg='class',cast=[];for(let j=0;j<=i&&j<S.length;j++){if(S[j].bg)bg=S[j].bg;if(S[j].cast)cast=S[j].cast}return{bg,cast}}
+function qStep(){return Q_CH[qs.ch].steps[qs.i]}
+function qSceneHtml(){const st=qStep(),{bg,cast}=qState(qs.ch,qs.i),line=qs.line||(st&&st.s?st:null),spk=line&&line.s;
+  let stage=qBg(bg)+`<div class="qcast">${cast.map(k=>{const w=qWho(k);return w.s?qSvg(w.s,'qspr'+(spk&&spk!=='nar'&&spk!==k&&!(spk==='vic'&&k==='vic')?' dim':'')):''}).join('')}</div>`;
+  let dlg='';
+  if(st&&st.puzzle){const P=st.puzzle,r=qs.done&&qs.res;stage+=`<div class="qpz">${qBoardSvg(r?r.B:P.B,r?r.W:P.W,qs.done?qs.ans:null,qs.miss)}</div>`;
+    const w=qWho('zhong');dlg=qDlg(w,qs.done?`✓ ${P.ex}`:(P.q||T('黑棋下，找出正确的一手。'))+(qs.wrong?`\n${qs.wmsg||T('不对哦，再想想。')}`+(qs.wrong>=1?`\n💡 ${P.hint}`:''):''),false,
+      qs.done?`<div class="qrow"><button class="qbtn pri" data-q="next">${T('继续')} ▶</button></div>`:qs.wrong>=3?`<div class="qrow"><button class="qbtn" data-q="show">${T('看答案')}</button></div>`:'')}
+  else if(st&&st.quiz){const z=st.quiz,ord=qs.order||(qs.order=z.o.map((_,k)=>k).sort(()=>Math.random()-.5)),pk=qs.pick;
+    dlg=qDlg(qWho('zhong'),pk==null?z.q:pk===z.a?`${z.q}\n<span class="qok">✓ ${T(qPraise())}</span>`:`${z.q}\n<span class="qno">✗ ${T('不对哦。')}</span>${z.ex}`,true,
+      `<div class="qopts">${ord.map(k=>`<button class="qopt${pk!=null&&k===z.a?' ok':pk===k?' no':''}" data-q="ans" data-v="${k}"${pk!=null?' disabled':''}>${tsE(qTxt(z.o[k]))}</button>`).join('')}</div>`+(pk!=null?`<div class="qrow"><button class="qbtn pri" data-q="next">${T('继续')} ▶</button></div>`:''))}
+  else if(st&&st.choice&&!qs.line){dlg=qDlg(qWho('me'),T('（你要说什么？）'),true,`<div class="qopts">${st.choice.map((c,k)=>`<button class="qopt" data-q="pick" data-v="${k}">${tsE(qTxt(c.t))}</button>`).join('')}</div>`)}
+  else if(st&&st.battle){const B=st.battle;dlg=qDlg(qWho(B.who),qs.lost?`💡 ${qTxt(B.hints[(qs.hintI||0)%B.hints.length])}`:B.teach?T('不用紧张，输赢都没关系，好好练习！'):T('准备好了吗？'),true,
+      `<div class="qrow"><button class="qbtn pri" data-q="fight">⚔️ ${qs.lost?T('再挑战'):T('开始对局')}（${tsE(B.opp)}）</button></div>`)}
+  else if(st&&st.reward){const C=Q_CH[qs.ch],w=Q_PPL[C.card.k];dlg=`<div class="qcard" style="margin:10px 8px"><h3>🎉 ${T('完成「{0}」！',C.t.replace(/^.*　/,''))}</h3>
+      <div class="qrow">${qSvg(w.s)}<div><b>🃏 ${T('获得角色卡：{0}',C.card.n)}</b><br><small>${tsE(C.card.d)}</small><br>${qs.paid?`🍎 +${st.reward.ap}`:T('（这一章已经拿过奖励）')}</div></div>
+      <p>${qs.ch<Q_TOP?T('地图上解锁了新的地点！'):T('下一章「渔村码头」正在准备中，敬请期待！')}</p><div class="qrow"><button class="qbtn pri" data-q="map">🗺️ ${T('回到地图')}</button></div></div>`}
+  else if(line)dlg=qDlg(qWho(line.s),qTxt(line.t),false,'',true);
+  return`<div style="padding:0 8px"><div class="qstage">${stage}</div></div>${dlg}`}
+function qPraise(){return['答对了！','很好！','完全正确！','真厉害！'][Math.floor(Math.random()*4)]}
+function qDlg(w,text,raw,extra,typing){const name=w.n?`<div class="qn">${tsE(w.n)}</div>`:'';
+  const body=typing?`<div class="qt" id="qT"></div>`:`<div class="qt">${raw?text:tsE(text)}</div>`;
+  if(typing)qs.full=text;
+  return`<div class="qdlg" ${typing?'data-q="adv"':''}>${w.s?qSvg(w.s):''}<div style="flex:1">${name}${body}${extra||''}</div>${typing?'<span class="qmore">▼</span>':''}</div>`}
+let qTimer=null;
+function qType(){clearInterval(qTimer);const el=$('#qT');if(!el)return;const full=qs.full||'';let k=0;qs.typing=true;
+  qTimer=setInterval(()=>{k+=1;el.textContent=full.slice(0,k);if(k>=full.length){clearInterval(qTimer);qs.typing=false}},28)}
+function qGo(ch,i){qs={view:'scene',ch,i:i||0};qEnter()}
+function qEnter(){const S=Q_CH[qs.ch].steps; // 跳过只换场景的步骤
+  while(qs.i<S.length){const st=S[qs.i];if(st.bg&&!st.s&&!st.quiz&&!st.puzzle&&!st.battle&&!st.choice&&!st.reward||st.cast&&Object.keys(st).length===1)qs.i++;else break}
+  Q.at={ch:qs.ch,i:qs.i};const st=S[qs.i];if(st&&st.reward)qReward(st.reward);qSave();qRender()}
+function qNext(){if(qs.queue&&qs.queue.length){qs.line=qs.queue.shift();qRender();return}
+  qs={view:'scene',ch:qs.ch,i:qs.i+1};if(qs.i>=Q_CH[qs.ch].steps.length){qs.view='map';qRender();return}qEnter()}
+function qReward(r){const ch=qs.ch,C=Q_CH[ch];qs.paid=!Q.done[ch];
+  if(qs.paid){Q.done[ch]=1;Q.apples=(Q.apples||0)+r.ap;if(typeof apEarn==='function')apEarn('quest');if(typeof mascotSay==='function')mascotSay('cheer',T('过关了！'))}
+  if(!Q.cards.includes(C.card.k))Q.cards.push(C.card.k);Q.unl=Math.max(Q.unl||1,ch+1);Q.at=null;qSave(true)}
+function qPuzzleClick(p){const P=qStep().puzzle;if(qs.done)return;if([...P.B,...P.W].includes(p))return;
+  if(P.a.includes(p)){qs.done=true;qs.ans=p;qs.res=qCapture(P.B,P.W,p);qs.miss=null;qRender();return}
+  qs.wrong=(qs.wrong||0)+1;qs.miss=p;qs.wmsg=P.no&&P.no[p]||'';qRender()}
+function qClick(e){const t=e.target.closest('[data-q],[data-qp]');if(!t)return;
+  if(t.dataset.qp){qPuzzleClick(t.dataset.qp);return}
+  const a=t.dataset.q,v=t.dataset.v;
+  switch(a){
+    case'close':qClose();break;
+    case'map':qs={view:'map'};qRender();break;
+    case'setup':qs={view:'setup'};qRender();break;
+    case'g':Q.g=v;qRender();break;
+    case'av':Q.av=+v;qRender();break;
+    case'setok':{const n=(($('#qName')||{}).value||'').trim();if(!n){flash(T('请输入名字'));return}if(!Q.g){flash(T('请选男生或女生'));return}Q.name=n;qSave(true);qs={view:'map',loc:Q.done[1]?Math.min(Q.unl,Q_TOP):1};qRender();break}
+    case'loc':{const ch=+v;if(ch>(Q.unl||1)&&!(Q_LOC.find(x=>x.ch===ch)||{}).k){return}qs.loc=ch;qRender();break}
+    case'start':qGo(qs.loc,0);break;
+    case'resume':qGo(Q.at.ch,Q.at.i);break;
+    case'adv':if(qs.typing){clearInterval(qTimer);qs.typing=false;const el=$('#qT');if(el)el.textContent=qs.full;return}qNext();break;
+    case'next':qNext();break;
+    case'ans':qs.pick=+v;qRender();break;
+    case'pick':{const c=qStep().choice[+v];qs.queue=(c.then||[]).slice();qs.line={s:'me',t:c.t};qRender();break}
+    case'show':{const P=qStep().puzzle;qPuzzleClick(P.a[0]);break}
+    case'fight':qFight();break}}
+function qInput(e){if(e.target.id==='qName')Q.name=e.target.value}
+
+/* ---- 对战：借用吃子棋 / 和 AI 对局 ---- */
+function qFight(){const st=qStep(),B=st.battle;qBattle={ch:qs.ch,i:qs.i,over:false,win:false,hintI:qs.hintI||0,teach:!!B.teach,who:B.who,hints:B.hints};qHide();
+  if(vs)vsStop();if(typeof cg!=='undefined'&&cg){cg=null;$('#cgBox').hidden=true}if(scoring)stopScoring();if(train)stopTrain();
+  setMode('play');document.body.dataset.sub='quest';closeNew();$('#duelBox').hidden=true;$('#certBox').hidden=true;if(!$('#olBox').hidden)olPanelClose();
+  if(B.kind==='cg'){const save={...cgOpt};Object.assign(cgOpt,{n:B.n,goal:B.goal,opp:'ai',lvl:B.lvl,color:'B'});$('#cgBox').hidden=false;cgNew();Object.assign(cgOpt,save);
+    if(cg){cg.quest=true;const r=root();r.props.PW=[B.opp];r.props.GN=[T('小棋士之旅：对 {0}',B.opp)];changed();renderInfo()}renderCg();$('#cgBox').scrollIntoView({block:'nearest'});return}
+  const n=B.n,lv=levelObj(B.lv,n),d=new Date().toISOString().slice(0,10),esc=s=>String(s).replace(/([\]\\])/g,'\\$1');
+  const r=parseSGF(`(;GM[1]FF[4]CA[UTF-8]SZ[${n}]KM[${KOMI_DEF[n]}]RU[Chinese]DT[${d}]GN[${esc(T('小棋士之旅：对 {0}',B.opp))}]PB[${esc(Q.name||T('我'))}]PW[${esc(B.opp)}])`),id=newId();
+  store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};openRoot(r,{id});
+  vs={id,pc:false,ai:2,level:lv,auto:false,ladder:null,low:0,over:false,thinking:false,msg:'',endMsg:'',quest:true};tool='play';
+  $('#vsBox').hidden=false;if(lv.gg||lv.stu)GG.warm();else AI.load().catch(()=>{});renderVs();render();vsAiMove();$('#vsBox').scrollIntoView({block:'nearest'})}
+function qBattleEnd(win){if(!qBattle)return;qBattle.over=true;qBattle.win=!!win;if(!win)qBattle.hintI++;
+  if(vs&&vs.quest)renderVs();else if(typeof cg!=='undefined'&&cg&&cg.quest)renderCg()}
+function qEndHtml(){const b=qBattle;if(!b||!b.over)return'';const w=qWho(b.who);
+  if(b.win)return`<span class="qok" style="flex-basis:100%">🎉 ${T('赢了！')}</span><button class="btn pri" data-qb="go">▶ ${T('继续剧情')}</button>`;
+  return`<div class="qhint" style="flex-basis:100%">${tsE(w.n)}：💡 ${tsE(qTxt(b.hints[(b.hintI-1+b.hints.length)%b.hints.length]))}</div><button class="btn pri" data-qb="retry">${T('再挑战')}</button>`+
+    (b.teach?`<button class="btn" data-qb="go">▶ ${T('继续剧情')}</button>`:'')+`<button class="btn" data-qb="map">🗺️ ${T('回到地图')}</button>`}
+function qBack(){if(vs)vsStop();if(typeof cg!=='undefined'&&cg){cg=null;$('#cgBox').hidden=true}if(scoring)stopScoring();delete document.body.dataset.sub;setMode('home');qCss();
+  const b=$('#qBox');if(b){b.hidden=false;document.body.style.overflow='hidden'}}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-qb]');if(!t||!qBattle)return;const a=t.dataset.qb,b=qBattle;
+  if(a==='go'){qBattle=null;qBack();qs={view:'scene',ch:b.ch,i:b.i};qNext();return}
+  if(a==='retry'){qs={view:'scene',ch:b.ch,i:b.i,hintI:b.hintI,lost:1};qFight();return}
+  if(a==='map'){qBattle=null;qBack();qs={view:'map',loc:b.ch};Q.at={ch:b.ch,i:b.i};qSave();qRender()}});
 /* ===================== 吃子关卡、限时挑战 ===================== */
 // 小型吃子计算：黑要在 k 手内吃掉目标白棋（t），白尽力逃。棋盘是一维数组：0 空、1 黑、2 白
 const Cap=(()=>{
@@ -9450,7 +9892,7 @@ function cgOpen(){if(typeof setMode==='function'&&curMode()!=='play')setMode('pl
 function cgClose(){if(cg&&!cg.over&&cg.opp==='ai'&&cgMoves()>0){}cg=null;$('#cgBox').hidden=true}
 function cgRootSgf(o){const n=o.n,s=cgStart(n),P=p=>`[${xyToPt(p%n,(p/n)|0)}]`,esc=x=>String(x).replace(/([\]\\])/g,'\\$1');
   return`(;GM[1]FF[4]CA[UTF-8]SZ[${n}]KM[0]RU[Capture]XC[${o.goal}]DT[${new Date().toISOString().slice(0,10)}]GN[${esc(T('吃子棋（先吃 {0} 子）',o.goal))}]PB[${esc(o.pb)}]PW[${esc(o.pw)}]AB${s.B.map(P).join('')}AW${s.W.map(P).join('')})`}
-function cgNew(){const o=cgOpt,name=(ng.name||me()||'').trim()||T('我');
+function cgNew(){const o=cgOpt,name=(olName()||'').trim()||T('我');
   if(o.opp==='ol'){cgOnline();return}
   let col=o.color;if(col==='R')col=Math.random()<.5?'B':'W';
   const ai=T('AI（{0}）',T(CG_LV[o.lvl]));
@@ -9495,7 +9937,7 @@ function cgEnd(re){cg.over=true;root().props.RE=[re];changed();renderInfo();
   if(cg.ai&&(w==='B'||w==='W')){const user=cg.ai===1?'W':'B',win=w===user,S=tsStore.cg=tsStore.cg||{w:[0,0,0,0],l:[0,0,0,0]};
     (win?S.w:S.l)[cg.lvl]++;tsSave();const pts=win?[0,3,6,10][cg.lvl]:0;
     m=(win?T('你赢了！'):T('AI 赢了，再来！'))+(re.endsWith('+C')?' '+T('（黑吃 {0} 子，白吃 {1} 子）',c.B,c.W):'')+(pts?' '+T('+{0} 分',pts):'');tsAward(pts,'capgo',{cg:S});if(win)mascotSay('cheer',T('赢了！'));else mascotSay('encourage',T('别灰心，再来一盘！'))}
-  cg.msg=m;render();renderCg()}
+  cg.msg=m;render();renderCg();if(cg.quest&&typeof qBattleEnd==='function')qBattleEnd(!!cg.ai&&w===(cg.ai===1?'W':'B'))}
 function renderCg(){const box=$('#cgBox');if(!box||box.hidden)return;const o=cgOpt,body=$('#cgBody');
   const seg=(k,arr)=>`<span class="seg" data-g="${k}">${arr.map(([v,l])=>`<button data-v="${v}" aria-pressed="${String(o[k])===String(v)}">${l}</button>`).join('')}</span>`;
   let h='';
@@ -9512,7 +9954,8 @@ function renderCg(){const box=$('#cgBox');if(!box||box.hidden)return;const o=cgO
     h=`<div class="cgscore"><div><span class="dot b"></span> ${T('黑吃 {0} / {1}',c.B,cg.goal)}${bar('B',c.B)}</div><div><span class="dot w"></span> ${T('白吃 {0} / {1}',c.W,cg.goal)}${bar('W',c.W)}</div></div>`;
     const turn=cg.over?'':cg.thinking?T('AI 思考中…'):cg.ai?(col===cgCol(cg.ai)?T('AI 下'):T('轮到你（{0}）',col==='B'?T('黑'):T('白'))):T('轮到{0}',col==='B'?T('黑'):T('白'));
     h+=`<p class="big${cg.over?' ok':''}">${tsE(cg.msg||turn)}</p>`;
-    h+=cg.over?`<div class="row"><button class="btn pri" data-gc="again">${T('再下一盘')}</button><button class="btn" data-gc="undo">${T('悔棋')}</button><button class="btn" data-gc="setup">${T('换设定')}</button><button class="btn" data-gc="gohome">🏠 ${T('回主页')}</button></div>`
+    h+=cg.quest?(cg.over?`<div class="row">${typeof qEndHtml==='function'?qEndHtml():''}</div>`:`<div class="row"><button class="btn" data-gc="pass">${T('停一手')}</button><button class="btn" data-gc="undo"${cgMoves()?'':' disabled'}>${T('悔棋')}</button><button class="btn warn" data-gc="resign">${T('认输')}</button></div>`)
+      :cg.over?`<div class="row"><button class="btn pri" data-gc="again">${T('再来一盘')}</button><button class="btn" data-gc="setup">${T('换难度')}</button><button class="btn" data-gc="torev">📖 ${T('进入这棋谱')}</button><button class="btn" data-gc="undo">${T('悔棋')}</button><button class="btn" data-gc="gohome">🏠 ${T('回主页')}</button></div>`
       :`<div class="row"><button class="btn" data-gc="pass">${T('停一手')}</button><button class="btn" data-gc="undo"${cgMoves()?'':' disabled'}>${T('悔棋')}</button><button class="btn warn" data-gc="resign">${T('认输')}</button><button class="btn" data-gc="setup">${T('换设定')}</button></div>`;
   }
   if(cgMsg)h+=`<p class="note" style="color:var(--bad,#C0392B)">${tsE(cgMsg)}</p>`;cgMsg='';
@@ -9527,6 +9970,7 @@ function cgAct(e){const t=e.target.closest('[data-gc],[data-g] button');if(!t||!
     case'resign':armed(t,T('再点一次确认认输'),cgResign);break;
     case'setup':cg=null;blankBoard();renderCg();break;
     case'gohome':cg=null;goHome();break;
+    case'torev':gotoReview();break;
   }}
 /* ===================== Excel：读第一张工作表（.xlsx / .csv），写简单的 .xlsx（不用外部程序库） ===================== */
 const XL=(()=>{
@@ -9973,7 +10417,7 @@ function boardClick(ev){
   if(ts){if(ts.mode==='solve'){tsClick(x,y);return}if(ts.mode==='edit'&&tsEditClick(x,y))return}
   if(typeof relay!=='undefined'&&relay&&relay.running&&!relay.paused&&G&&G.id===relay.gid){flash(T('先按「暂停」，才可以自己改一手'));return}
   if(typeof clClick==='function'&&clClick(x,y))return;
-  if(ol&&ol.st&&G&&G.id===ol.lid){olClick(x,y);return}
+  if(ol&&ol.st&&G&&G.id===ol.lid&&!scoring){olClick(x,y);return}
   if(typeof cgOn==='function'&&cgOn()&&curMode()==='play'&&!scoring){cgClick(x,y);return}
   if(scoring){ // 点棋子：整块标成死子 / 取消
     const st=computeState(cur,n);if(!st.g[y][x])return;
@@ -10119,13 +10563,13 @@ $('#ngOpp').onclick=e=>{const b=e.target.closest('button');if(!b)return;ng.opp=b
 $('#ngColor').onclick=e=>{const b=e.target.closest('button');if(!b)return;ng.color=b.dataset.v;renderNew()};
 $('#ngLevel').onchange=e=>{ng.lv=ng.lv||{};ng.lv[ngKey(ng.size,ng.eng==='gnugo'?'gnugo':'kata')]=e.target.value;ngSave();renderNew()};
 $('#ngEng').onclick=e=>{const b=e.target.closest('button');if(!b)return;ng.eng=b.dataset.v;ngSave();renderNew()};
-$('#ngName').oninput=e=>{ng.name=e.target.value};$('#ngAuto').onchange=e=>{ng.auto=e.target.checked;ngSave()};
+$('#ngName').oninput=e=>{if(!acctName())ng.name=e.target.value};$('#ngAuto').onchange=e=>{ng.auto=e.target.checked;ngSave()};
 $('#aiToggle').onclick=()=>setAiHint(!aiHint);
 $('#revToggle').onclick=()=>$('#revBox').hidden?revOpen():revClose();
 $('#revClose').onclick=revClose;
 $('#homeBtn').onclick=goHome;$('#duelBody').addEventListener('click',duelAct);$('#duelBody').addEventListener('change',duelChange);$('#certBody').addEventListener('click',certAct);$('#certBody').addEventListener('change',certChange);$('#certClose').onclick=certClose;$('#ngPc').onchange=e=>{prefs.vsPc=e.target.checked;try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(x){}};$('#bugBtn').onclick=()=>bugOpen();$('#vsAppeal').onclick=()=>bugOpen({type:'ai',text:T('这盘的输赢判断有问题：')});
 $('#vsCount').onclick=()=>{if(vs&&(vs.ladder||vs.cert)&&!vs.over)return;if(judging){judging=false;$('#judgeToggle').setAttribute('aria-pressed',false);$('#vsJudge').setAttribute('aria-pressed',false)}scoring?stopScoring():startScoring();if(vs)renderVs()};
-$('#vsJudge').onclick=()=>{if(vs&&(vs.ladder||vs.cert)&&!vs.over)return;judging=!judging;$('#judgeToggle').setAttribute('aria-pressed',judging);if(judging&&scoring)stopScoring();render();renderVs()};$('#vsAgain').onclick=()=>{if(vs&&vs.cert){vsStop();certOpen()}else openNew()};$('#vsRevBtn').onclick=()=>{setMode('review');revOpen()};$('#vsHomeBtn').onclick=goHome;$('#homeBox').onclick=e=>{if(e.target.closest('[data-au]')){authAct(e);return}if(e.target.closest('[data-ck]')){ckDo();return}const b=e.target.closest('[data-h]');if(b)homeGo(b.dataset.h)};$('#homeBox').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){const f=e.target.closest('.authcard');const b=f&&f.querySelector('.btn.pri');if(b)b.click()}});
+$('#vsJudge').onclick=()=>{if(vs&&(vs.ladder||vs.cert)&&!vs.over)return;judging=!judging;$('#judgeToggle').setAttribute('aria-pressed',judging);if(judging&&scoring)stopScoring();render();renderVs()};$('#vsAgain').onclick=()=>{if(vs&&vs.cert){const A=cert.active;vsStop();certOpen();if(A&&A.gamesOk)certStartExam();else if(A)certGame()}else if(vs&&vs.relay){vsStop();relayOpen({pick:true,mode:'me'})}else openNew()};$('#vsRevBtn').onclick=()=>{if(!vs)return;const uc=vs.ai===1?2:1;revOpen();revStart('std',uc)};$('#vsOpenRev').onclick=()=>{gotoReview()};$('#vsCertBack').onclick=()=>{vsStop();certOpen()};$('#vsHomeBtn').onclick=goHome;$('#homeBox').onclick=e=>{if(e.target.closest('[data-au]')){authAct(e);return}if(e.target.closest('[data-ck]')){ckDo();return}const b=e.target.closest('[data-h]');if(b)homeGo(b.dataset.h)};$('#homeBox').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){const f=e.target.closest('.authcard');const b=f&&f.querySelector('.btn.pri');if(b)b.click()}});
 $('#playMenu').onclick=e=>{const b=e.target.closest('[data-pk]');if(b)playPick(b.dataset.pk)};$('#recDone').onclick=recDone;
 $('#olToggle').onclick=()=>$('#olBox').hidden?olPanelOpen():olPanelClose();$('#olClose').onclick=()=>{olPanelClose();if(curMode()==='play'&&$('#olBox').hidden&&!vs)goHome()};$('#olBody').addEventListener('click',olAct);$('#cgBody').addEventListener('click',cgAct);$('#cgClose').onclick=()=>{cgClose();if(curMode()==='play')goHome()};
 $('#tsToggle').onclick=()=>$('#tsBox').hidden?tsOpenPanel():tsClosePanel();$('#tsClose').onclick=()=>curMode()==='ts'?goHome():tsClosePanel();$('#tsBody').addEventListener('click',tsAct);

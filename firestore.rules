@@ -120,6 +120,36 @@ service cloud.firestore {
       }
     }
 
+    // ---- 比赛和联赛（第 31 项）：只有主办和管理员能改；每次修改都要在同一笔写一笔修改记录 ----
+    function tlogOk(tid) {
+      return existsAfter(/databases/$(database)/documents/tlog/$(request.resource.data.lastLog))
+        && getAfter(/databases/$(database)/documents/tlog/$(request.resource.data.lastLog)).data.uid == request.auth.uid
+        && getAfter(/databases/$(database)/documents/tlog/$(request.resource.data.lastLog)).data.tid == tid;
+    }
+    match /tours/{tid} {
+      allow read: if signed();
+      allow create: if signed() && isTeacher() && request.resource.data.org == request.auth.uid && tlogOk(tid);
+      allow update: if signed() && (resource.data.org == request.auth.uid || isAdmin())
+        && request.resource.data.org == resource.data.org
+        && request.resource.data.lastLog != resource.data.lastLog && tlogOk(tid);
+      allow delete: if false;
+      // 参赛者自己的报名单：报名、退出、按名字认领（由主办合并）
+      match /reg/{uid} {
+        allow read: if signed();
+        allow write: if signed() && request.auth.uid == uid;
+        allow delete: if signed() && (request.auth.uid == uid || get(/databases/$(database)/documents/tours/$(tid)).data.org == request.auth.uid || isAdmin());
+      }
+    }
+    // 修改记录：只能新增，不能修改、不能删除；时间是伺服器时间
+    match /tlog/{lid} {
+      allow create: if signed() && request.resource.data.uid == request.auth.uid && request.resource.data.t == request.time
+        && request.resource.data.tid is string && request.resource.data.desc is string && request.resource.data.desc.size() <= 3000
+        && request.resource.data.before is string && request.resource.data.before.size() < 300000;
+      allow read: if isAdmin() || (signed() && resource.data.tid is string
+        && get(/databases/$(database)/documents/tours/$(resource.data.tid)).data.org == request.auth.uid);
+      allow update, delete: if false;
+    }
+
     // ---- 棋谱分享、线上对弈、家里电脑（不是班级）：维持原来的做法 ----
     // wmga_global：内建练习册的「全站原版」修改，大家都能读，只有管理员能改
     match /games/{gid} {

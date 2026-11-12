@@ -263,6 +263,8 @@ body.play-idle main>.board-wrap,body.play-idle main>.players,body.play-idle main
 .clroster summary,.clrank summary,.clgame summary{cursor:pointer;font-weight:600}.clp{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--line)}.clp .btn{padding:2px 8px;font-size:13px}.clans{font-size:12px;padding:1px 6px;border-radius:8px;background:#FBE3E1;color:#C0392B}.clans.ok{background:#DFF3E6;color:#2E8B57}
 body.cl-proj header,body.cl-proj #playMenu,body.cl-proj main>.players,body.cl-proj main>.nav,body.cl-proj .homebar{display:none!important}body.cl-proj main{max-width:none!important}body.cl-proj .app{grid-template-columns:minmax(0,1fr) 320px!important;max-width:none}body.cl-proj main{width:100%!important}body.cl-proj main>.board-wrap{width:min(calc(100vw - 340px),calc(100vh - 16px))!important;max-width:none!important;margin:0}body.cl-proj #clBox{position:fixed;right:8px;top:8px;width:310px;max-height:calc(100vh - 16px);overflow:auto;z-index:20}
 .olmine{display:flex;flex-direction:column;gap:6px}.olg{display:flex;flex-wrap:wrap;align-items:center;gap:6px;text-align:left;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--panel);color:var(--ink);cursor:pointer;font:inherit}.olg.my{border-color:#D93025;box-shadow:0 0 0 2px #FBE3E1}.olgs{margin-left:auto;font-size:13px;font-weight:600}.olchat{border-top:1px solid var(--line);padding-top:6px;display:flex;flex-direction:column;gap:4px}.olmsgs{max-height:180px;overflow:auto;font-size:14px}
+.trlog{display:flex;flex-direction:column;gap:6px}.trli{border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:14px}.trli code{font-size:11px;opacity:.7}
+.trg{border:1px solid var(--line);border-radius:10px;padding:8px;margin:6px 0;display:flex;flex-direction:column;gap:6px}.trr summary{cursor:pointer;font-weight:600}.trm{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--line)}.trm.my{background:var(--accent-soft)}.trm .btn{padding:2px 8px;font-size:13px}.trm select{height:28px}tr.trup td{color:#2E8B57}tr.trdn td{color:#C0392B}
 .tsthg{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}.tsth{border:2px solid #B9C0C8;border-radius:10px;background:var(--panel);padding:4px;display:flex;flex-direction:column;gap:2px;align-items:stretch;text-align:left;color:var(--ink);cursor:pointer;font:inherit}.tsth[hidden]{display:none}.tsthb{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:6px;overflow:hidden}.tsthb svg{max-width:100%;max-height:100%;height:auto}.tstht{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tsthm{font-size:12px;color:var(--muted)}.tsthm small{color:#C27C0E}.tsth.g{border-color:#2E8B57}.tsth.b{border-color:#2E6FA8}.tsth.r{border-color:#C0392B}.tsp[hidden]{display:none}
 .tsgrid{display:flex;flex-wrap:wrap;gap:6px}
 .tsp.cap small{color:#d9a400;letter-spacing:-1px}.tsp.lock{opacity:.45}
@@ -430,6 +432,7 @@ body.pick #undoBtn,body.pick #redoBtn,body.pick #saveBtn,body.pick #shareBtn{dis
   body[data-mode="play"] .sidecol,body[data-mode="ts"]:not(.ts-idle) .sidecol{display:flex;flex-direction:column;gap:12px;grid-column:2;grid-row:1/span 40;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
   .sidecol>*{order:5;margin-top:0!important}.sidecol>#vsBox,.sidecol>#cgBox,.sidecol>#olBox,.sidecol>#certBox,.sidecol>#tsBox,.sidecol>#newBox,.sidecol>#duelBox{order:1}
   body[data-mode="play"] .board-wrap,body[data-mode="ts"]:not(.ts-idle) .board-wrap{width:100%;max-width:min(100%,calc(100vh - 100px))}
+  body.play-idle[data-mode="play"] main{display:block;max-width:820px}body.play-idle[data-mode="play"] .sidecol{position:static;max-height:none;overflow:visible} /* 下棋还没开始：选单和面板放中间，用整个宽度 */
 }
 .acctrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
 /* 做题结果卡 */
@@ -691,6 +694,10 @@ body.pick #undoBtn,body.pick #redoBtn,body.pick #saveBtn,body.pick #shareBtn{dis
     <div class="score" id="cgBox" hidden>
       <div class="score-head"><b>吃子棋</b><span>先吃到规定子数的一方赢。</span><button class="btn" id="cgClose" style="margin-left:auto">关闭</button></div>
       <div id="cgBody" class="stack"></div>
+    </div>
+    <div class="score" id="trBox" hidden>
+      <div class="score-head"><b>比赛和联赛</b><span>循环赛、瑞士制、单败、双败淘汰；联赛分组升降。</span><button class="btn" id="trClose" style="margin-left:auto">关闭</button></div>
+      <div id="trBody" class="stack"></div>
     </div>
     <div class="score" id="relayBox" hidden>
       <div class="score-head"><b>从棋谱接着下</b><span>从某一手开始，交给 AI 接着下，存成这盘棋的变化。</span></div>
@@ -2430,6 +2437,114 @@ const EN={
 ,"通信对局：不用同时在线，轮到你时会有红点提醒；可以同时下好几盘。":"Correspondence: no need to be online together; a red dot shows when it's your move. Play several games at once."
 ,"（等他打开）":"(waiting to open)"
 ,"♟ 0":"♟ 0"
+,"1 个月":"1 month"
+,"1 年":"1 year"
+,"2 个月":"2 months"
+,"3 个月":"3 months"
+,"3 周":"3 weeks"
+,"6 个月":"6 months"
+,"{0} 轮":"{0} rounds"
+,"一季":"Season"
+,"下完自动开下一轮":"Next round when all games finish"
+,"主办":"Organiser"
+,"先在「在线手谈」输入你的名字，才能报名。":"Enter your name in Play online first to register."
+,"八强":"Quarter-finals"
+,"再点一次：结束":"Tap again: end"
+,"再点一次：结束这一季":"Tap again: end the season"
+,"冠军":"Champion"
+,"决赛":"Final"
+,"出局":"Out"
+,"加入本班学生":"Add my class"
+,"半决赛":"Semi-finals"
+,"单败淘汰":"Single elimination"
+,"去下":"Play"
+,"双败淘汰":"Double elimination"
+,"双败淘汰：输两盘才出局。决赛参考台湾职业赛：胜部冠军先算 1 胜，败部冠军要连赢两盘才夺冠。":"Double elimination: out after two losses. Final follows Taiwan pro events: the winners-bracket champion starts with 1 win; the losers-bracket champion must win two in a row."
+,"和":"Draw"
+,"天":"days"
+,"天一轮":"days per round"
+,"导出成绩（CSV）":"Export results (CSV)"
+,"已结束":"Finished"
+,"开始比赛":"Start tournament"
+,"开始第一季":"Start season 1"
+,"开比赛／联赛":"New tournament / league"
+,"循环赛":"Round robin"
+,"循环赛、瑞士制、单败、双败淘汰；联赛分组升降。":"Round robin, Swiss, single & double elimination; leagues with promotion."
+,"循环赛：每人和其他人各下一盘。":"Round robin: everyone plays everyone once."
+,"或自订":"or custom"
+,"找不到这个比赛":"Tournament not found"
+,"报名":"Register"
+,"报名、对阵、积分表、升降组":"Sign-ups, pairings, standings, promotion"
+,"报名中":"Registration"
+,"报名名单（{0} 人）":"Registered ({0})"
+,"按日期":"By date"
+,"改结果":"Set result"
+,"更新结果":"Update results"
+,"本季到 {0}":"season ends {0}"
+,"每":"Every"
+,"每 {0} 天一轮":"one round every {0} days"
+,"每季每组升":"Promote per group"
+,"每组人数":"Players per group"
+,"比赛":"Tournament"
+,"比赛列表":"Tournaments"
+,"比赛和联赛":"Tournaments & leagues"
+,"现在没有比赛或联赛。":"No tournaments or leagues yet."
+,"瑞士制":"Swiss"
+,"第 {0} 季":"Season {0}"
+,"第 {0} 轮":"Round {0}"
+,"等下一季加入（{0} 人）":"Joining next season ({0})"
+,"组":"group"
+,"结束这一季，升降组，开下一季":"End season, promote/relegate, start next"
+,"联赛":"League"
+,"联赛至少要 4 人。":"A league needs at least 4 players."
+,"胜部":"Winners"
+,"至少要 2 人。":"Need at least 2 players."
+,"请输入名称":"Enter a name"
+,"谁可以报名":"Who can register"
+,"负":"L"
+,"败部":"Losers"
+,"赛制":"Format"
+,"超时":"timeout"
+,"轮数":"Rounds"
+,"轮次":"Rounds"
+,"轮空":"Bye"
+,"还没有人报名。":"No one has registered."
+,"进行中":"In progress"
+,"降":"Relegate"
+,"（未认领）":"(unclaimed)"
+,"{0} vs {1}：{2}，{3} 手":"{0} vs {1}: {2}, {3} moves"
+,"{0}冠军：{1}":"{0}champion: {1}"
+,"{0}开第 {1} 轮":"{0}round {1} started"
+,"{0}第 {1} 轮 {2} vs {3}：{4} → {5}{6}":"{0}round {1} {2} vs {3}: {4} → {5}{6}"
+,"修改记录":"Change log"
+,"再点一次：还原":"Tap again: restore"
+,"加入 {0}":"Added {0}"
+,"合并报名":"Merged sign-ups"
+,"回到比赛":"Back to tournament"
+,"对局 {0}，{1} 手":"game {0}, {1} moves"
+,"对局结束":"Game ended"
+,"已报名，等主办确认后会出现在名单里。":"Registered; you'll appear once the organiser confirms."
+,"已申请退出，等主办确认。":"Withdrawal requested; waiting for the organiser."
+,"已认领，等主办确认。":"Claimed; waiting for the organiser."
+,"已还原。":"Restored."
+,"建立「{0}」":"Created \"{0}\""
+,"开第 {0} 季":"Season {0} started"
+,"待合并的报名：{0}":"Sign-ups to merge: {0}"
+,"成绩和下一轮由主办更新；主办打开比赛页时会自动更新。":"Results and next rounds are updated by the organiser when they open this page."
+,"换季":"New season"
+,"未定":"undecided"
+,"比赛修改记录":"Tournament change log"
+,"状态 {0} → {1}":"Status {0} → {1}"
+,"移除 {0}":"Removed {0}"
+,"移除选手":"Removed player"
+,"记录只能新增，不能修改或删除。":"Entries can only be added, never edited or deleted."
+,"读不到修改记录：{0}":"Can't load the change log: {0}"
+,"还原":"Restore"
+,"还原到这笔之前":"Restore to before this"
+,"还没有记录。":"No entries yet."
+,"（到期超时）":" (deadline timeout)"
+,"（手动改）":" (manual)"
+,"（没有看得出的改变）":"(no visible change)"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -6336,11 +6451,12 @@ function olRoot(st){const n=st.n;let s=`(;GM[1]FF[4]CA[UTF-8]SZ[${n}]KM[${st.kom
   if(st.ha>=2)s+=`HA[${st.ha}]AB`+handicapPts(n,st.ha).map(([x,y])=>`[${xyToPt(x,y)}]`).join('');if(st.re)s+=`RE[${st.re}]`;
   let c=st.ha>=2?'W':'B';for(const m of st.moves){s+=`;${c}[${m}]`;c=c==='B'?'W':'B'}return parseSGF(s+')')}
 async function olCreate(opt){ // 建立对局：回传 id；opt.resv = {B:名字, W:名字}（老师帮学生开的，学生打开时按名字坐下）
-  const name=olName();if(!opt.resv&&!name)throw new Error(T('请先输入你的名字'));const id='og_'+tsId(10),uid=olUid(),R=await olRating(uid);
+  const name=olName();if(!opt.resv&&!opt.seats&&!name)throw new Error(T('请先输入你的名字'));const id='og_'+tsId(10),uid=olUid(),R=await olRating(uid);
   const tk=opt.kind==='corr'?(opt.ctime||'d2'):(opt.time||'10'),[main,byo,per,inc,max]=OL_TIMES[tk]||OL_TIMES['10'],corr=olCorrKey(tk);
   let col=opt.color;if(col==='R')col=Math.random()<.5?'B':'W';const L=tsLogin();
   const st={v:2,id,n:opt.n,cap:opt.cap||0,komi:opt.cap?0:opt.ha>=2?0.5:KOMI_DEF[opt.n],ha:opt.ha||0,clock:{main,byo,per,inc:inc||0,max:max||0},tk,corr,tB:main*1000,tW:main*1000,pB:per,pW:per,moves:[],status:'wait',re:'',created:Date.now(),turnT:0,seq:0,rated:opt.rated!==false,chat:[],
-    cls:L&&L.cls||'',B:opt.resv?{name:opt.resv.B,uid:null,resv:true}:col==='B'?{name,uid,r:R.r}:null,W:opt.resv?{name:opt.resv.W,uid:null,resv:true}:col==='W'?{name,uid,r:R.r}:null};
+    cls:L&&L.cls||'',tour:opt.tour||'',B:opt.resv?{name:opt.resv.B,uid:null,resv:true}:col==='B'?{name,uid,r:R.r}:null,W:opt.resv?{name:opt.resv.W,uid:null,resv:true}:col==='W'?{name,uid,r:R.r}:null};
+  if(opt.seats){for(const c of['B','W']){const x=opt.seats[c];st[c]=x.uid?{name:x.name,uid:x.uid,r:x.r||1000}:{name:x.name,uid:null,resv:true}}if(st.B.uid&&st.W.uid){st.status='play';st.turnT=Date.now()}} // 比赛：两边都排好了
   await(await olDoc(id,'state')).set(olPack(st));await olIndex(st);if(corr)olAskNotify();return id}
 /* 「我的对局」索引：games/lobby/layers/g_<对局>，两边谁在线谁更新 */
 async function olIndex(st){try{const c=olToMove(st),who=x=>x&&x.uid||'';await(await olDoc('lobby','g_'+st.id)).set({sgf:JSON.stringify({id:st.id,n:st.n,tk:st.tk||'',corr:!!st.corr,status:st.status,re:st.re||'',Bn:st.B&&st.B.name||'',Wn:st.W&&st.W.name||'',moves:st.moves.length,turnT:st.turnT||st.created,cls:st.cls||''}),
@@ -6363,7 +6479,7 @@ async function olOpen(id){ // 打开对局（下棋或观战）
   }catch(e){olMsg=e.message||String(e);renderOl()}
 }
 function olSync(st){
-  const prev=ol.st;ol.st=st;ol.me=olIsMe(st.B)?'B':olIsMe(st.W)?'W':null;if(ol.me&&(!prev||prev.seq!==st.seq))olIndex(st);if(ol.trial&&prev&&prev.moves.length!==st.moves.length)ol.trial=false;if(ol.trial){renderOl();return}ol.pend=null;
+  const prev=ol.st;ol.st=st;ol.me=olIsMe(st.B)?'B':olIsMe(st.W)?'W':null;if(st.tour&&st.status==='end'&&ol.me&&typeof trGameLog==='function')trGameLog(st);if(ol.me&&(!prev||prev.seq!==st.seq))olIndex(st);if(ol.trial&&prev&&prev.moves.length!==st.moves.length)ol.trial=false;if(ol.trial){renderOl();return}ol.pend=null;
   const r=olRoot(st);let lid=ol.lid;
   if(!lid||!store.games[lid]){lid=ol.lid='ol_'+st.id;store.games[lid]={sgf:toSGF(r),key:gameKey(r),title:titleOf(r),updated:Date.now()}}
   if(!G||G.id!==lid){if(scoring)stopScoring();if(train)stopTrain();openRoot(r,{id:lid});ol.lid=lid}
@@ -6441,7 +6557,7 @@ function olOptHtml(){const seg=(id,arr,v)=>`<span class="seg" data-o="${id}">${a
 function renderOl(){
   const box=$('#olBox');if(!box||box.hidden)return;const body=$('#olBody');let h='';const name=olName();
   const nameRow=`<div class="score-opts"><label>${T('我的名字')} <input id="olName" maxlength="16" value="${tsE(name)}" placeholder="${T('必填')}" style="width:9em"></label><span id="olMyR" class="note" style="margin:0"></span></div>`;
-  const tabs=`<div class="row" style="margin:0"><span class="seg"><button data-p="mine" aria-pressed="${olView==='mine'}">${T('我的对局')}${olTurnN?` <span class="bugdot">${olTurnN}</span>`:''}</button><button data-p="home" aria-pressed="${olView==='home'}">${T('开新对局')}</button><button data-p="lobby" aria-pressed="${olView==='lobby'}">${T('大厅')}</button>${olTeacher()?`<button data-p="pairv" aria-pressed="${olView==='pair'}">${T('帮学生开对局')}</button>`:''}</span></div>`;
+  const tabs=`<div class="row" style="margin:0"><span class="seg"><button data-p="mine" aria-pressed="${olView==='mine'}">${T('我的对局')}${olTurnN?` <span class="bugdot">${olTurnN}</span>`:''}</button><button data-p="home" aria-pressed="${olView==='home'}">${T('开新对局')}</button><button data-p="lobby" aria-pressed="${olView==='lobby'}">${T('大厅')}</button>${olTeacher()?`<button data-p="pairv" aria-pressed="${olView==='pair'}">${T('帮学生开对局')}</button>`:''}<button data-p="tours">🏆 ${T('比赛和联赛')}</button></span></div>`;
   if(olView==='home'){
     h=tabs+nameRow+`<b class="sub">${T('邀请朋友')}</b>`+olOptHtml()+`<div class="row"><button class="btn pri" data-p="create">${T('建立对局，拿邀请链接')}</button></div>`;
   }else if(olView==='mine'){h=tabs+olMineHtml()}
@@ -6521,6 +6637,7 @@ async function olAct(e){
     case'pairv':olLobbyClose();olView='pair';renderOl();if(tsLogin()&&!tsCloud)tsRefreshCloud().then(renderOl);break;
     case'pair':{const a=olPair.a,b=olPair.b;if(!a||!b||a===b)throw new Error(T('请选两个不同的学生'));t.disabled=true;await olCreate({...olOpt,resv:{B:a,W:b},rated:false});olMsg='';flash(T('已开对局：黑 {0} vs 白 {1}',a,b));olView='mine';renderOl();break}
     case'open':olOpen(t.dataset.g);break;
+    case'tours':olPanelClose();trPanelOpen();break;
     case'confirm':{const pt=ol.pend;ol.pend=null;if(pt)olMove(pt);break}
     case'unpend':ol.pend=null;render();renderOl();break;
     case'trial':ol.trial=!ol.trial;ol.pend=null;if(!ol.trial)olSync(ol.st);else renderOl();break;
@@ -6583,12 +6700,13 @@ const HOME_CARDS=[ // [代号, 图示, 名称, 说明, 分组]
   ['ladder','📈','升级赛','和同级 AI 下，连赢就升级','play'],
   ['cert','🏅','棋力认证','通过认证，拿证书','play'],
   ['room','🏫','网课课堂','老师讲解，学生实时跟着看、答题','class'],
+  ['tour','🏆','比赛和联赛','报名、对阵、积分表、升降组','play'],
   ['snap','📷','拍照数子','拍下下完的棋盘，算出黑白各几子、谁赢（9、13、19 路）','play'],
   ['record','✍️','记谱','自己摆一盘棋，记下来、下载','play'],
   ['class','🏫','班级','排行榜、作业、学生账号、报告','class'],
   ['admin','🛡️','管理','批准老师账号','class'],
   ['prefs','⚙️','设置','AI 网络、家里电脑、Google Drive、声音','class']];
-const HOME_ROLE={guest:['ts','game','play','ladder','cert','room','snap','record','prefs'],stu:['ts','game','review','play','ladder','cert','room','snap','record','class','prefs'],tea:['ts','game','review','play','ladder','cert','room','snap','record','class','prefs'],adm:['ts','game','review','play','ladder','cert','room','snap','record','class','prefs','admin']};
+const HOME_ROLE={guest:['ts','game','play','ladder','cert','room','tour','snap','record','prefs'],stu:['ts','game','review','play','ladder','cert','room','tour','snap','record','class','prefs'],tea:['ts','game','review','play','ladder','cert','room','tour','snap','record','class','prefs'],adm:['ts','game','review','play','ladder','cert','room','tour','snap','record','class','prefs','admin']};
 const HOME_SEC=[['learn','学习'],['play','对弈'],['class','班级与设定']];
 function homeGreet(){const h=new Date().getHours();return h<5?T('夜深了'):h<12?T('早安'):h<18?T('午安'):T('晚上好')}
 function renderHome(){
@@ -6619,6 +6737,7 @@ function homeGo(k){
   if(k==='ladder'){setMode('play');document.body.dataset.sub='ladder';ngFixedOpp=true;ng.opp='ladder';ngSave();openNew();return}
   if(k==='cert'){setMode('play');document.body.dataset.sub='cert';certOpen();return}
   if(k==='room'){setMode('play');document.body.dataset.sub='room';clPanelOpen();return}
+  if(k==='tour'){setMode('play');document.body.dataset.sub='tour';trPanelOpen();return}
   if(k==='record'){setMode('record');ng.opp='self';ngSave();openNew();return}
 }
 function playPick(k){ // 下棋模式上方的选择
@@ -8036,7 +8155,7 @@ function tsBookExtras(b){ // 练习册页：谁看得到、上载全站
   if(b.gbook&&tsIsAdm())h+=`<div class="row" style="align-items:center">${b.hidden?`<span class="note" style="margin:0;color:var(--bad,#C0392B)">🙈 ${T('隐藏中：只有管理员看得到')}</span><button class="btn pri" data-a="gbshow">${T('公开')}</button>`:`<button class="btn" data-a="gbhide">🙈 ${T('隐藏')}</button>`}</div>`;
   if(b.gbook&&tsIsAdm())h+=`<div class="row"><button class="btn warn" data-a="gbdel">${T('整本删除（全站）')}</button><span class="note" style="margin:0">${tsE(T('上载者：{0}',b.by||'—'))}</span></div>`;
   return h}
-function tsAdminExtra(){let h=`<div class="row"><button class="btn" data-a="apcfg">🍎 ${T('苹果设定')}</button><button class="btn" data-a="bugadm">🐞 ${T('问题回报')}${typeof bugNew!=='undefined'&&bugNew?` <span class="bugdot">${bugNew}</span>`:''}</button></div>`;const fr=tsReqs.pend.filter(r=>r.type==='folder'),br=tsReqs.pend.filter(r=>r.type==='book');
+function tsAdminExtra(){let h=`<div class="row"><button class="btn" data-a="apcfg">🍎 ${T('苹果设定')}</button><button class="btn" data-a="tlog">📜 ${T('比赛修改记录')}</button><button class="btn" data-a="bugadm">🐞 ${T('问题回报')}${typeof bugNew!=='undefined'&&bugNew?` <span class="bugdot">${bugNew}</span>`:''}</button></div>`;const fr=tsReqs.pend.filter(r=>r.type==='folder'),br=tsReqs.pend.filter(r=>r.type==='book');
   h+=`<b class="sub">${T('新文件夹申请')}</b>`+(fr.length?`<div style="overflow-x:auto"><table class="score-t"><tbody>${fr.map(r=>`<tr><td style="text-align:left">📁 <b>${tsE(r.p.name)}</b><br><span class="note">${tsE(r.who)} · ${tsE(r.p.clsName||r.p.cls||'')}${r.p.parent?' · '+T('放在「{0}」里',tsE((tsFolder(r.p.parent)||{name:'?'}).name)):''}</span></td><td><button class="btn pri" data-a="rqcls" data-r="${r.id}">${T('通过 · 本班')}</button><button class="btn pri" data-a="rqglob" data-r="${r.id}">${T('通过 · 全站')}</button><button class="btn warn" data-a="rqno" data-r="${r.id}">${T('不通过')}</button></td></tr>`).join('')}</tbody></table></div>`:`<p class="note">${T('没有。')}</p>`);
   h+=`<b class="sub">${T('上载全站的练习册')}</b>`+(br.length?`<div style="overflow-x:auto"><table class="score-t"><tbody>${br.map(r=>`<tr><td style="text-align:left">📘 <b>${tsE(r.p.title)}</b>${r.p.gid?' · '+T('更新'):''}<br><span class="note">${tsE(r.who)} · ${T('{0} 题',(r.p.problems||[]).length)} · ${new Date(r.created).toLocaleDateString()}</span></td><td><button class="btn" data-a="rqview" data-r="${r.id}">${T('预览')}</button><button class="btn pri" data-a="rqok" data-r="${r.id}">${T('通过')}</button><button class="btn warn" data-a="rqno" data-r="${r.id}">${T('不通过')}</button></td></tr>`).join('')}</tbody></table></div>`:`<p class="note">${T('没有。')}</p>`);
   const au=Object.entries(tsStore.audit||{}).map(([id,a])=>({id,a,n:a.items.filter(x=>x.st==='open').length})).filter(x=>x.n);
@@ -8367,6 +8486,7 @@ async function exAct(a,t,busy){
     case'exgo':await busy(()=>exStart(t.dataset.id));return true;
     case'exres':{const w=t.dataset.w;exResV={open:1,w,loading:1,list:[]};renderTs();try{exResV.list=await exResLoad(w)}catch(e){exResV.err=T('读不到成绩：{0}',e.message)}exResV.loading=0;renderTs();return true}
     case'exquit':armed(t,T('再点一次：这次考试不算成绩'),()=>{tsQuiz=null;tsExit();const c=exRun&&exRun.cert;exRun=null;if(c){tsClosePanel();if(typeof certOpen==='function')certOpen()}else{tsView='exams';renderTs()}});return true;
+    case'tlog':tsClosePanel();if(typeof homeGo==='function')homeGo('tour');trLogOpen(null);return true;
     case'bugadm':bugOpen({view:'admin'});return true;
     case'bugans':bugOpen({type:'ans',text:T('这题的答案有问题：')});return true;
     case'excert':tsView='home';tsClosePanel();if(typeof certOpen==='function')certOpen();return true;
@@ -8901,6 +9021,226 @@ document.addEventListener('change',e=>{const t=e.target.closest('#relayBox [data
   o[k]=t.value;relaySave()});
 document.addEventListener('input',e=>{const t=e.target.closest('#relayBox [data-ro="mv"]');if(!t)return;const L=relayLine(),i=+t.value;cur=i?L[i-1]:G.root;render();const lb=t.parentElement;if(lb&&lb.firstChild)lb.firstChild.textContent=T('从第 {0} 手之后开始',i)+' '});
 {const b=$('#relayToggle');if(b)b.onclick=()=>relayOpen();const f=$('#ngFromSgf');if(f)f.onclick=()=>{closeNew();relayOpen({pick:true,mode:'me'})}}
+
+/* ===================== 比赛和联赛 =====================
+   存在 games/lobby/layers/t_<id>（sgf 栏位放 JSON）。每盘棋是平常的线上对局（olCreate，两边座位排好）。
+   比赛：一个组；联赛：好几个组（A、B、C…），一季结束按名次升降组。
+   赛制：rr 循环赛、swiss 瑞士制、se 单败淘汰、de 双败淘汰（败部冠军要连赢两盘：参考台湾职业赛「胜部冠军先取得 1 胜的三番棋」）
+   轮次：auto = 这一轮下完自动开下一轮；date = 每 N 天一轮，到期没下完的按超时判（轮到谁下谁输）
+   防篡改（第 31 项）：比赛存在 tours/{id}，只有主办和管理员能改；每次修改都要在同一笔交易写一笔 tlog（只能新增、不能改或删，时间用伺服器时间），
+   没有记录的修改云端会拒绝。参赛者报名、退出、认领写在 tours/{id}/reg/{自己}，由主办那边合并。 */
+let trList=null,trCur=null,trView='list',trMsg='',trForm=null,trBusy=false;
+const TR_FMT={rr:'循环赛',swiss:'瑞士制',se:'单败淘汰',de:'双败淘汰'};
+const TR_LEN=[[21,'3 周'],[30,'1 个月'],[60,'2 个月'],[90,'3 个月'],[180,'6 个月'],[365,'1 年']];
+const TR_SIZE=[4,6,8,10,12,16,20,32,64];
+async function trRef(id){const db=await Shared.db();return db.collection('tours').doc(id)}
+const trSrvT=()=>{try{return firebase.firestore.FieldValue.serverTimestamp()}catch(e){return Date.now()}};
+const trMs=t=>t&&t.toMillis?t.toMillis():+t||0;
+const trPack=t=>({sgf:JSON.stringify(t),name:'t',updated:Date.now(),cls:t.cls||'',open:!!t.open,org:t.org.uid,lastLog:t.lastLog||''});
+const trIsOrg=t=>!!t&&(t.org.uid===olUid()||olIsMe(t.org)||(typeof tsIsAdm==='function'&&tsIsAdm()));
+const trMe=t=>{const ids=[olAcct(),olLocal()];return(t.players||[]).find(p=>p.uid&&ids.includes(p.uid))};
+const trName=(t,uid)=>{const p=(t.players||[]).find(p=>p.uid===uid||p.key===uid);return p?p.name:uid==null?T('轮空'):'?'};
+const trKey=p=>p.uid||('n:'+p.name); // 还没认领的学生：用名字当代号
+async function trTx(id,f,act){ // 改比赛：同一笔交易写比赛资料＋一笔修改记录
+  const db=await Shared.db(),ref=await trRef(id),u=firebase.auth().currentUser;
+  return db.runTransaction(async tx=>{const d=await tx.get(ref),t=olUnpack(d);if(!t)throw new Error(T('找不到这个比赛'));const before=JSON.stringify(t),bo=JSON.parse(before);
+    const r=await f(t);if(r===false)return false;t.updated=Date.now();const lid=tsId(14);t.lastLog=lid;const desc=trDiff(bo,t);
+    tx.set(db.collection('tlog').doc(lid),{uid:u?u.uid:'',name:olName()||'',tid:id,title:t.title||'',act:act||'',desc:desc.slice(0,3000),before:before.length<300000?before:'',t:trSrvT()});
+    tx.set(ref,trPack(t));trCur=t;return true})}
+/* 修改了什么：比较前后 */
+function trDiff(a,b){const o=[],nm=(t,k)=>{const all=[...(t.players||[]),...(t.groups||[]).flatMap(g=>g.players)];const p=all.find(p=>p.key===k||p.uid===k);return p?p.name:k==null?T('轮空'):String(k)},R={B:T('黑胜'),W:T('白胜'),D:T('和'),X:T('取消')};
+  if(!a.status)return T('建立「{0}」',b.title);if(a.status!==b.status)o.push(T('状态 {0} → {1}',a.status,b.status));if(!!a.removed!==!!b.removed)o.push(b.removed?T('删除'):T('恢复'));
+  const pa=new Set((a.players||[]).map(p=>p.name+'|'+(p.uid||''))),pb=new Set((b.players||[]).map(p=>p.name+'|'+(p.uid||'')));for(const x of pb)if(!pa.has(x))o.push(T('加入 {0}',x.split('|')[0]+(x.split('|')[1]?'':T('（未认领）'))));for(const x of pa)if(!pb.has(x))o.push(T('移除 {0}',x.split('|')[0]));
+  (b.groups||[]).forEach((g,gi)=>{const ga=(a.groups||[])[gi]||{rounds:[]};if(g.rounds.length>ga.rounds.length)o.push(T('{0}开第 {1} 轮',g.name?g.name+' ':'',g.rounds.length));
+    g.rounds.forEach((r,ri)=>r.forEach((m,mi)=>{const ma=((ga.rounds[ri]||[])[mi])||{};if(m.res&&m.res!==ma.res&&!m.bye)o.push(T('{0}第 {1} 轮 {2} vs {3}：{4} → {5}{6}',g.name?g.name+' ':'',ri+1,nm(b,m.B),nm(b,m.W),ma.res?R[ma.res]:T('未定'),R[m.res]||m.res,m.man?T('（手动改）'):m.late?T('（到期超时）'):m.src?` (${m.src})`:''))}));
+    if(g.champ!=null&&g.champ!==ga.champ)o.push(T('{0}冠军：{1}',g.name?g.name+' ':'',nm(b,g.champ)))});
+  if((b.season&&b.season.no)!==(a.season&&a.season.no))o.push(T('开第 {0} 季',b.season.no));return o.join('；')||T('（没有看得出的改变）')}
+/* ---- 名次：积分 → SOS → SOSOS → 直接对局 ---- */
+function trStand(g){const S={};for(const p of g.players)S[p.key]={key:p.key,name:p.name,pts:0,w:0,l:0,d:0,opp:[],h2h:{}};
+  for(const r of g.rounds)for(const m of r)if(m.res){const a=S[m.B],b=S[m.W];
+    if(m.bye){const x=a||b;if(x){x.pts+=1;x.w++}continue}if(!a||!b)continue;a.opp.push(m.W);b.opp.push(m.B);
+    if(m.res==='B'){a.pts+=1;a.w++;b.l++;a.h2h[m.W]=1;b.h2h[m.B]=0}else if(m.res==='W'){b.pts+=1;b.w++;a.l++;b.h2h[m.B]=1;a.h2h[m.W]=0}else if(m.res==='D'){a.pts+=.5;b.pts+=.5;a.d++;b.d++}}
+  const L=Object.values(S);for(const x of L)x.sos=x.opp.reduce((s,o)=>s+(S[o]?S[o].pts:0),0);for(const x of L)x.sosos=x.opp.reduce((s,o)=>s+(S[o]?S[o].sos:0),0);
+  L.sort((a,b)=>b.pts-a.pts||b.sos-a.sos||b.sosos-a.sosos||(a.h2h[b.key]===1?-1:b.h2h[a.key]===1?1:0));return L}
+function trLosses(g){const L={};for(const p of g.players)L[p.key]=0;for(const r of g.rounds)for(const m of r)if(m.res&&!m.bye&&m.res!=='X'){if(m.res==='B')L[m.W]++;else if(m.res==='W')L[m.B]++}return L}
+/* ---- 配对 ---- */
+function trPlayed(g){const P=new Set();for(const r of g.rounds)for(const m of r)if(m.B&&m.W){P.add(m.B+'|'+m.W);P.add(m.W+'|'+m.B)}return P}
+function trBlackCount(g,k){let n=0;for(const r of g.rounds)for(const m of r)if(m.B===k&&m.W)n++;return n}
+function trPairList(g,keys,avoid){const P=trPlayed(g),out=[],left=keys.slice();let bye=null;
+  if(left.length%2){const had=new Set(g.rounds.flat().filter(m=>m.bye).map(m=>m.B));let i=left.length-1;while(i>0&&had.has(left[i]))i--;bye=left.splice(i,1)[0]} // 单数：轮空给还没轮空过的人（从排名最后往前找）
+  while(left.length>1){const a=left.shift();let j=left.findIndex(b=>!avoid||!P.has(a+'|'+b));if(j<0)j=0;const b=left.splice(j,1)[0];
+    const [B,W]=trBlackCount(g,a)<=trBlackCount(g,b)?[a,b]:[b,a];out.push({B,W})}
+  if(bye!=null)out.push({B:bye,W:null,bye:1,res:'B'});return out}
+function trRR(keys){const a=keys.slice();if(a.length%2)a.push(null);const n=a.length,R=[];
+  for(let r=0;r<n-1;r++){const ms=[];for(let i=0;i<n/2;i++){let x=a[i],y=a[n-1-i];if((r+i)%2)[x,y]=[y,x];if(x==null||y==null)ms.push({B:x||y,W:null,bye:1,res:'B'});else ms.push({B:x,W:y})}R.push(ms);a.splice(1,0,a.pop())}return R}
+function trSeedOrder(P){let o=[1];while(o.length<P){const m=o.length*2+1;o=o.flatMap(x=>[x,m-x])}return o}
+/* 下一轮：回传这一轮的对局（还没开局），或 null（比完了） */
+function trNextRound(g){const keys=g.players.map(p=>p.key),k=g.rounds.length;
+  if(g.fmt==='rr'){if(!g.sched)g.sched=trRR(keys);return k<g.sched.length?g.sched[k].map(m=>({...m})):null}
+  if(g.fmt==='swiss'){if(k>=(g.swissRounds||5)||keys.length<2)return null;const st=trStand(g),order=st.map(x=>x.key),byes=new Set();
+    for(const r of g.rounds)for(const m of r)if(m.bye)byes.add(m.B);let bye=null;if(order.length%2){for(let i=order.length-1;i>=0;i--)if(!byes.has(order[i])){bye=order[i];break}if(bye==null)bye=order[order.length-1]}
+    const ms=trPairList(g,order.filter(x=>x!==bye),true);if(bye!=null)ms.push({B:bye,W:null,bye:1,res:'B'});return ms}
+  if(g.fmt==='se'){if(!k){const sorted=g.players.slice().sort((a,b)=>(a.seed||99)-(b.seed||99)).map(p=>p.key),P=2**Math.ceil(Math.log2(Math.max(2,sorted.length))),o=trSeedOrder(P),ms=[];
+      for(let i=0;i<P;i+=2){const a=sorted[o[i]-1]??null,b=sorted[o[i+1]-1]??null;if(a==null&&b==null)ms.push({B:null,W:null,bye:1,res:'X'});else if(a==null||b==null)ms.push({B:a??b,W:null,bye:1,res:'B'});else ms.push({B:a,W:b})}return ms}
+    const prev=g.rounds[k-1],win=m=>m.res==='X'?null:m.bye?m.B:m.res==='B'?m.B:m.res==='W'?m.W:null;if(prev.length<=1)return null;const ms=[];
+    for(let i=0;i<prev.length;i+=2){const a=win(prev[i]),b=win(prev[i+1]);if(a==null&&b==null)ms.push({B:null,W:null,bye:1,res:'X'});else if(a==null||b==null)ms.push({B:a??b,W:null,bye:1,res:'B'});else ms.push({B:a,W:b})}return ms}
+  if(g.fmt==='de'){const Ls=trLosses(g),seed=x=>(g.players.find(p=>p.key===x)||{}).seed||99,alive=keys.filter(x=>Ls[x]<2);if(alive.length<=1)return null;
+    const WB=alive.filter(x=>!Ls[x]).sort((a,b)=>seed(a)-seed(b)),LB=alive.filter(x=>Ls[x]===1).sort((a,b)=>seed(a)-seed(b));
+    if(WB.length===1&&LB.length===1)return[{B:LB[0],W:WB[0],br:'F'}]; // 决赛：胜部冠军执白；败部冠军赢了就双方各 1 败，再下一盘
+    const ms=[];if(WB.length>1){for(const m of trPairList(g,k?WB:trDeFirst(WB),true))ms.push({...m,br:'W'})}
+    if(LB.length>1)for(const m of trPairList(g,LB,true))ms.push({...m,br:'L'});return ms.length?ms:null}
+  return null}
+function trDeFirst(W){const o=[],a=W.slice();while(a.length){o.push(a.shift());if(a.length)o.push(a.pop())}return o} // 第一轮：种子 1 对最后、2 对倒数第二…
+function trDone(g){if(!g.rounds.length)return false;const last=g.rounds[g.rounds.length-1];if(last.some(m=>!m.res))return false;
+  if(g.fmt==='de'){const Ls=trLosses(g);return Object.values(Ls).filter(v=>v<2).length<=1}
+  if(g.fmt==='se')return last.length<=1;return trNextRound({...g,sched:g.sched,rounds:g.rounds})==null}
+function trChamp(g){if(g.fmt==='de'){const Ls=trLosses(g);return Object.keys(Ls).find(k=>Ls[k]<2)}if(g.fmt==='se'){const m=g.rounds[g.rounds.length-1][0];return m.bye?m.B:m.res==='B'?m.B:m.res==='W'?m.W:null}return(trStand(g)[0]||{}).key}
+
+/* ---- 开一轮：为每一对开线上对局 ---- */
+async function trStartRound(t,g,ms){for(const m of ms){if(m.bye||!m.B||!m.W)continue;const P=k=>g.players.find(p=>p.key===k)||{name:'?'};const b=P(m.B),w=P(m.W);
+    m.gid=await olCreate({n:t.n,kind:t.kindT,time:t.tk,ctime:t.tk,ha:0,rated:true,tour:t.id,seats:{B:{name:b.name,uid:b.uid,r:b.r},W:{name:w.name,uid:w.uid,r:w.r}}})}
+  g.rounds.push(ms);g.roundT=Date.now()}
+/* 同步：读每盘对局的结果；到期的判超时；一轮下完就开下一轮 */
+async function trSync(t){if(!t||t.status!=='run'||trBusy||!trIsOrg(t))return;trBusy=true;let changed=false;
+  try{const now=Date.now();for(const g of t.groups){const r=g.rounds[g.rounds.length-1];if(!r)continue;const due=t.adv==='date'&&g.roundT&&now>g.roundT+(t.every||3)*864e5;
+      for(const m of r){if(m.res||!m.gid)continue;const st=olUnpack(await(await olDoc(m.gid,'state')).get());if(!st)continue;
+        if(st.status==='end'){m.res=/^B\+/.test(st.re)?'B':/^W\+/.test(st.re)?'W':st.re==='Void'?'X':'D';m.src=T('对局 {0}，{1} 手',st.re,st.moves.length);changed=true}
+        else if(due){const c=st.status==='play'?olToMove(st):'B';m.res=c==='B'?'W':'B';m.late=1;changed=true;
+          try{await olTx(m.gid,s=>{if(s.status==='end')return false;s.status='end';s.re=m.res+'+T'})}catch(e){}}}}
+    const ready=t.groups.filter(g=>g.rounds.length&&g.rounds[g.rounds.length-1].every(m=>m.res));
+    if(changed||ready.length)await trTx(t.id,async T2=>{let ch=false;for(let i=0;i<T2.groups.length;i++){const g=T2.groups[i],src=t.groups[i],r=g.rounds[g.rounds.length-1];if(!r)continue;
+        const sr=src.rounds[src.rounds.length-1];if(sr&&sr.length===r.length)r.forEach((m,j)=>{if(!m.res&&sr[j].res){m.res=sr[j].res;m.late=sr[j].late;m.src=sr[j].src;ch=true}});
+        if(r.every(m=>m.res)&&!g.done){const nx=trNextRound(g);if(nx){await trStartRound(T2,g,nx);ch=true}else{g.done=true;g.champ=trChamp(g);ch=true}}}
+      if(T2.groups.every(g=>g.done)&&T2.kind!=='league'&&T2.status==='run'){T2.status='end';ch=true}return ch||false},'sync')}
+  catch(e){trMsg=e.message}trBusy=false}
+/* ---- 联赛：分组、升降组 ---- */
+function trGroups(players,size){const L=players.slice().sort((a,b)=>(b.r||1000)-(a.r||1000)),G=[];for(let i=0;i<L.length;i+=size)G.push(L.slice(i,i+size));
+  if(G.length>1&&G[G.length-1].length<4){const x=G.pop();G[G.length-1].push(...x)}return G}
+function trNewSeason(t,lists){const lab=i=>String.fromCharCode(65+i);t.season={no:(t.season?t.season.no:0)+1,start:Date.now(),end:Date.now()+t.len*864e5};
+  t.groups=lists.map((ps,i)=>({name:lab(i)+' '+T('组'),fmt:t.fmt,swissRounds:t.swissRounds,players:ps.map((p,j)=>({...p,seed:j+1})),rounds:[],done:false}));
+  if(t.adv==='date'){const R=t.fmt==='rr'?Math.max(1,...lists.map(l=>l.length+(l.length%2)-1)):t.swissRounds||5;t.every=Math.max(1,Math.floor(t.len/R))}}
+function trPromote(t){const G=t.groups.map(g=>trStand(g).map(x=>g.players.find(p=>p.key===x.key))),up=t.promote||2,down=t.relegate||2;
+  const N=G.map(l=>l.slice());for(let i=0;i<G.length-1;i++){const dn=G[i].slice(-down),u=G[i+1].slice(0,up);N[i]=N[i].filter(p=>!dn.includes(p)).concat(u);N[i+1]=N[i+1].filter(p=>!u.includes(p)).concat(dn)}
+  const wait=(t.wait||[]);if(wait.length){N[N.length-1]=N[N.length-1].concat(wait);t.wait=[]}return N}
+
+/* ---- 画面 ---- */
+async function trLoad(){trList=null;renderTr();try{const db=await Shared.db(),qs=await db.collection('tours').get(),L=tsLogin(),ids=[olAcct(),olLocal()];
+    trList=qs.docs.map(d=>olUnpack(d)).filter(t=>t&&!t.removed&&(t.open||trIsOrg(t)||(L&&t.cls===L.cls)||(t.players||[]).some(p=>ids.includes(p.uid)))).sort((a,b)=>(a.status==='end')-(b.status==='end')||(b.created||0)-(a.created||0))}
+  catch(e){trList=[];trMsg=e.message}renderTr()}
+async function trOpen(id){trView='view';trCur=null;renderTr();const ref=await trRef(id),t=olUnpack(await ref.get());trCur=t;
+  try{const qs=await ref.collection('reg').get();trCur.reg=qs.docs.map(d=>({...d.data(),uid:d.id}))}catch(e){trCur.reg=[]}
+  await trClaim(trCur);if(trIsOrg(trCur)){await trMerge(trCur);if(trCur.status==='run')await trSync(trCur)}renderTr()}
+/* 主办这边：把报名单（报名、退出、按名字认领）合并进比赛 */
+async function trMerge(t){const reg=t.reg||[];if(!reg.length)return;const ch=reg.filter(r=>{const all=[...t.players,...(t.wait||[]),...(t.groups||[]).flatMap(g=>g.players)];
+    if(r.quit)return all.some(p=>p.uid===r.uid)&&t.status==='reg';if(r.claim)return all.some(p=>!p.uid&&p.name===r.name);return!all.some(p=>p.uid===r.uid)});if(!ch.length)return;
+  await trTx(t.id,T2=>{let any=false;for(const r of ch){const all=[...T2.players,...(T2.wait||[]),...T2.groups.flatMap(g=>g.players)];
+      if(r.quit){if(T2.status==='reg'){T2.players=T2.players.filter(p=>p.uid!==r.uid);any=true}continue}
+      if(r.claim){for(const q of all)if(!q.uid&&q.name===r.name){q.uid=r.uid;q.r=r.r||1000;any=true}continue}
+      if(all.some(p=>p.uid===r.uid))continue;const p={name:r.name,uid:r.uid,r:r.r||1000,key:r.uid};if(T2.status==='reg')T2.players.push(p);else T2.wait=(T2.wait||[]).concat([p]);any=true}
+    return any},'reg')}
+async function trRegSet(o){const ref=await trRef(trCur.id),uid=olUid();await ref.collection('reg').doc(uid).set({...o,t:Date.now()});trCur.reg=(trCur.reg||[]).filter(r=>r.uid!==uid).concat([{...o,uid}])}
+async function trClaim(t){const L=tsLogin(),nm=(L&&L.name)||olName(),uid=olUid();if(!t||!nm||trMe(t))return;const all=[...(t.players||[]),...(t.wait||[]),...(t.groups||[]).flatMap(g=>g.players)];
+  if(!all.some(p=>!p.uid&&p.name===nm)||(t.reg||[]).some(r=>r.uid===uid&&r.claim))return;const R=await olRating(uid);try{await trRegSet({name:nm,r:R.r,claim:true})}catch(e){}} // 老师加的学生：按名字认领（等主办合并）
+function trFormHtml(){const f=trForm,lg=f.kind==='league',seg=(k,arr,v)=>`<span class="seg">${arr.map(([x,l])=>`<button data-tr="f" data-k="${k}" data-v="${x}" aria-pressed="${String(v)===String(x)}">${l}</button>`).join('')}</span>`,L=tsLogin();
+  const fm=lg?['rr','swiss']:['rr','swiss','se','de'];if(!fm.includes(f.fmt))f.fmt='rr';
+  return`<div class="score-head"><b>${T('开比赛／联赛')}</b></div>
+  <div class="score-opts"><label>${T('名称')} <input id="trTitle" value="${tsE(f.title)}" maxlength="40" style="width:14em"></label>${seg('kind',[['tour',T('比赛')],['league',T('联赛')]],f.kind)}</div>
+  <div class="score-opts"><span>${T('赛制')}</span>${seg('fmt',fm.map(k=>[k,T(TR_FMT[k])]),f.fmt)}${f.fmt==='swiss'?`<label>${T('轮数')} <select data-trs="swissRounds">${[3,4,5,6,7,8,9,11].map(v=>`<option${v===f.swissRounds?' selected':''}>${v}</option>`).join('')}</select></label>`:''}</div>
+  ${f.fmt==='de'?`<p class="note" style="margin:0">${T('双败淘汰：输两盘才出局。决赛参考台湾职业赛：胜部冠军先算 1 胜，败部冠军要连赢两盘才夺冠。')}</p>`:f.fmt==='rr'?`<p class="note" style="margin:0">${T('循环赛：每人和其他人各下一盘。')}</p>`:''}
+  <div class="score-opts"><span>${T('轮次')}</span>${seg('adv',[['auto',T('下完自动开下一轮')],['date',T('按日期')]],f.adv)}${f.adv==='date'&&!lg?`<label>${T('每')} <select data-trs="every">${[1,2,3,5,7,10,14].map(v=>`<option${v===f.every?' selected':''}>${v}</option>`).join('')}</select> ${T('天一轮')}</label>`:''}</div>
+  ${lg?`<div class="score-opts"><label>${T('每组人数')} <select data-trs="size">${TR_SIZE.map(v=>`<option${v===f.size?' selected':''}>${v}</option>`).join('')}</select></label><label>${T('或自订')} <input type="number" data-trn="size" min="4" max="64" value="${f.size}" style="width:4.5em"></label></div>
+    <div class="score-opts"><label>${T('一季')} <select data-trs="len">${TR_LEN.map(([v,l])=>`<option value="${v}"${v===f.len?' selected':''}>${T(l)}</option>`).join('')}</select></label><label>${T('或自订')} <input type="number" data-trn="len" min="21" max="365" value="${f.len}" style="width:4.5em"> ${T('天')}</label></div>
+    <div class="score-opts"><label>${T('每季每组升')} <select data-trs="promote">${[1,2,3].map(v=>`<option${v===f.promote?' selected':''}>${v}</option>`).join('')}</select></label><label>${T('降')} <select data-trs="relegate">${[1,2,3].map(v=>`<option${v===f.relegate?' selected':''}>${v}</option>`).join('')}</select></label></div>`:''}
+  <div class="score-opts"><span>${T('棋盘')}</span>${seg('n',[[9,'9'],[13,'13'],[19,'19']],f.n)}${seg('kindT',[['rt',T('实时')],['corr',T('通信')]],f.kindT)}
+    <select data-trs="tk">${(f.kindT==='corr'?OL_CORR.map(([k,l])=>[k,l]):OL_RT.flatMap(([,L])=>L)).map(([k,l])=>`<option value="${k}"${k===f.tk?' selected':''}>${T(l)}</option>`).join('')}</select></div>
+  <div class="score-opts"><span>${T('谁可以报名')}</span>${seg('open',[...(L&&L.cls?[['0',T('本班')]]:[]),['1',T('所有人')]],f.open?'1':'0')}</div>
+  <div class="row"><button class="btn pri" data-tr="create">${T('建立')}</button><button class="btn" data-tr="list">${T('取消')}</button></div>`}
+function trViewHtml(t){if(!t)return`<p class="note">${T('载入中…')}</p>`;const org=trIsOrg(t),me=trMe(t),lg=t.kind==='league';
+  let h=`<div class="row" style="align-items:center;margin:0"><button class="btn" data-tr="list">← ${T('比赛列表')}</button><b>${tsE(t.title)}</b><span class="clst ${t.status==='run'?'live':t.status==='end'?'end':''}">${t.status==='reg'?T('报名中'):t.status==='run'?(lg?T('第 {0} 季',t.season?t.season.no:1):T('进行中')):T('已结束')}</span></div>
+    <p class="note" style="margin:0">${lg?T('联赛'):T('比赛')} · ${T(TR_FMT[t.fmt])}${t.fmt==='swiss'?' '+T('{0} 轮',t.swissRounds):''} · ${t.n} 路 · ${t.kindT==='corr'?'📮':'⚡'} ${olTimeLabel(t.tk)} · ${t.adv==='date'?T('每 {0} 天一轮',t.every):T('下完自动开下一轮')}${lg&&t.season?' · '+T('本季到 {0}',new Date(t.season.end).toLocaleDateString()):''} · ${T('主办')} ${tsE(t.org.name||'')}</p>`;
+  const myReg=(t.reg||[]).find(r=>r.uid===olUid()),pend=(t.reg||[]).filter(r=>!r.quit&&!r.claim&&![...t.players,...(t.wait||[]),...(t.groups||[]).flatMap(g=>g.players)].some(p=>p.uid===r.uid));
+  if(!org&&!me&&myReg&&!myReg.quit)h+=`<p class="note" style="margin:0">${myReg.claim?T('已认领，等主办确认。'):T('已报名，等主办确认后会出现在名单里。')}</p>`;
+  if(org&&pend.length)h+=`<p class="note" style="margin:0">${T('待合并的报名：{0}',pend.map(r=>tsE(r.name)).join('、'))}</p>`;
+  if(!org&&t.status==='run')h+=`<p class="note" style="margin:0">${T('成绩和下一轮由主办更新；主办打开比赛页时会自动更新。')}</p>`;
+  if(t.status==='reg'||lg){const ps=t.status==='reg'?t.players:(t.wait||[]);
+    h+=`<b class="sub">${t.status==='reg'?T('报名名单（{0} 人）',ps.length):T('等下一季加入（{0} 人）',ps.length)}</b><div class="note">${ps.map(p=>tsE(p.name)+(p.uid?'':' '+T('（未认领）'))+(org?` <button class="btn" data-tr="rm" data-k="${trKey(p)}" style="padding:0 6px;font-size:12px">✕</button>`:'')).join('、')||T('还没有人报名。')}</div>
+      <div class="row">${me?(t.status==='reg'?`<button class="btn" data-tr="quit">${T('退出')}</button>`:''):myReg&&!myReg.quit?'':`<button class="btn pri" data-tr="join">${T('报名')}</button>`}${org&&t.status==='reg'?`<button class="btn" data-tr="addcls">${T('加入本班学生')}</button><button class="btn pri" data-tr="start">${lg?T('开始第一季'):T('开始比赛')}</button>`:''}</div>`}
+  for(const g of t.groups||[])h+=trGroupHtml(t,g,org);
+  if(org&&t.status!=='reg')h+=`<div class="row">${lg?`<button class="btn" data-tr="season">${T('结束这一季，升降组，开下一季')}</button>`:''}${t.status==='run'?`<button class="btn" data-tr="sync">↻ ${T('更新结果')}</button><button class="btn warn" data-tr="end">${T('结束')}</button>`:''}<button class="btn" data-tr="csv">${T('导出成绩（CSV）')}</button></div>`;
+  if(org)h+=`<div class="row"><button class="btn" data-tr="log">📜 ${T('修改记录')}</button><button class="btn warn" data-tr="del">${T('删除')}</button></div>`;return h}
+function trGroupHtml(t,g,org){const lg=t.kind==='league',elim=g.fmt==='se'||g.fmt==='de',nm=k=>tsE(trName(g,k)),ids=[olAcct(),olLocal()],mine=k=>{const p=g.players.find(p=>p.key===k);return p&&ids.includes(p.uid)};
+  let h=`<div class="trg"><b>${lg?tsE(g.name):''}${g.done&&g.champ!=null?` 🏆 ${T('冠军')}：${nm(g.champ)}`:''}</b>`;
+  if(!elim&&g.rounds.length){const st=trStand(g),n=g.players.length;h+=`<div class="tstable"><table><tr><th></th><th>${T('名字')}</th><th>${T('积分')}</th><th>${T('胜')}</th><th>${T('负')}</th><th>SOS</th><th>SOSOS</th></tr>${st.map((x,i)=>`<tr class="${mine(x.key)?'tot':''}${lg&&g.done!==undefined?(i<(t.promote||2)&&t.groups.indexOf(g)>0?' trup':i>=n-(t.relegate||2)&&t.groups.indexOf(g)<t.groups.length-1?' trdn':''):''}"><td>${i+1}</td><td>${tsE(x.name)}</td><td>${x.pts}</td><td>${x.w}</td><td>${x.l}</td><td>${x.sos}</td><td>${x.sosos}</td></tr>`).join('')}</table></div>`}
+  else if(elim&&g.fmt==='de'&&g.rounds.length){const Ls=trLosses(g);h+=`<p class="note" style="margin:0">${T('胜部')}：${g.players.filter(p=>!Ls[p.key]).map(p=>tsE(p.name)).join('、')||'—'}　${T('败部')}：${g.players.filter(p=>Ls[p.key]===1).map(p=>tsE(p.name)).join('、')||'—'}　${T('出局')}：${g.players.filter(p=>Ls[p.key]>=2).map(p=>tsE(p.name)).join('、')||'—'}</p>`}
+  h+=g.rounds.map((r,i)=>`<details class="trr"${i===g.rounds.length-1?' open':''}><summary>${elim&&g.fmt==='se'?trSeName(g,i):T('第 {0} 轮',i+1)}</summary>${r.map((m,j)=>{if(m.bye&&!m.B)return'';
+      const lab=m.br==='W'?T('胜部'):m.br==='L'?T('败部'):m.br==='F'?T('决赛'):'',res=m.res==='B'?'1 : 0':m.res==='W'?'0 : 1':m.res==='D'?'½ : ½':m.res==='X'?T('取消'):'';
+      return`<div class="trm${mine(m.B)||mine(m.W)?' my':''}">${lab?`<small>${lab}</small>`:''}<span>⚫ ${nm(m.B)}</span>${m.bye?`<span class="note" style="margin:0">${T('轮空')}</span>`:`<b>${res||'vs'}</b><span>⚪ ${nm(m.W)}</span>${m.late?`<small>${T('超时')}</small>`:''}${m.gid?`<button class="btn" data-tr="game" data-g="${m.gid}">${m.res?T('看'):mine(m.B)||mine(m.W)?T('去下'):T('观战')}</button>`:''}
+        ${org&&!m.bye&&t.status!=='reg'?`<select data-trset="${t.groups.indexOf(g)}:${i}:${j}"><option value="">${T('改结果')}</option><option value="B">${T('黑胜')}</option><option value="W">${T('白胜')}</option><option value="D">${T('和')}</option><option value="X">${T('取消')}</option></select>`:''}`}</div>`}).join('')}</details>`).join('');
+  return h+'</div>'}
+/* ---- 修改记录（防篡改）：管理员看全部，主办看自己的比赛；可以还原到某一笔修改之前 ---- */
+let trLogs=null,trLogTid=null;
+async function trLogOpen(tid){trView='log';trLogTid=tid||null;trLogs=null;renderTr();try{const db=await Shared.db(),c=db.collection('tlog');const qs=tid?await c.where('tid','==',tid).get():await c.limit(500).get();
+    trLogs=qs.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>trMs(b.t)-trMs(a.t))}catch(e){trLogs=[];trMsg=T('读不到修改记录：{0}',e.message)}renderTr()}
+const TR_ACT={create:'建立',reg:'合并报名',rm:'移除选手',addcls:'加入本班学生',start:'开始',season:'换季',end:'结束',del:'删除',result:'改结果',sync:'更新结果',restore:'还原',game:'对局结束'};
+function trLogHtml(){let h=`<div class="row" style="align-items:center;margin:0"><button class="btn" data-tr="${trLogTid?'back':'list'}">← ${trLogTid?T('回到比赛'):T('比赛列表')}</button><b>📜 ${T('修改记录')}</b><span class="note" style="margin:0">${T('记录只能新增，不能修改或删除。')}</span></div>`;
+  if(!trLogs)return h+`<p class="note">${T('载入中…')}</p>`;if(!trLogs.length)return h+`<p class="note">${T('还没有记录。')}</p>`;
+  const canRestore=x=>x.before&&x.kind!=='game'&&(typeof tsIsAdm==='function'&&tsIsAdm()||trCur&&trCur.id===x.tid&&trIsOrg(trCur));
+  return h+`<div class="trlog">${trLogs.map(x=>`<div class="trli"><div class="row" style="align-items:center;margin:0"><b>${T(TR_ACT[x.act||x.kind]||x.act||'')}</b><span class="note" style="margin:0">${new Date(trMs(x.t)).toLocaleString()} · ${tsE(x.name||'?')} <code>${tsE((x.uid||'').slice(0,6))}</code>${trLogTid?'':' · '+tsE(x.title||x.tid||'')}</span>
+    ${canRestore(x)?`<button class="btn" data-tr="restore" data-l="${x.id}" style="margin-left:auto;padding:2px 8px;font-size:13px">↩ ${T('还原到这笔之前')}</button>`:''}</div><div>${tsE(x.desc||'')}</div></div>`).join('')}</div>`}
+function trSeName(g,i){const left=g.rounds[i].filter(m=>!(m.bye&&!m.B)).length;return left===1?T('决赛'):left===2?T('半决赛'):left===4?T('八强'):T('第 {0} 轮',i+1)}
+function renderTr(){const b=$('#trBody');if(!b||$('#trBox').hidden)return;let h='';if(trMsg)h+=`<p class="status">${tsE(trMsg)}</p>`;
+  if(trView==='form'&&trForm)h+=trFormHtml();else if(trView==='view')h+=trViewHtml(trCur);else if(trView==='log')h+=trLogHtml();
+  else{h+=`<div class="row"><button class="btn" data-tr="reload">↻ ${T('刷新')}</button>${typeof clIsT==='function'&&clIsT()?`<button class="btn pri" data-tr="new">＋ ${T('开比赛／联赛')}</button>`:''}</div>`;
+    if(!olName())h+=`<p class="note">${T('先在「在线手谈」输入你的名字，才能报名。')}</p>`;
+    h+=!trList?`<p class="note">${T('载入中…')}</p>`:trList.length?trList.map(t=>`<button class="olg${trMe(t)?' my':''}" data-tr="open" data-id="${t.id}"><b>${tsE(t.title)}</b><span class="note" style="margin:0">${t.kind==='league'?T('联赛'):T('比赛')} · ${T(TR_FMT[t.fmt])} · ${T('{0} 人',(t.players||[]).length+(t.groups||[]).reduce((s,g)=>s+(t.status==='reg'?0:g.players.length),0))}</span><span class="olgs">${t.status==='reg'?T('报名中'):t.status==='run'?T('进行中'):T('已结束')}</span></button>`).join(''):`<p class="note">${T('现在没有比赛或联赛。')}</p>`}
+  b.innerHTML=h;
+  b.querySelectorAll('[data-trs]').forEach(s=>s.onchange=()=>{const k=s.dataset.trs;trForm[k]=k==='tk'?s.value:+s.value;renderTr()});
+  b.querySelectorAll('[data-trn]').forEach(s=>s.onchange=()=>{const k=s.dataset.trn,v=Math.round(+s.value||0),[lo,hi]=k==='size'?[4,64]:[21,365];trForm[k]=Math.min(hi,Math.max(lo,v));renderTr()});
+  b.querySelectorAll('[data-trset]').forEach(s=>s.onchange=()=>{const[gi,ri,mi]=s.dataset.trset.split(':').map(Number),v=s.value;if(!v)return;
+    trTx(trCur.id,T2=>{const g=T2.groups[gi],m=g.rounds[ri][mi];m.res=v;m.man=1;if(g.done)g.champ=trChamp(g)},'result').then(()=>trSync(trCur)).then(renderTr).catch(e=>{trMsg=e.message;renderTr()})})}
+function trCsv(t){const rows=[['组','名次','名字','积分','胜','负','和','SOS','SOSOS']];for(const g of t.groups)trStand(g).forEach((x,i)=>rows.push([g.name||'',i+1,x.name,x.pts,x.w,x.l,x.d,x.sos,x.sosos]));
+  const csv='﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=(t.title||'tournament')+'.csv';a.click()}
+async function trAct(e){const t=e.target.closest('[data-tr]');if(!t||!$('#trBody').contains(t))return;const a=t.dataset.tr;trMsg='';
+  try{switch(a){
+    case'reload':await trLoad();break;
+    case'list':trView='list';trForm=null;await trLoad();break;
+    case'new':trForm={title:'',kind:'tour',fmt:'rr',swissRounds:5,adv:'auto',every:3,size:8,len:30,promote:2,relegate:2,n:19,kindT:'corr',tk:'d2',open:!(tsLogin()&&tsLogin().cls)};trView='form';renderTr();break;
+    case'f':{const k=t.dataset.k,v=t.dataset.v;trForm.title=$('#trTitle').value;trForm[k]=k==='n'?+v:k==='open'?v==='1':v;if(k==='kindT')trForm.tk=v==='corr'?'d2':'10';if(k==='fmt'&&v==='swiss'&&!trForm.swissRounds)trForm.swissRounds=5;renderTr();break}
+    case'create':{const f=trForm;f.title=($('#trTitle').value||'').trim();if(!f.title)throw new Error(T('请输入名称'));const L=tsLogin(),id=tsId(10);
+      const tt={id,title:f.title,kind:f.kind,fmt:f.fmt,swissRounds:f.swissRounds,adv:f.kind==='league'?'date':f.adv,every:f.every,size:f.size,len:f.len,promote:f.promote,relegate:f.relegate,n:f.n,kindT:f.kindT,tk:f.tk,open:!!f.open,cls:L&&L.cls||'',
+        org:{uid:olUid(),name:olName()||(L&&L.name)||''},status:'reg',players:[],groups:[],created:Date.now()};
+      const db=await Shared.db(),u=firebase.auth().currentUser,lid=tsId(14);tt.lastLog=lid;const bt=db.batch?db.batch():null;
+      const logD={uid:u?u.uid:'',name:olName()||'',tid:id,title:tt.title,act:'create',desc:T('建立「{0}」',tt.title),before:'',t:trSrvT()},tr=await trRef(id);
+      if(bt){bt.set(db.collection('tlog').doc(lid),logD);bt.set(tr,trPack(tt));await bt.commit()}else await db.runTransaction(async tx=>{tx.set(db.collection('tlog').doc(lid),logD);tx.set(tr,trPack(tt))});trForm=null;await trOpen(id);break}
+    case'open':await trOpen(t.dataset.id);break;
+    case'join':{const nm=olName();if(!nm)throw new Error(T('先在「在线手谈」输入你的名字，才能报名。'));const R=await olRating(olUid());await trRegSet({name:nm,r:R.r});if(trIsOrg(trCur))await trMerge(trCur);trMsg=T('已报名，等主办确认后会出现在名单里。');renderTr();break}
+    case'quit':{await trRegSet({name:olName(),quit:true});if(trIsOrg(trCur))await trMerge(trCur);trMsg=T('已申请退出，等主办确认。');renderTr();break}
+    case'rm':{const k=t.dataset.k;await trTx(trCur.id,T2=>{T2.players=T2.players.filter(p=>trKey(p)!==k);T2.wait=(T2.wait||[]).filter(p=>trKey(p)!==k)},'rm');renderTr();break}
+    case'addcls':{if(!tsCloud&&tsLogin())await tsRefreshCloud();const us=tsCloud&&tsCloud.users?Object.values(tsCloud.users).map(u=>u.name).filter(Boolean):[];if(!us.length)throw new Error(T('先到「班级」载入本班学生。'));
+      await trTx(trCur.id,T2=>{for(const n of us)if(!T2.players.some(p=>p.name===n))T2.players.push({name:n,uid:null,r:1000,key:'n:'+n})},'addcls');renderTr();break}
+    case'start':{if(trCur.players.length<(trCur.kind==='league'?4:2))throw new Error(trCur.kind==='league'?T('联赛至少要 4 人。'):T('至少要 2 人。'));
+      await trTx(trCur.id,async T2=>{if(T2.status!=='reg')return false;T2.players.forEach(p=>p.key=trKey(p));const sorted=T2.players.slice().sort((a,b)=>(b.r||1000)-(a.r||1000));sorted.forEach((p,i)=>p.seed=i+1);
+        if(T2.kind==='league')trNewSeason(T2,trGroups(sorted,T2.size));else T2.groups=[{name:'',fmt:T2.fmt,swissRounds:T2.swissRounds,players:sorted,rounds:[],done:false}];
+        T2.status='run';for(const g of T2.groups){const r=trNextRound(g);if(r)await trStartRound(T2,g,r)}},'start');renderTr();break}
+    case'season':armed(t,T('再点一次：结束这一季'),async()=>{await trTx(trCur.id,async T2=>{const N=trPromote(T2);T2.history=(T2.history||[]).concat([{no:T2.season.no,champs:T2.groups.map(g=>({g:g.name,c:trName(g,g.champ??(trStand(g)[0]||{}).key)}))}]);
+        trNewSeason(T2,N.filter(l=>l.length));for(const g of T2.groups){const r=trNextRound(g);if(r)await trStartRound(T2,g,r)}},'season');renderTr()});break;
+    case'sync':await trSync(trCur);renderTr();break;
+    case'end':armed(t,T('再点一次：结束'),async()=>{await trTx(trCur.id,T2=>{T2.status='end';for(const g of T2.groups){g.done=true;g.champ=trChamp(g)}},'end');renderTr()});break;
+    case'del':armed(t,T('再点一次确认删除'),async()=>{await trTx(trCur.id,T2=>{T2.removed=true},'del');trView='list';await trLoad()});break;
+    case'csv':trCsv(trCur);break;
+    case'log':await trLogOpen(trCur.id);break;
+    case'back':trView='view';renderTr();break;
+    case'restore':{const x=(trLogs||[]).find(l=>l.id===t.dataset.l);if(!x||!x.before)break;armed(t,T('再点一次：还原'),async()=>{const old=JSON.parse(x.before);
+      await trTx(x.tid,T2=>{for(const k of Object.keys(T2))if(!['id','org','lastLog'].includes(k))delete T2[k];Object.assign(T2,old,{id:T2.id||x.tid,org:T2.org})},'restore');trMsg=T('已还原。');await trLogOpen(trLogTid)});break}
+    case'game':{const g=t.dataset.g;trPanelClose();if(typeof playPick==='function')playPick('online');await olOpen(g);break}
+  }}catch(err){trMsg=err.message;renderTr()}}
+function trPanelOpen(){if(curMode()!=='play')setMode('play');$('#trBox').hidden=false;trView='list';trLoad()}
+function trPanelClose(){$('#trBox').hidden=true}
+{const b=$('#trBody');if(b)b.addEventListener('click',trAct);const x=$('#trClose');if(x)x.onclick=trPanelClose}
+setInterval(async()=>{if(trCur&&trView==='view'&&!$('#trBox').hidden&&trIsOrg(trCur)){try{const qs=await(await trRef(trCur.id)).collection('reg').get();trCur.reg=qs.docs.map(d=>({...d.data(),uid:d.id}));await trMerge(trCur)}catch(e){}if(trCur.status==='run')await trSync(trCur);renderTr()}},60000);
+/* 对局结束时记一笔（比赛的对局）：主办和管理员可以对照棋谱 */
+async function trGameLog(st){try{if(!st||!st.tour)return;const k='glog_'+st.id;if(localStorage.getItem(k))return;localStorage.setItem(k,'1');const db=await Shared.db(),u=firebase.auth().currentUser;
+  await db.collection('tlog').doc(tsId(14)).set({uid:u?u.uid:'',name:olName()||'',tid:st.tour,kind:'game',act:'game',gid:st.id,desc:T('{0} vs {1}：{2}，{3} 手',(st.B||{}).name||'?',(st.W||{}).name||'?',st.re==='Void'?T('取消'):resultText(st.re),st.moves.length),before:'',t:trSrvT()})}catch(e){}}
 /* ===================== 吃子关卡、限时挑战 ===================== */
 // 小型吃子计算：黑要在 k 手内吃掉目标白棋（t），白尽力逃。棋盘是一维数组：0 空、1 黑、2 白
 const Cap=(()=>{

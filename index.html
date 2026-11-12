@@ -260,6 +260,9 @@ body.is-training #tree,body.is-training #vars{visibility:hidden}
 #clInk{position:absolute;z-index:4;pointer-events:none;touch-action:none}#clInk.pen{pointer-events:auto;cursor:crosshair}.clst{font-size:13px;font-weight:600;padding:1px 8px;border-radius:10px;background:var(--accent-soft)}.clst.live{background:#2E8B57;color:#fff}.clst.end{opacity:.7}.clcol{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer}.clcol.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--panel,#fff) inset}.clboard{white-space:pre-wrap;background:var(--accent-soft);border-radius:8px;padding:8px}#clBoardIn{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;background:var(--bg);color:var(--ink)}.clchat{border-top:1px solid var(--line);padding-top:6px;display:flex;flex-direction:column;gap:6px}.clmsgs{max-height:220px;overflow:auto;font-size:14px;display:flex;flex-direction:column;gap:2px}.clpick{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px}.clstat{background:var(--accent-soft);border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:2px}
 .apgive{border:1px solid var(--line);border-radius:10px;padding:8px;margin:8px 0;display:flex;flex-direction:column;gap:6px}.apstu{display:flex;flex-wrap:wrap;gap:4px 12px;max-height:200px;overflow:auto}.apstu label{display:flex;gap:4px;align-items:center;cursor:pointer}.aplog{display:flex;flex-direction:column;gap:3px;max-height:300px;overflow:auto}.aplog>div{display:flex;gap:6px;align-items:center}.aplog b{margin-left:auto}.appos{color:#2E8B57}.apneg{color:#C0392B}
 body.play-idle main>.board-wrap,body.play-idle main>.players,body.play-idle main>.nav,body.play-idle #revDots{display:none!important}body[data-sub] #playMenu{display:none!important}
+.clroster summary,.clrank summary,.clgame summary{cursor:pointer;font-weight:600}.clp{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--line)}.clp .btn{padding:2px 8px;font-size:13px}.clans{font-size:12px;padding:1px 6px;border-radius:8px;background:#FBE3E1;color:#C0392B}.clans.ok{background:#DFF3E6;color:#2E8B57}
+body.cl-proj header,body.cl-proj #playMenu,body.cl-proj main>.players,body.cl-proj main>.nav,body.cl-proj .homebar{display:none!important}body.cl-proj main{max-width:none!important}body.cl-proj .app{grid-template-columns:minmax(0,1fr) 320px!important;max-width:none}body.cl-proj main{width:100%!important}body.cl-proj main>.board-wrap{width:min(calc(100vw - 340px),calc(100vh - 16px))!important;max-width:none!important;margin:0}body.cl-proj #clBox{position:fixed;right:8px;top:8px;width:310px;max-height:calc(100vh - 16px);overflow:auto;z-index:20}
+.olmine{display:flex;flex-direction:column;gap:6px}.olg{display:flex;flex-wrap:wrap;align-items:center;gap:6px;text-align:left;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--panel);color:var(--ink);cursor:pointer;font:inherit}.olg.my{border-color:#D93025;box-shadow:0 0 0 2px #FBE3E1}.olgs{margin-left:auto;font-size:13px;font-weight:600}.olchat{border-top:1px solid var(--line);padding-top:6px;display:flex;flex-direction:column;gap:4px}.olmsgs{max-height:180px;overflow:auto;font-size:14px}
 .tsthg{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}.tsth{border:2px solid #B9C0C8;border-radius:10px;background:var(--panel);padding:4px;display:flex;flex-direction:column;gap:2px;align-items:stretch;text-align:left;color:var(--ink);cursor:pointer;font:inherit}.tsth[hidden]{display:none}.tsthb{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:6px;overflow:hidden}.tsthb svg{max-width:100%;max-height:100%;height:auto}.tstht{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tsthm{font-size:12px;color:var(--muted)}.tsthm small{color:#C27C0E}.tsth.g{border-color:#2E8B57}.tsth.b{border-color:#2E6FA8}.tsth.r{border-color:#C0392B}.tsp[hidden]{display:none}
 .tsgrid{display:flex;flex-wrap:wrap;gap:6px}
 .tsp.cap small{color:#d9a400;letter-spacing:-1px}.tsp.lock{opacity:.45}
@@ -473,6 +476,7 @@ body.pick #undoBtn,body.pick #redoBtn,body.pick #saveBtn,body.pick #shareBtn{dis
       <button class="btn" id="tsToggle" aria-pressed="false" hidden>做题</button>
       <button class="btn" id="olToggle" aria-pressed="false" hidden>线上对弈</button>
       <button class="btn" id="helpBtn">说明</button>
+      <button class="btn" id="olTurnBtn" hidden title="轮到你下的对局">♟ 0</button>
       <button class="btn" id="apBtn" hidden title="我的苹果">🍎 0</button>
       <button class="btn" id="bugBtn" title="回报问题">🐞 回报</button>
       <button class="btn" id="installBtn" hidden>安装 App</button>
@@ -2321,6 +2325,111 @@ const EN={
 ,"（存成这盘棋的变化，原本的主线和结果没有改）":"(Saved as a variation; the original main line and result are unchanged)"
 ,"📂 从棋谱开始":"📂 Start from a game"
 ,"🤖 从这里交给 AI":"🤖 Hand to AI from here"
+,"{0} 手":"{0} moves"
+,"{0} 正在上台摆棋":"{0} is at the board"
+,"一手答题":"One-move quiz"
+,"举手":"Raise hand"
+,"从现在的局面开始，轮到谁谁下；老师可以暂停、讲解、右键悔棋。":"Starts from the current position; each side plays on their turn. The teacher can pause, explain and right-click to undo."
+,"先用字母标记在棋盘上标出 A、B、C 选项；没有标的话预设 A、B、C。":"Mark options A, B, C on the board with letter marks first; otherwise A, B, C are used."
+,"全员奖励":"Reward everyone"
+,"多手答题":"Multi-move quiz"
+,"奖励":"Reward"
+,"已下 {0} 手":"{0} moves played"
+,"已做答":"Answered"
+,"开始对弈":"Start game"
+,"悔一手":"Undo one move"
+,"把棋盘交给他":"Hand the board to them"
+,"投影模式":"Projector mode"
+,"控":"Control"
+,"播放讲义":"Play lecture"
+,"收回棋盘":"Take back the board"
+,"放下":"Lower"
+,"放下手":"Lower hand"
+,"暂停中":"Paused"
+,"暂停讲义":"Pause lecture"
+,"未做答":"Not answered"
+,"每个人下的":"Each student's moves"
+,"沿着主线自动走，评论会显示给学生":"Steps through the main line; comments are shown to students"
+,"看":"Show"
+,"答题中：已作答 {0} / {1} 人":"Quiz: {0} / {1} answered"
+,"结束对弈":"End game"
+,"老师出题了：在棋盘上连下 {0} 手":"Quiz: play {0} moves on the board"
+,"老师出题了：按下面的选项作答":"Quiz: choose an option below"
+,"老师出题：在棋盘上连下 {0} 手":"Quiz: play {0} moves on the board"
+,"老师出题：选一个答案":"Quiz: pick an answer"
+,"老师把棋盘交给你了":"The teacher handed you the board"
+,"老师把棋盘交给你了：在棋盘上摆给全班看":"The teacher handed you the board: play it for the class"
+,"老师暂停了对局":"The teacher paused the game"
+,"请按下面的选项作答":"Please use the options below"
+,"请选好黑方和白方（不能同一个人）":"Choose Black and White (two different people)"
+,"课堂奖励":"Class reward"
+,"课堂对弈":"Class game"
+,"课堂对弈：黑 {0} vs 白 {1}":"Class game: Black {0} vs White {1}"
+,"课堂排行榜":"Class leaderboard"
+,"趣味":"Fun"
+,"轮到你下了":"Your move"
+,"还没有学生进来。":"No students yet."
+,"还没轮到你":"Not your turn yet"
+,"退出投影":"Exit projector"
+,"选择答题":"Choice quiz"
+,"选项统计":"Option stats"
+,"重下":"Redo"
+,"（{0} 人不是班级学生，没有发）":"({0} not class students, skipped)"
+,"1 分 + 20 秒 × 3":"1 min + 20 s × 3"
+,"10 分 + 30 秒 × 3":"10 min + 30 s × 3"
+,"10 分 + 每手 20 秒":"10 min + 20 s/move"
+,"20 分 + 30 秒 × 3":"20 min + 30 s × 3"
+,"20 分 + 每手 20 秒":"20 min + 20 s/move"
+,"3 分 + 20 秒 × 3":"3 min + 20 s × 3"
+,"3 分 + 每手 10 秒":"3 min + 10 s/move"
+,"30 分":"30 min"
+,"45 分":"45 min"
+,"5 分 + 30 秒 × 3":"5 min + 30 s × 3"
+,"5 分 + 每手 10 秒":"5 min + 10 s/move"
+,"60 分":"60 min"
+,"7 分 + 每手 20 秒":"7 min + 20 s/move"
+,"{0} 天 {1} 小时":"{0}d {1}h"
+,"{0} 盘对局轮到你":"Your move in {0} games"
+,"下在 {0}？":"Play at {0}?"
+,"先到「班级」载入本班学生。":"Open Class first to load your students."
+,"写几句话给对手…":"Write to your opponent…"
+,"包干":"Sudden death"
+,"回到对局":"Back to the game"
+,"实时":"Live"
+,"实时对局":"Live game"
+,"实时对局：双方要同时在线。":"Live game: both players must be online."
+,"对 {0}":"vs {0}"
+,"已取消":"Cancelled"
+,"已开对局：黑 {0} vs 白 {1}":"Game created: Black {0} vs White {1}"
+,"帮学生开对局":"Pair students"
+,"开始 3 天，每手加 1 天，最多存 7 天":"3 days, +1 day per move, max 7 days"
+,"开对局":"Create game"
+,"开新对局":"New game"
+,"我的对局":"My games"
+,"每手最多 1 天":"1 day per move"
+,"每手最多 2 天":"2 days per move"
+,"每手最多 3 天":"3 days per move"
+,"现在没有其他人在大厅。把网址传给朋友，或改天再来。":"Nobody else is in the lobby. Send the link to a friend or come back later."
+,"留言":"Messages"
+,"确认送出":"Confirm move"
+,"等两位学生打开这盘棋，就开始。":"Starts once both students open the game."
+,"等对手":"Waiting for opponent"
+,"等对手下":"Opponent's turn"
+,"结束：{0}":"Ended: {0}"
+,"观战":"Spectator"
+,"试下中：自己摆变化，对手看不到；按「回到对局」回来。":"Trying: explore variations privately; press Back to the game to return."
+,"请选两个不同的学生":"Choose two different students"
+,"费舍尔":"Fischer"
+,"轮到你":"Your move"
+,"还没有对局。按「开新对局」邀请朋友，或到大厅找人下。":"No games yet. Start a new game or find someone in the lobby."
+,"还没有留言。":"No messages yet."
+,"这手还剩 {0}":"{0} left for this move"
+,"选两个本班学生；对局会出现在他们的「我的对局」里。":"Choose two students; the game appears in their My games."
+,"通信":"Correspondence"
+,"通信对局":"Correspondence game"
+,"通信对局：不用同时在线，轮到你时会有红点提醒；可以同时下好几盘。":"Correspondence: no need to be online together; a red dot shows when it's your move. Play several games at once."
+,"（等他打开）":"(waiting to open)"
+,"♟ 0":"♟ 0"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -4322,6 +4431,7 @@ function render(){
     const bc=tsEd&&tsEditBranchColor(ch);
     o+=bc?`<circle cx="${X(xy[0])}" cy="${X(xy[1])}" r="${U*.36}" fill="${bc}" opacity=".85" stroke="${m[0]==='B'?'#111':'#fff'}" stroke-width="2"/><text x="${X(xy[0])}" y="${X(xy[1])}" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono,monospace" font-size="17" font-weight="700" fill="#fff">${String.fromCharCode(65+i)}</text>`
       :`<circle cx="${X(xy[0])}" cy="${X(xy[1])}" r="${U*.34}" fill="${m[0]==='B'?'#111':'#fff'}" opacity=".35"/><text x="${X(xy[0])}" y="${X(xy[1])}" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono,monospace" font-size="17" fill="${m[0]==='B'?'#fff':'#000'}">${String.fromCharCode(65+i)}</text>`});
+  if(typeof ol!=='undefined'&&ol&&ol.pend&&G&&G.id===ol.lid){const xy=ptToXY(ol.pend,n);if(xy)o+=`<circle cx="${X(xy[0])}" cy="${X(xy[1])}" r="${U*0.46}" fill="${ol.me==='B'?'#111':'#fff'}" opacity=".55" stroke="#D93025" stroke-width="3"/>`} // 通信对局：选好、还没确认的一手
   svg.innerHTML=o;
 
   // 双方信息
@@ -6177,10 +6287,21 @@ function picReadColor(){ // 照片模式：每个交叉点分成黑子、白子�
    对局：games/og_<id>/layers/state（sgf 栏位放 JSON）
    大厅：games/lobby/layers/p_<玩家>（在线状态，每 30 秒更新）、c_<对方>_<我>（挑战）
    等级分：games/lobby/layers/r_<玩家>  —— 只是好玩的参考分数，任何人都可以改自己的分数 */
-const OL_TIMES={'5':[300,30,3],'10':[600,30,3],'20':[1200,30,3],'0':[0,0,0]}; // 基本时间（秒）、读秒（秒）、读秒次数；0 = 不计时
+// 计时：[基本时间, 读秒, 读秒次数, 每手加秒（费舍尔）, 最多存（秒）]；全部是秒
+const OL_TIMES={b1:[60,20,3],b3:[180,20,3],'5':[300,30,3],'10':[600,30,3],'20':[1200,30,3],a30:[1800,0,0],a45:[2700,0,0],a60:[3600,0,0],
+  f3:[180,0,0,10],f5:[300,0,0,10],f7:[420,0,0,20],f10:[600,0,0,20],f20:[1200,0,0,20],'0':[0,0,0],
+  d1:[0,86400,1],d2:[0,172800,1],d3:[0,259200,1],cf:[259200,0,0,86400,604800]}; // d1–d3、cf：通信对局
+const OL_RT=[['读秒',[['b1','1 分 + 20 秒 × 3'],['b3','3 分 + 20 秒 × 3'],['5','5 分 + 30 秒 × 3'],['10','10 分 + 30 秒 × 3'],['20','20 分 + 30 秒 × 3']]],['包干',[['a30','30 分'],['a45','45 分'],['a60','60 分']]],
+  ['费舍尔',[['f3','3 分 + 每手 10 秒'],['f5','5 分 + 每手 10 秒'],['f7','7 分 + 每手 20 秒'],['f10','10 分 + 每手 20 秒'],['f20','20 分 + 每手 20 秒']]],['',[['0','不计时']]]];
+const OL_CORR=[['d1','每手最多 1 天'],['d2','每手最多 2 天'],['d3','每手最多 3 天'],['cf','开始 3 天，每手加 1 天，最多存 7 天']];
+const olCorrKey=k=>/^(d[123]|cf)$/.test(k);
+function olTimeLabel(k){for(const[,L]of OL_RT)for(const[kk,l]of L)if(kk===k)return T(l);for(const[kk,l]of OL_CORR)if(kk===k)return T(l);return T('不计时')}
 let olPending=null,ol=null; // 目前的线上对局 {id, st:状态, me:'B'|'W'|null（观战）, unsub, tick}
 let olView='home',olLobby={players:{},chal:{}},olLobbyUnsub=null,olBeat=null,olMsg='';
-const olUid=()=>{try{let u=localStorage.getItem('goReview.olId');if(!u){u=tsId(12);localStorage.setItem('goReview.olId',u)}return u}catch(e){return'tmp'+tsId(8)}};
+const olLocal=()=>{try{let u=localStorage.getItem('goReview.olId');if(!u){u=tsId(12);localStorage.setItem('goReview.olId',u)}return u}catch(e){return'tmp'+tsId(8)}};
+const olAcct=()=>{try{const u=firebase.auth().currentUser;return u&&!u.isAnonymous?u.uid:''}catch(e){return''}};
+const olUid=()=>olAcct()||olLocal(); // 登录了就用账号（换手机、电脑都是同一个人）；没登录用这台设备的代号
+const olIsMe=p=>!!p&&!!p.uid&&(p.uid===olAcct()||p.uid===olLocal());
 const olName=()=>(ng&&ng.name)||me()||'';
 async function olDoc(gid,name){const db=await Shared.db();return db.collection('games').doc(gid).collection('layers').doc(name)}
 const olPack=o=>({sgf:JSON.stringify(o),name:'state',updated:Date.now()});
@@ -6188,7 +6309,7 @@ const olUnpack=d=>{try{return d&&d.exists?JSON.parse(d.data().sgf):null}catch(e)
 
 /* ---- 等级分（Elo）：1000 分起，大约 100 分一级；2100 = 1 段 ---- */
 function olRankName(r){r=Math.round(r);if(r>=2100)return T('{0} 段',Math.min(9,1+Math.floor((r-2100)/100)));return T('{0} 级',Math.min(30,Math.max(1,Math.ceil((2100-r)/100))))}
-async function olRating(uid){try{const d=olUnpack(await(await olDoc('lobby','r_'+uid)).get());return d||{r:1000,g:0}}catch(e){return{r:1000,g:0}}}
+async function olRating(uid){try{let d=olUnpack(await(await olDoc('lobby','r_'+uid)).get());if(!d&&uid===olAcct())d=olUnpack(await(await olDoc('lobby','r_'+olLocal())).get());return d||{r:1000,g:0}}catch(e){return{r:1000,g:0}}}
 async function olRateAfter(st){ // 对局结束：更新自己的分数（每个人只更新自己的）
   if(!ol||!ol.me||st.rated===false||!/^[BW]\+/.test(st.re||''))return;const k='rated_'+st.id;try{if(localStorage.getItem(k))return;localStorage.setItem(k,'1')}catch(e){}
   const meP=st[ol.me],op=st[ol.me==='B'?'W':'B'],mine=await olRating(meP.uid),R=mine.r,O=op.r||1000;
@@ -6200,25 +6321,30 @@ async function olRateAfter(st){ // 对局结束：更新自己的分数（每个
 /* ---- 时间 ---- */
 function olClock(st,c,now=Date.now()){ // 回传 {t:基本时间剩下(ms), p:读秒次数, b:这次读秒剩下(ms), out:超时}
   const k=st.clock;if(!k||!k.main&&!k.byo)return null;let t=st['t'+c],p=st['p'+c],b=k.byo*1000;
-  if(st.status==='play'&&olToMove(st)===c){let e=now-st.turnT;if(e<=t)return{t:t-e,p,b,out:false};e-=t;t=0;
+  if(st.status==='play'&&olToMove(st)===c){let e=now-st.turnT;if(e<=t)return{t:t-e,p,b,out:false};e-=t;t=0;if(!b)return{t:0,p:0,b:0,out:true};
     const lost=Math.floor(e/b);p-=lost;if(p<=0)return{t:0,p:0,b:0,out:true};return{t:0,p,b:b-(e-lost*b),out:false}}
   return{t,p,b,out:false}}
 function olSpend(st,c,now){const k=st.clock;if(!k||!k.main&&!k.byo)return true;let t=st['t'+c],p=st['p'+c],e=now-st.turnT,b=k.byo*1000;
-  if(e<=t){st['t'+c]=t-e;return true}e-=t;st['t'+c]=0;const lost=Math.floor(e/b);p-=lost;st['p'+c]=p;return p>0}
+  if(e<=t){t-=e;if(k.inc)t=Math.min(t+k.inc*1000,(k.max||1e9)*1000);st['t'+c]=t;return true}if(!b){st['t'+c]=0;return false}
+  e-=t;st['t'+c]=0;const lost=Math.floor(e/b);p-=lost;st['p'+c]=p;return p>0}
 const olToMove=st=>{const k=st.moves.length;return(st.ha>=2?(k%2?'B':'W'):(k%2?'W':'B'))};
-const olFmt=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const olFmt=ms=>{const s=Math.max(0,Math.ceil(ms/1000));if(s>=86400)return T('{0} 天 {1} 小时',Math.floor(s/86400),Math.floor(s%86400/3600));if(s>=3600)return Math.floor(s/3600)+':'+String(Math.floor(s%3600/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 
 /* ---- 对局 ---- */
 function olRoot(st){const n=st.n;let s=`(;GM[1]FF[4]CA[UTF-8]SZ[${n}]KM[${st.komi}]RU[${st.cap?'Capture':'Chinese'}]${st.cap?`XC[${st.cap}]`:''}DT[${new Date(st.created).toISOString().slice(0,10)}]GN[${st.cap?T('吃子棋（先吃 {0} 子）',st.cap):T('线上对局')}]PB[${((st.B&&st.B.name)||'?').replace(/[\]\\]/g,'')}]PW[${((st.W&&st.W.name)||'?').replace(/[\]\\]/g,'')}]`;
   if(st.cap){const c=cgStart(n),P=p=>`[${xyToPt(p%n,(p/n)|0)}]`;s+='AB'+c.B.map(P).join('')+'AW'+c.W.map(P).join('')}
   if(st.ha>=2)s+=`HA[${st.ha}]AB`+handicapPts(n,st.ha).map(([x,y])=>`[${xyToPt(x,y)}]`).join('');if(st.re)s+=`RE[${st.re}]`;
   let c=st.ha>=2?'W':'B';for(const m of st.moves){s+=`;${c}[${m}]`;c=c==='B'?'W':'B'}return parseSGF(s+')')}
-async function olCreate(opt){ // 建立对局：回传 id
-  const name=olName();if(!name)throw new Error(T('请先输入你的名字'));const id='og_'+tsId(10),uid=olUid(),R=await olRating(uid),[main,byo,per]=OL_TIMES[opt.time]||OL_TIMES['10'];
-  let col=opt.color;if(col==='R')col=Math.random()<.5?'B':'W';
-  const st={v:1,id,n:opt.n,cap:opt.cap||0,komi:opt.cap?0:opt.ha>=2?0.5:KOMI_DEF[opt.n],ha:opt.ha||0,clock:{main,byo,per},tB:main*1000,tW:main*1000,pB:per,pW:per,moves:[],status:'wait',re:'',created:Date.now(),turnT:0,seq:0,rated:opt.rated!==false,
-    B:col==='B'?{name,uid,r:R.r}:null,W:col==='W'?{name,uid,r:R.r}:null};
-  await(await olDoc(id,'state')).set(olPack(st));return id}
+async function olCreate(opt){ // 建立对局：回传 id；opt.resv = {B:名字, W:名字}（老师帮学生开的，学生打开时按名字坐下）
+  const name=olName();if(!opt.resv&&!name)throw new Error(T('请先输入你的名字'));const id='og_'+tsId(10),uid=olUid(),R=await olRating(uid);
+  const tk=opt.kind==='corr'?(opt.ctime||'d2'):(opt.time||'10'),[main,byo,per,inc,max]=OL_TIMES[tk]||OL_TIMES['10'],corr=olCorrKey(tk);
+  let col=opt.color;if(col==='R')col=Math.random()<.5?'B':'W';const L=tsLogin();
+  const st={v:2,id,n:opt.n,cap:opt.cap||0,komi:opt.cap?0:opt.ha>=2?0.5:KOMI_DEF[opt.n],ha:opt.ha||0,clock:{main,byo,per,inc:inc||0,max:max||0},tk,corr,tB:main*1000,tW:main*1000,pB:per,pW:per,moves:[],status:'wait',re:'',created:Date.now(),turnT:0,seq:0,rated:opt.rated!==false,chat:[],
+    cls:L&&L.cls||'',B:opt.resv?{name:opt.resv.B,uid:null,resv:true}:col==='B'?{name,uid,r:R.r}:null,W:opt.resv?{name:opt.resv.W,uid:null,resv:true}:col==='W'?{name,uid,r:R.r}:null};
+  await(await olDoc(id,'state')).set(olPack(st));await olIndex(st);if(corr)olAskNotify();return id}
+/* 「我的对局」索引：games/lobby/layers/g_<对局>，两边谁在线谁更新 */
+async function olIndex(st){try{const c=olToMove(st),who=x=>x&&x.uid||'';await(await olDoc('lobby','g_'+st.id)).set({sgf:JSON.stringify({id:st.id,n:st.n,tk:st.tk||'',corr:!!st.corr,status:st.status,re:st.re||'',Bn:st.B&&st.B.name||'',Wn:st.W&&st.W.name||'',moves:st.moves.length,turnT:st.turnT||st.created,cls:st.cls||''}),
+  name:'g',updated:Date.now(),pB:who(st.B),pW:who(st.W),turn:st.status==='play'?who(st[c]):st.status==='score'?'*':'',status:st.status,cls:st.cls||'',resvB:st.B&&st.B.resv?st.B.name:'',resvW:st.W&&st.W.resv?st.W.name:''})}catch(e){}}
 async function olTx(id,f){ // 用 transaction 改对局状态，避免两边同时改
   const db=await Shared.db(),ref=await olDoc(id,'state');
   return db.runTransaction(async tx=>{const d=await tx.get(ref),st=olUnpack(d);if(!st)throw new Error(T('找不到这盘对局'));const r=f(st);if(r===false)return false;st.seq++;tx.set(ref,olPack(st));return true})}
@@ -6227,7 +6353,9 @@ async function olOpen(id){ // 打开对局（下棋或观战）
   try{const ref=await olDoc(id,'state');
     // 空位就坐下
     const d0=olUnpack(await ref.get());if(!d0){olMsg=T('找不到这盘对局');olView='home';ol=null;renderOl();return}
-    if(d0.status==='wait'&&(!d0.B||!d0.W)&&!(d0.B&&d0.B.uid===uid)&&!(d0.W&&d0.W.uid===uid)){const name=olName();
+    const L=tsLogin(),myN=(L&&L.name)||olName(),rs=['B','W'].find(c=>d0[c]&&d0[c].resv&&!d0[c].uid&&d0[c].name===myN);
+    if(rs&&d0.status!=='end'){const R=await olRating(uid);await olTx(id,st=>{const x=st[rs];if(!x||!x.resv||x.uid)return false;st[rs]={name:x.name,uid,r:R.r};if(st.B&&st.B.uid&&st.W&&st.W.uid&&st.status==='wait'){st.status='play';st.turnT=Date.now()}})}
+    else if(d0.status==='wait'&&(!d0.B||!d0.W)&&!olIsMe(d0.B)&&!olIsMe(d0.W)){const name=olName();
       if(!name){olMsg=T('请先输入你的名字，再打开邀请链接');olPending=id;olView='home';ol=null;renderOl();return}
       const R=await olRating(uid);await olTx(id,st=>{if(st.status!=='wait')return false;const seat=!st.B?'B':!st.W?'W':null;if(!seat)return false;st[seat]={name,uid,r:R.r};st.status='play';st.turnT=Date.now()})}
     ol.unsub=ref.onSnapshot(d=>{const st=olUnpack(d);if(!st||!ol||ol.id!==id)return;olSync(st)},e=>{olMsg=e.message;renderOl()});
@@ -6235,7 +6363,7 @@ async function olOpen(id){ // 打开对局（下棋或观战）
   }catch(e){olMsg=e.message||String(e);renderOl()}
 }
 function olSync(st){
-  const uid=olUid(),prev=ol.st;ol.st=st;ol.me=st.B&&st.B.uid===uid?'B':st.W&&st.W.uid===uid?'W':null;
+  const prev=ol.st;ol.st=st;ol.me=olIsMe(st.B)?'B':olIsMe(st.W)?'W':null;if(ol.me&&(!prev||prev.seq!==st.seq))olIndex(st);if(ol.trial&&prev&&prev.moves.length!==st.moves.length)ol.trial=false;if(ol.trial){renderOl();return}ol.pend=null;
   const r=olRoot(st);let lid=ol.lid;
   if(!lid||!store.games[lid]){lid=ol.lid='ol_'+st.id;store.games[lid]={sgf:toSGF(r),key:gameKey(r),title:titleOf(r),updated:Date.now()}}
   if(!G||G.id!==lid){if(scoring)stopScoring();if(train)stopTrain();openRoot(r,{id:lid});ol.lid=lid}
@@ -6251,10 +6379,13 @@ function olSync(st){
 function olTick(){if(!ol||!ol.st)return;const st=ol.st;if(st.status!=='play'){return}const c=olToMove(st),k=olClock(st,c);
   if(k&&k.out&&!ol.claiming){ol.claiming=true;olTx(ol.id,s=>{if(s.status!=='play'||olToMove(s)!==c)return false;const kk=olClock(s,c);if(!kk||!kk.out)return false;s.status='end';s.re=(c==='B'?'W':'B')+'+T'}).finally(()=>{if(ol)ol.claiming=false})}
   renderOlClock()}
-function olClick(x,y){ // 在棋盘上点：轮到自己才下
-  const st=ol.st;if(!st||st.status!=='play'||!ol.me||olToMove(st)!==ol.me||ol.sending)return;const n=st.n,col=ol.me,g=computeState(cur,n).g;if(g[y][x])return;
+function olClick(x,y){ // 在棋盘上点：轮到自己才下；通信对局要先按「确认」；试下时随便摆（不送出）
+  const st=ol.st;if(!st)return;const n=st.n;
+  if(ol.trial){const col=nextColor(cur),g=computeState(cur,n).g;if(g[y][x])return;const test=g.map(r=>r.slice());if(place(test,x,y,col==='B'?1:2,n).suicide)return;const nd={props:{[col]:[xyToPt(x,y)]},children:[],parent:cur};cur.children.push(nd);cur=nd;render();soundFor(nd);return}
+  if(st.status!=='play'||!ol.me||olToMove(st)!==ol.me||ol.sending)return;const col=ol.me,g=computeState(cur,n).g;if(g[y][x])return;
   const test=g.map(r=>r.slice()),res=place(test,x,y,col==='B'?1:2,n);if(res.suicide)return flash(T('这里是禁着点（自杀）'));
   if(cur.parent){const pg=computeState(cur.parent,n).g;if(pg.every((r,j)=>r.every((v,i)=>v===test[j][i])))return flash(T('打劫：要先在别处下一手，才能提回来'))}
+  if(st.corr){ol.pend=xyToPt(x,y);render();renderOl();return}
   olMove(xyToPt(x,y))}
 async function olMove(pt){ // pt：'' = 停一手
   const st=ol.st,col=ol.me,k=st.moves.length;ol.sending=true;
@@ -6262,7 +6393,7 @@ async function olMove(pt){ // pt：'' = 停一手
   const nd={props:{[col]:[pt]},children:[],parent:cur};cur.children.push(nd);cur=nd;render();if(pt)soundFor(nd);
   try{const ok=await olTx(ol.id,s=>{if(s.status!=='play'||s.moves.length!==k||olToMove(s)!==col)return false;const now=Date.now();
       if(!olSpend(s,col,now)){s.status='end';s.re=(col==='B'?'W':'B')+'+T';return}
-      s.moves.push(pt);s.turnT=now;
+      s.moves.push(pt);s.turnT=now;ol.pend=null;
       if(s.cap){const nd=olRoot(s);let e=nd;while(e.children.length)e=e.children[0];const k2=computeState(e,s.n);
         if(k2.capB>=s.cap||k2.capW>=s.cap){s.status='end';s.re=(k2.capB>=s.cap?'B':'W')+'+C';return}
         if(pt===''&&s.moves.length>=2&&s.moves[s.moves.length-2]===''){s.status='end';s.re=k2.capB>k2.capW?'B+C':k2.capW>k2.capB?'W+C':'0';return}}
@@ -6276,6 +6407,7 @@ async function olScore(){ // 双方停一手：用 GNU Go 判断死子、算胜�
   try{const re=await GG.score(cur);if(re)await olTx(ol.id,s=>{if(s.status!=='score')return false;s.status='end';s.re=re;s.why='score'})}catch(e){}
   ol.scoring=false;renderOl()}
 async function olResign(){if(!ol||!ol.me)return;const c=ol.me;await olTx(ol.id,s=>{if(s.status!=='play'&&s.status!=='score')return false;s.status='end';s.re=(c==='B'?'W':'B')+'+R'})}
+async function olSay(txt){txt=(txt||'').trim().slice(0,200);if(!txt||!ol||!ol.st)return;const who=ol.me||'',nm=olName()||T('观战');await olTx(ol.id,s=>{s.chat=(s.chat||[]).concat([{c:who,n:nm,m:txt,t:Date.now()}]).slice(-40);s.seq--})}
 async function olCancel(){if(!ol||!ol.st||ol.st.status!=='wait')return;await olTx(ol.id,s=>{if(s.status!=='wait')return false;s.status='end';s.re='Void'});olClose()}
 function olClose(keepView){if(ol){if(ol.unsub)ol.unsub();clearInterval(ol.tick)}ol=null;if(!keepView){olView='home';renderOl()}}
 const olLink=id=>shareBase()+'#p='+id.replace(/^og_/,'');
@@ -6297,69 +6429,119 @@ async function olAnswer(cid,yes){const c=olLobby.chal[cid];const db=await Shared
   delete olLobby.chal[cid];if(yes&&c)olOpen(c.gid);else renderOl()}
 
 /* ---- 画面 ---- */
-let olOpt={n:19,time:'10',color:'R',ha:0};try{Object.assign(olOpt,JSON.parse(localStorage.getItem('goReview.olOpt')||'{}'))}catch(e){}
+let olOpt={n:19,time:'10',color:'R',ha:0,kind:'rt',ctime:'d2'};try{Object.assign(olOpt,JSON.parse(localStorage.getItem('goReview.olOpt')||'{}'))}catch(e){}
 const olOptSave=()=>{try{localStorage.setItem('goReview.olOpt',JSON.stringify(olOpt))}catch(e){}};
-function olOptHtml(){const seg=(id,arr,v)=>`<span class="seg" data-o="${id}">${arr.map(([k,l])=>`<button data-v="${k}" aria-pressed="${String(v)===String(k)}">${l}</button>`).join('')}</span>`;
-  return`<div class="score-opts"><span>${T('棋盘')}</span>${seg('n',[[9,'9'],[13,'13'],[19,'19']],olOpt.n)}<span>${T('时间')}</span>${seg('time',[['5',T('5 分')],['10',T('10 分')],['20',T('20 分')],['0',T('不计时')]],olOpt.time)}</div>
+function olOptHtml(){const seg=(id,arr,v)=>`<span class="seg" data-o="${id}">${arr.map(([k,l])=>`<button data-v="${k}" aria-pressed="${String(v)===String(k)}">${l}</button>`).join('')}</span>`,corr=olOpt.kind==='corr';
+  const tsel=corr?`<select data-o="ctime">${OL_CORR.map(([k,l])=>`<option value="${k}"${k===olOpt.ctime?' selected':''}>${T(l)}</option>`).join('')}</select>`
+    :`<select data-o="time">${OL_RT.map(([g,L])=>`${g?`<optgroup label="${T(g)}">`:''}${L.map(([k,l])=>`<option value="${k}"${k===String(olOpt.time)?' selected':''}>${T(l)}</option>`).join('')}${g?'</optgroup>':''}`).join('')}</select>`;
+  return`<div class="score-opts"><span>${T('棋盘')}</span>${seg('n',[[9,'9'],[13,'13'],[19,'19']],olOpt.n)}${seg('kind',[['rt',T('实时')],['corr',T('通信')]],olOpt.kind)}</div>
+  <div class="score-opts"><span>${T('时间')}</span>${tsel}</div>
   <div class="score-opts"><span>${T('我执')}</span>${seg('color',[['R',T('随机')],['B',T('黑')],['W',T('白')]],olOpt.color)}<label>${T('让子')} <select data-o="ha">${[0,2,3,4,5,6,7,8,9].map(h=>`<option value="${h}"${h==olOpt.ha?' selected':''}>${h?h:T('不让')}</option>`).join('')}</select></label></div>
-  <p class="note" style="margin:0">${T('读秒：用完基本时间后，每手 30 秒，有 3 次。')}</p>`}
+  <p class="note" style="margin:0">${corr?T('通信对局：不用同时在线，轮到你时会有红点提醒；可以同时下好几盘。'):T('实时对局：双方要同时在线。')}</p>`}
 function renderOl(){
   const box=$('#olBox');if(!box||box.hidden)return;const body=$('#olBody');let h='';const name=olName();
   const nameRow=`<div class="score-opts"><label>${T('我的名字')} <input id="olName" maxlength="16" value="${tsE(name)}" placeholder="${T('必填')}" style="width:9em"></label><span id="olMyR" class="note" style="margin:0"></span></div>`;
+  const tabs=`<div class="row" style="margin:0"><span class="seg"><button data-p="mine" aria-pressed="${olView==='mine'}">${T('我的对局')}${olTurnN?` <span class="bugdot">${olTurnN}</span>`:''}</button><button data-p="home" aria-pressed="${olView==='home'}">${T('开新对局')}</button><button data-p="lobby" aria-pressed="${olView==='lobby'}">${T('大厅')}</button>${olTeacher()?`<button data-p="pairv" aria-pressed="${olView==='pair'}">${T('帮学生开对局')}</button>`:''}</span></div>`;
   if(olView==='home'){
-    h=nameRow+`<b class="sub">${T('邀请朋友')}</b>`+olOptHtml()+`<div class="row"><button class="btn pri" data-p="create">${T('建立对局，拿邀请链接')}</button><button class="btn" data-p="lobby">${T('进入大厅')}</button></div>`;
-  }else if(olView==='lobby'){
+    h=tabs+nameRow+`<b class="sub">${T('邀请朋友')}</b>`+olOptHtml()+`<div class="row"><button class="btn pri" data-p="create">${T('建立对局，拿邀请链接')}</button></div>`;
+  }else if(olView==='mine'){h=tabs+olMineHtml()}
+  else if(olView==='pair'){h=tabs+olPairHtml()}
+  else if(olView==='lobby'){
     const uid=olUid(),now=Date.now(),ps=Object.entries(olLobby.players).filter(([u,p])=>u!==uid&&p.t>now-90000).sort((a,b)=>(b[1].r||0)-(a[1].r||0));
-    h=`<div class="row"><button class="btn" data-p="home">← ${T('返回')}</button><b>${T('大厅')}</b><span class="note" style="margin:0">${T('{0} 人在线',ps.length+1)}</span></div>`;
-    for(const[cid,c]of Object.entries(olLobby.chal))if(!c.done&&c.t>now-120000)h+=`<div class="olchal"><b>${tsE(c.name)}</b> ${T('邀请你下一盘（{0} 路，{1}）',c.n,c.time==='0'?T('不计时'):T('{0} 分钟',c.time))}<button class="btn pri" data-p="yes" data-c="${cid}">${T('接受')}</button><button class="btn" data-p="no" data-c="${cid}">${T('不要')}</button></div>`;
-    h+=olOptHtml()+(ps.length?`<div class="ollist">`+ps.map(([u,p])=>`<div class="olp"><b>${tsE(p.name||'?')}</b><span>${olRankName(p.r||1000)} · ${p.r||1000}</span>${p.busy?`<span class="note" style="margin:0">${T('对局中')}</span>`:`<button class="btn" data-p="chal" data-u="${u}">${T('挑战')}</button>`}</div>`).join('')+`</div>`:`<p class="note">${T('现在没有其他人在大厅。把网址传给朋友，请他也打开「线上对弈」→「进入大厅」。')}</p>`);
+    h=tabs+`<div class="row"><b>${T('大厅')}</b><span class="note" style="margin:0">${T('{0} 人在线',ps.length+1)}</span></div>`;
+    for(const[cid,c]of Object.entries(olLobby.chal))if(!c.done&&c.t>now-120000)h+=`<div class="olchal"><b>${tsE(c.name)}</b> ${T('邀请你下一盘（{0} 路，{1}）',c.n,olTimeLabel(c.time))}<button class="btn pri" data-p="yes" data-c="${cid}">${T('接受')}</button><button class="btn" data-p="no" data-c="${cid}">${T('不要')}</button></div>`;
+    h+=olOptHtml()+(ps.length?`<div class="ollist">`+ps.map(([u,p])=>`<div class="olp"><b>${tsE(p.name||'?')}</b><span>${olRankName(p.r||1000)} · ${p.r||1000}</span>${p.busy?`<span class="note" style="margin:0">${T('对局中')}</span>`:`<button class="btn" data-p="chal" data-u="${u}">${T('挑战')}</button>`}</div>`).join('')+`</div>`:`<p class="note">${T('现在没有其他人在大厅。把网址传给朋友，或改天再来。')}</p>`);
   }else if(olView==='game'){
     const st=ol&&ol.st;
     if(!st){h=`<p class="note">${T('连线中…')}</p>`}
-    else{const seat=c=>st[c]?`${tsE(st[c].name)} <small>${olRankName(st[c].r||1000)}</small>`:`<i>${T('等待对手…')}</i>`;
-      h=`<div class="olplayers"><div class="olpl" id="olPB"><span class="dot b"></span> ${seat('B')} <code class="olclk" id="olCB"></code></div><div class="olpl" id="olPW"><span class="dot w"></span> ${seat('W')} <code class="olclk" id="olCW"></code></div></div>`;
-      let msg='';if(st.status==='wait')msg=T('把下面的链接传给对手，对手打开就开始。');
+    else{const seat=c=>st[c]?`${tsE(st[c].name)} ${st[c].resv&&!st[c].uid?`<small>${T('（等他打开）')}</small>`:`<small>${olRankName(st[c].r||1000)}</small>`}`:`<i>${T('等待对手…')}</i>`;
+      h=`<div class="row" style="margin:0"><button class="btn" data-p="mine">← ${T('我的对局')}</button><span class="note" style="margin:0">${st.corr?'📮 '+T('通信对局'):'⚡ '+T('实时对局')} · ${olTimeLabel(st.tk||'')}</span></div>
+        <div class="olplayers"><div class="olpl" id="olPB"><span class="dot b"></span> ${seat('B')} <code class="olclk" id="olCB"></code></div><div class="olpl" id="olPW"><span class="dot w"></span> ${seat('W')} <code class="olclk" id="olCW"></code></div></div>`;
+      let msg='';if(st.status==='wait')msg=st.B&&st.B.resv?T('等两位学生打开这盘棋，就开始。'):T('把下面的链接传给对手，对手打开就开始。');
       else if(st.status==='play')msg=!ol.me?T('观战中'):olToMove(st)===ol.me?T('轮到你下'):T('等对手下…');
       else if(st.status==='score')msg=ol.scoring?T('双方停一手，AI 正在算胜负…'):T('双方停一手，正在算胜负…');
       else msg=st.re==='Void'?T('对局已取消'):T('对局结束：{0}',resultText(st.re))+(st.why==='score'?T('（GNU Go 判断死子）'):'');
       if(st.cap){const k2=computeState(cur,st.n);h+=`<p class="note" style="margin:0"><b>${T('吃子棋（先吃 {0} 子）',st.cap)}</b> · ${T('黑吃 {0} / {1}',k2.capB,st.cap)} · ${T('白吃 {0} / {1}',k2.capW,st.cap)}</p>`}
       h+=`<p class="big${st.status==='end'?' ok':''}">${msg}</p>`;if(ol.rateMsg)h+=`<p class="note" style="margin:0">${tsE(ol.rateMsg)}</p>`;
+      if(ol.pend&&!ol.trial)h+=`<div class="row" style="align-items:center"><b>${T('下在 {0}？',coordName(['B',ol.pend],st.n))}</b><button class="btn pri" data-p="confirm">✔ ${T('确认送出')}</button><button class="btn" data-p="unpend">${T('取消')}</button></div>`;
       if(st.status==='wait')h+=`<div class="row"><input readonly id="olLinkI" value="${tsE(olLink(st.id))}" style="flex:1;min-width:10em;height:34px"><button class="btn pri" data-p="copy">${T('复制链接')}</button><button class="btn" data-p="cancel">${T('取消对局')}</button></div>`;
-      else if(st.status==='play'&&ol.me)h+=`<div class="row"><button class="btn" data-p="pass">${T('停一手')}</button><button class="btn warn" data-p="resign">${T('认输')}</button></div>`;
+      else if(st.status==='play'&&ol.me)h+=`<div class="row"><button class="btn" data-p="pass">${T('停一手')}</button><button class="btn warn" data-p="resign">${T('认输')}</button>${ol.trial?`<button class="btn pri" data-p="trial">↩ ${T('回到对局')}</button>`:`<button class="btn" data-p="trial">🧪 ${T('试下')}</button>`}</div>${ol.trial?`<p class="note" style="margin:0">${T('试下中：自己摆变化，对手看不到；按「回到对局」回来。')}</p>`:''}`;
       h+=`<div class="row">${st.status!=='wait'?`<button class="btn" data-p="copy">${T('复制观战链接')}</button>`:''}${st.status==='end'?`<button class="btn pri" data-p="again">${T('再下一盘')}</button><button class="btn" data-p="review">${T('整盘分析')}</button><button class="btn" data-p="gohome">🏠 ${T('回主页')}</button>`:''}<button class="btn" data-p="leave">${T('离开')}</button></div>`;
+      h+=`<div class="olchat"><b class="sub">💬 ${T('留言')}</b><div class="olmsgs">${(st.chat||[]).map(m=>`<div><b>${m.c==='B'?'⚫':m.c==='W'?'⚪':''} ${tsE(m.n)}</b>：${tsE(m.m)} <span class="note" style="margin:0">${new Date(m.t).toLocaleString([], {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>`).join('')||`<span class="note">${T('还没有留言。')}</span>`}</div>
+        <div class="row" style="margin:0"><input id="olSayI" maxlength="200" placeholder="${T('写几句话给对手…')}" style="flex:1;height:34px"><button class="btn" data-p="say">${T('发送')}</button></div></div>`;
     }
   }
   if(olMsg)h+=`<p class="note" style="color:var(--bad,#C0392B)">${tsE(olMsg)}</p>`;
   body.innerHTML=h;renderOlClock();
   const ni=$('#olName');if(ni)ni.onchange=()=>{ng.name=ni.value.trim();ngSave();if(olPending&&ng.name){const p=olPending;olPending=null;olMsg='';olOpen(p)}};
-  const sel=body.querySelector('select[data-o="ha"]');if(sel)sel.onchange=()=>{olOpt.ha=+sel.value;olOptSave()};
+  body.querySelectorAll('select[data-o]').forEach(sel=>sel.onchange=()=>{const k=sel.dataset.o;olOpt[k]=k==='ha'?+sel.value:sel.value;olOptSave()});
+  const si=$('#olSayI');if(si)si.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();olSay(si.value).catch(x=>flash(x.message))}};
   const myR=$('#olMyR');if(myR)olRating(olUid()).then(R=>{if(myR.isConnected)myR.textContent=T('等级分 {0}（{1}，{2} 盘）',R.r,olRankName(R.r),R.g)}).catch(()=>{});
 }
+/* ---- 我的对局（通信、实时都列出）：轮到我的排最上面 ---- */
+let olMine=null,olTurnN=0,olMineUnsub=[],olMineT=0;
+const olTeacher=()=>typeof clIsT==='function'&&clIsT()&&!!(tsLogin()&&tsLogin().cls);
+async function olWatchMine(){olMineUnsub.forEach(f=>f());olMineUnsub=[];const ids=[olAcct(),olLocal()].filter(Boolean);if(!ids.length)return;
+  try{const db=await Shared.db(),col=db.collection('games').doc('lobby').collection('layers'),M={},L=tsLogin(),myN=(L&&L.name)||olName();
+    const upd=(key,qs)=>{for(const k of Object.keys(M))if(M[k]._q===key)delete M[k];qs.forEach(d=>{const x=d.data();let o={};try{o=JSON.parse(x.sgf)}catch(e){}M[d.id]={...o,turn:x.turn,pB:x.pB,pW:x.pW,resvB:x.resvB,resvW:x.resvW,_q:key,upd:x.updated}});olMineSet(M,ids,myN)};
+    for(const u of ids){olMineUnsub.push(col.where('pB','==',u).onSnapshot(qs=>upd('B'+u,qs),()=>{}));olMineUnsub.push(col.where('pW','==',u).onSnapshot(qs=>upd('W'+u,qs),()=>{}))}
+    if(L&&L.cls)olMineUnsub.push(col.where('cls','==',L.cls).onSnapshot(qs=>upd('cls',qs),()=>{}))}catch(e){}}
+function olMineSet(M,ids,myN){const mine=Object.values(M).filter(g=>ids.includes(g.pB)||ids.includes(g.pW)||(g.status==='wait'&&(g.resvB===myN&&!g.pB||g.resvW===myN&&!g.pW))),seen=new Set(),out=[];
+  for(const g of mine)if(!seen.has(g.id)){seen.add(g.id);out.push(g)}
+  const old=Date.now()-7*864e5;olMine=out.filter(g=>g.status!=='end'||(g.upd||0)>old);const n=olMine.filter(g=>g.status==='play'&&ids.includes(g.turn)).length;
+  if(n>olTurnN&&document.hidden)olNotify(T('轮到你下了'),T('{0} 盘对局轮到你',n));olTurnN=n;olBadge();renderOl()}
+function olBadge(){const b=$('#olTurnBtn');if(b){b.hidden=!olTurnN;b.textContent='♟ '+olTurnN}if(typeof renderHome==='function'&&curMode()==='home')renderHome()}
+function olMineHtml(){if(!olMine)return`<p class="note">${T('载入中…')}</p>`;const ids=[olAcct(),olLocal()];
+  if(!olMine.length)return`<p class="note">${T('还没有对局。按「开新对局」邀请朋友，或到大厅找人下。')}</p>`;
+  const rank=g=>g.status==='play'&&ids.includes(g.turn)?0:g.status==='wait'?1:g.status==='play'?2:3,L=olMine.slice().sort((a,b)=>rank(a)-rank(b)||(b.upd||0)-(a.upd||0));
+  return`<div class="olmine">${L.map(g=>{const my=rank(g)===0,col=ids.includes(g.pB)?'B':ids.includes(g.pW)?'W':(g.resvB?'B':'W'),opp=col==='B'?g.Wn:g.Bn;
+    const st=g.status==='end'?(g.re==='Void'?T('已取消'):T('结束：{0}',resultText(g.re))):g.status==='wait'?T('等对手'):my?T('轮到你'):T('等对手下');
+    return`<button class="olg${my?' my':''}" data-p="open" data-g="${g.id}">${my?'<span class="bugdot">!</span>':''}<span class="dot ${col==='B'?'b':'w'}"></span><b>${T('对 {0}',tsE(opp||'?'))}</b><span class="note" style="margin:0">${g.n} 路 · ${g.corr?'📮':'⚡'} ${olTimeLabel(g.tk)} · ${T('第 {0} 手',g.moves)}</span><span class="olgs">${st}</span></button>`}).join('')}</div>`}
+function olAskNotify(){try{if(window.Notification&&Notification.permission==='default')Notification.requestPermission()}catch(e){}}
+function olNotify(t,b){try{if(window.Notification&&Notification.permission==='granted')new Notification(t,{body:b,icon:'icon-192.png'})}catch(e){}}
+/* ---- 老师帮两个学生开对局：学生打开「我的对局」按名字坐下 ---- */
+let olPair={a:'',b:''};
+function olPairHtml(){const us=tsCloud&&tsCloud.users?Object.values(tsCloud.users).map(u=>u.name).filter(Boolean).sort((a,b)=>a.localeCompare(b,'zh')):[];
+  const sel=k=>`<select data-pr="${k}"><option value="">—</option>${us.map(n=>`<option${olPair[k]===n?' selected':''}>${tsE(n)}</option>`).join('')}</select>`;
+  return`<p class="note" style="margin:0">${T('选两个本班学生；对局会出现在他们的「我的对局」里。')}</p><div class="score-opts"><span>${T('黑')}</span>${sel('a')}<span>${T('白')}</span>${sel('b')}</div>`+olOptHtml()+
+    `<div class="row"><button class="btn pri" data-p="pair">${T('开对局')}</button></div>${us.length?'':`<p class="note">${T('先到「班级」载入本班学生。')}</p>`}`}
 function renderOlClock(){if(!ol||!ol.st)return;const st=ol.st;for(const c of['B','W']){const el=$('#olC'+c);if(!el)continue;const k=olClock(st,c);
-  el.textContent=!k?'':k.t>0?olFmt(k.t)+(st.clock.per?` +${st.clock.per}×${st.clock.byo}s`:''):T('读秒 {0}（{1} 次）',olFmt(k.b),k.p);
+  el.textContent=!k?'':k.t>0?olFmt(k.t)+(st.clock.per&&st.clock.byo?(st.corr?'':` +${st.clock.per}×${st.clock.byo}s`):'')+(st.clock.inc?` +${olFmt(st.clock.inc*1000)}`:''):st.clock.byo?(st.corr?T('这手还剩 {0}',olFmt(k.b)):T('读秒 {0}（{1} 次）',olFmt(k.b),k.p)):'0:00';
   const p=$('#olP'+c);if(p)p.classList.toggle('on',st.status==='play'&&olToMove(st)===c)}}
 async function olAct(e){
   const t=e.target.closest('[data-p],[data-o] button');if(!t||!$('#olBody').contains(t))return;
   const seg=t.closest('[data-o]');if(seg&&!t.dataset.p){const k=seg.dataset.o;olOpt[k]=k==='n'?+t.dataset.v:t.dataset.v;olOptSave();renderOl();return}
+  if(t.closest('[data-pr]'))return;
   olMsg='';const a=t.dataset.p,need=()=>{if(!olName()){olMsg=T('请先输入你的名字');renderOl();return false}return true};
   try{switch(a){
     case'create':if(!need())return;t.disabled=true;olOpen(await olCreate(olOpt));break;
     case'lobby':if(!need())return;await olLobbyOpen();break;
-    case'home':olLobbyClose();olView='home';renderOl();break;
+    case'home':olLobbyClose();if(ol&&ol.st&&ol.st.status!=='play')olClose(true);olView='home';renderOl();break;
+    case'mine':olLobbyClose();if(ol&&!(ol.st&&ol.st.status==='play'&&!ol.st.corr&&ol.me))olClose(true);olView='mine';renderOl();break;
+    case'pairv':olLobbyClose();olView='pair';renderOl();if(tsLogin()&&!tsCloud)tsRefreshCloud().then(renderOl);break;
+    case'pair':{const a=olPair.a,b=olPair.b;if(!a||!b||a===b)throw new Error(T('请选两个不同的学生'));t.disabled=true;await olCreate({...olOpt,resv:{B:a,W:b},rated:false});olMsg='';flash(T('已开对局：黑 {0} vs 白 {1}',a,b));olView='mine';renderOl();break}
+    case'open':olOpen(t.dataset.g);break;
+    case'confirm':{const pt=ol.pend;ol.pend=null;if(pt)olMove(pt);break}
+    case'unpend':ol.pend=null;render();renderOl();break;
+    case'trial':ol.trial=!ol.trial;ol.pend=null;if(!ol.trial)olSync(ol.st);else renderOl();break;
+    case'say':{const i=$('#olSayI');await olSay(i&&i.value);break}
     case'chal':if(!need())return;t.disabled=true;await olChallenge(t.dataset.u,olOpt);break;
     case'yes':await olAnswer(t.dataset.c,true);break;case'no':await olAnswer(t.dataset.c,false);break;
     case'copy':{const v=olLink(ol.st.id);try{await navigator.clipboard.writeText(v);flash(T('已复制链接'))}catch(x){const i=$('#olLinkI');if(i){i.select();document.execCommand('copy')}flash(v)}break}
     case'pass':olMove('');break;
     case'resign':armed(t,T('再点一次确认认输'),olResign);break;
     case'cancel':await olCancel();break;
-    case'leave':olClose();break;
+    case'leave':olClose(true);olView='mine';renderOl();break;
     case'review':olClose();setMode('review');revOpen();revStart();break;
     case'again':olClose();break;
     case'gohome':olClose(true);goHome();break;
   }}catch(err){olMsg=err.message||String(err);renderOl()}
 }
-function olPanelOpen(){if(typeof setMode==='function'&&curMode()!=='play')setMode('play');$('#olBox').hidden=false;$('#olToggle').setAttribute('aria-pressed','true');renderOl()}
-function olPanelClose(){if(ol&&ol.st&&ol.st.status==='play'&&ol.me){flash(T('对局还在进行，请先认输或下完'));return}olClose(true);olLobbyClose();olView='home';$('#olBox').hidden=true;$('#olToggle').setAttribute('aria-pressed','false')}
+function olPanelOpen(){if(typeof setMode==='function'&&curMode()!=='play')setMode('play');$('#olBox').hidden=false;$('#olToggle').setAttribute('aria-pressed','true');if(!ol&&olView==='home'&&olMine&&olMine.length)olView='mine';renderOl()}
+function olPanelClose(){if(ol&&ol.st&&ol.st.status==='play'&&ol.me&&!ol.st.corr){flash(T('对局还在进行，请先认输或下完'));return}olClose(true);olLobbyClose();olView='home';$('#olBox').hidden=true;$('#olToggle').setAttribute('aria-pressed','false')}
+document.addEventListener('change',e=>{const s=e.target.closest&&e.target.closest('#olBody [data-pr]');if(s)olPair[s.dataset.pr]=s.value});
+setTimeout(olWatchMine,2500);try{firebase.auth().onAuthStateChanged(()=>setTimeout(olWatchMine,500))}catch(e){}
+{const b=$('#olTurnBtn');if(b)b.onclick=()=>{if(typeof setMode==='function')setMode('play');olView='mine';olPanelOpen()}}
 
 /* ===================== 首页：选功能（做题、复盘、下棋、记谱、班级、设置） =====================
    body[data-mode]：home / ts / review / play / record —— CSS 依模式藏起用不到的部分 */
@@ -6387,7 +6569,8 @@ function blankBoard(){ // 下棋、记谱：先显示空棋盘（不存进棋谱
 function restoreLast(){const id=store.lastId&&store.games[store.lastId]?store.lastId:Object.keys(store.games)[0];
   if(id){try{openRoot(parseSGF(store.games[id].sgf),{id});return}catch(e){}}blankBoard()}
 function goHome(){
-  if(ol&&ol.st&&ol.st.status==='play'&&ol.me){flash(T('对局还在进行，请先认输或下完'));return}
+  if(ol&&ol.st&&ol.st.status==='play'&&ol.me&&!ol.st.corr){flash(T('对局还在进行，请先认输或下完'));return}
+  if(ol&&ol.st&&ol.st.corr){olClose(true);$('#olBox').hidden=true}
   if(vs&&vs.over)vsStop();  if(ts)tsExit();if(!$('#tsBox').hidden)tsClosePanel();if(!$('#olBox').hidden)olPanelClose();closeNew();if(rev&&!rev.running)revClose();
   if(typeof cg!=='undefined'&&cg){cg=null;$('#cgBox').hidden=true}
   setMode('home');
@@ -6420,7 +6603,7 @@ function renderHome(){
   h+=ckHtml();
   if(role==='guest')h+=`<p class="note hguest">${T('试用中：可以下棋、记谱、下载棋谱、做内建题目。登录后才有复盘分析、班级和作业。')}</p>`;
   for(const[sec,title]of HOME_SEC){const cs=HOME_CARDS.filter(c=>c[4]===sec&&show.includes(c[0]));if(!cs.length)continue;
-    h+=`<div class="hsec s-${sec}"><h3>${T(title)}</h3><div class="hgrid">${cs.map(([k,ic,t,d])=>`<button class="hcard" data-h="${k}"><span class="hic">${ic}</span><span class="htx"><b>${T(t)}</b><small>${T(d)}</small></span><span class="harr">›</span></button>`).join('')}</div></div>`}
+    h+=`<div class="hsec s-${sec}"><h3>${T(title)}</h3><div class="hgrid">${cs.map(([k,ic,t,d])=>`<button class="hcard" data-h="${k}"><span class="hic">${ic}</span><span class="htx"><b>${T(t)}</b><small>${T(d)}</small></span><span class="harr">${k==='play'&&typeof olTurnN!=='undefined'&&olTurnN?`<span class="bugdot">${olTurnN}</span>`:'›'}</span></button>`).join('')}</div></div>`}
   h+=`<div class="row homefoot"><label class="chk" style="display:flex;gap:6px;align-items:center;margin-left:auto"><input type="checkbox" id="homeSkip"${homePref.skip?' checked':''}> ${T('下次直接进上次用的功能')}</label></div>`;
   el.innerHTML=h;$('#homeSkip').onchange=e=>{homePref.skip=e.target.checked;homeSave()};
 }
@@ -8275,7 +8458,7 @@ setTimeout(bugBadge,6000);setInterval(bugBadge,10*60000);
    Firestore：rooms/{rid}（课堂资料）、rooms/{rid}/live/state（老师的棋盘状态）、live/ware（课件）、live/rev（下课后的复习）、
    rooms/{rid}/chat、rooms/{rid}/people（在线）、rooms/{rid}/ans（答题） */
 let cl=null,clView='lobby',clRooms=null,clMsg='',clForm=null,clPick=null;
-const CL_INK=['#E53935','#8E24AA','#1E88E5','#43A047','#00ACC1'];
+const CL_INK=['#E53935','#8E24AA','#1E88E5','#43A047','#00ACC1'],CL_EMO=['❤','💔','💩','🔑','⭐','❓'];
 const clIsT=()=>(typeof tsIsAdm==='function'&&tsIsAdm())||!!(typeof acct!=='undefined'&&acct&&(acct.role==='teacher'||acct.role==='admin'))||(()=>{const L=tsLogin();return!!(L&&L.role==='teacher')})();
 async function clDb(){const db=await Shared.db(),u=firebase.auth().currentUser;if(!u)throw new Error(T('连不上云端，请稍后再试'));return{db,uid:u.uid}}
 const clRef=(db,rid)=>db.collection('rooms').doc(rid);
@@ -8317,22 +8500,27 @@ async function clCreate(){const f=clForm;f.title=($('#clTitle').value||'').trim(
 async function clEnter(rid,review){const r=(clRooms||[]).find(x=>x.id===rid);if(!r)return;const{db,uid}=await clDb();clUidCache=uid;
   if(!review&&r.pw&&r.teacher!==uid&&!tsIsAdm()){const i=document.querySelector(`#clBody [data-pw="${rid}"]`);if(!i||i.value!==r.pw)throw new Error(T('密码不对'))}
   clLeave(true);const teacher=r.teacher===uid||(tsIsAdm()&&!review);
-  cl={rid,room:r,teacher,review:!!review,follow:true,st:null,last:'',chat:[],people:{},ans:{},unsubs:[],ink:[],tool:'play',pen:null,inkLog:{},page:0,pages:[],board:'',myAns:null,lid:'__cl_'+rid};
+  cl={t0:Date.now(),rid,room:r,teacher,review:!!review,follow:true,st:null,last:'',chat:[],people:{},ans:{},unsubs:[],ink:[],tool:'play',pen:null,inkLog:{},page:0,pages:[],board:'',myAns:null,lid:'__cl_'+rid,hand:false,seq:[],qtype:'one',qn:3,rewardN:10,rank:{},ctlSeen:{},hands:new Set(),game:null,ctl:null,play:null,showSeq:null};
   clView='room';if(typeof vs!=='undefined'&&vs)vsStop();if(scoring)stopScoring();if(train)stopTrain();if(aiHint)setAiHint(false);judging=false;
-  if(review){const rv=clUnpack(await clRef(db,rid).collection('live').doc('rev').get())||{};cl.pages=rv.pages&&rv.pages.length?rv.pages:[`(;GM[1]FF[4]SZ[19])`];cl.inkLog=rv.ink||{};cl.board=rv.board||'';cl.follow=false;clShowPage(0);renderCl();return}
+  if(review){const rv=clUnpack(await clRef(db,rid).collection('live').doc('rev').get())||{};cl.pages=rv.pages&&rv.pages.length?rv.pages:[`(;GM[1]FF[4]SZ[19])`];cl.inkLog=rv.ink||{};cl.board=rv.board||'';cl.rank=rv.rank||{};cl.follow=false;clShowPage(0);renderCl();return}
   const ref=clRef(db,rid);
   if(teacher){const st=clUnpack(await ref.collection('live').doc('state').get()),w=clUnpack(await ref.collection('live').doc('ware').get())||{};
     cl.pages=w.pages&&w.pages.length?w.pages:[st&&st.sgf||'(;GM[1]FF[4]SZ[19])'];cl.inkLog=w.ink||{};cl.page=st?Math.min(st.page||0,cl.pages.length-1):0;cl.board=st&&st.board||'';
     if(st&&st.sgf)cl.pages[cl.page]=st.sgf;clShowPage(cl.page,st&&st.path);cl.ink=st&&st.ink||[];cl.quiz=st&&st.quiz||null;
     if(r.status==='wait'){await ref.update({status:'live'});r.status='live'}
-    cl.unsubs.push(ref.collection('ans').onSnapshot(qs=>{const a={};qs.forEach(d=>a[d.id]=d.data());cl&&(cl.ans=a);renderCl();clInkDraw()},()=>{}))}
-  else cl.unsubs.push(ref.collection('live').doc('state').onSnapshot(d=>{const st=clUnpack(d);if(st&&cl&&cl.rid===rid)clIn(st)},e=>{clMsg=e.message;renderCl()}));
+    cl.rank=(clUnpack(await ref.collection('live').doc('rank').get())||{}).u||{};
+    cl.unsubs.push(ref.collection('ans').onSnapshot(qs=>{const a={};qs.forEach(d=>a[d.id]=d.data());cl&&(cl.ans=a);renderCl();clInkDraw()},()=>{}));
+    cl.unsubs.push(ref.collection('ctl').onSnapshot(qs=>{if(!cl)return;qs.forEach(d=>clCtlIn(d.id,d.data()))},()=>{}))}
+  else{cl.unsubs.push(ref.collection('live').doc('state').onSnapshot(d=>{const st=clUnpack(d);if(st&&cl&&cl.rid===rid)clIn(st)},e=>{clMsg=e.message;renderCl()}));
+    cl.unsubs.push(ref.collection('live').doc('rank').onSnapshot(d=>{const o=clUnpack(d);if(cl&&o){cl.rank=o.u||{};renderCl()}},()=>{}))}
   cl.unsubs.push(ref.onSnapshot(d=>{if(!cl||!d.exists)return;cl.room={...d.data(),id:rid};if(cl.room.status==='end'&&!cl.teacher&&!cl.ended){cl.ended=true;clMsg=T('下课了！可以在课堂列表按「复习」看回整堂课。')}renderCl()},()=>{}));
   cl.unsubs.push(ref.collection('chat').orderBy('t').limitToLast(100).onSnapshot(qs=>{if(!cl)return;cl.chat=qs.docs.map(d=>({...d.data(),id:d.id}));renderCl()},()=>{}));
-  cl.unsubs.push(ref.collection('people').onSnapshot(qs=>{if(!cl)return;const p={};qs.forEach(d=>p[d.id]=d.data());cl.people=p;renderCl()},()=>{}));
-  const beat=()=>ref.collection('people').doc(uid).set({name:typeof exName==='function'?exName():'',t:Date.now(),tch:teacher}).catch(()=>{});beat();cl.beat=setInterval(beat,30000);
+  cl.unsubs.push(ref.collection('people').onSnapshot(qs=>{if(!cl)return;const p={};qs.forEach(d=>p[d.id]=d.data());cl.people=p;
+    if(cl.teacher){for(const k in p)if(p[k].hand&&!cl.hands.has(k)){cl.hands.add(k);clBeep()}for(const k of[...cl.hands])if(!p[k]||!p[k].hand)cl.hands.delete(k)}
+    else{const me=p[uid];if(me&&cl.hand&&me.hand===false&&me.low){cl.hand=false}}renderCl()},()=>{}));
+  const L0=tsLogin();cl.beatF=()=>ref.collection('people').doc(uid).set({name:typeof exName==='function'?exName():'',t:Date.now(),tch:teacher,hand:!!cl.hand,...(L0&&L0.role==='student'?{cls:L0.cls,doc:L0.doc}:{})}).catch(()=>{});cl.beatF();cl.beat=setInterval(()=>cl&&cl.beatF(),30000);
   renderCl();clInkSize()}
-function clLeave(keep){if(cl){cl.unsubs.forEach(f=>{try{f()}catch(e){}});clearInterval(cl.beat);clearTimeout(cl.outT);clearInterval(cl.candT);if(cl.teacher&&!cl.review)clSaveWare().catch(()=>{});if(aiHint)setAiHint(false);judging=false;
+function clLeave(keep){document.body.classList.remove('cl-proj');if(cl){cl.unsubs.forEach(f=>{try{f()}catch(e){}});clearInterval(cl.beat);clearTimeout(cl.outT);clearInterval(cl.candT);clearInterval(cl.playT);if(cl.teacher&&!cl.review)clSaveWare().catch(()=>{});if(aiHint)setAiHint(false);judging=false;
     const g=cl;cl=null;if(G&&G.id===g.lid){if(typeof blankBoard==='function')blankBoard()}}
   clInkDraw();if(!keep){clView='lobby';renderCl()}}
 function clShowPage(i,path){if(cl.page!==i&&cl.quiz&&!cl.quiz.on)cl.quiz=null;cl.page=i;let r;try{r=parseSGF(cl.pages[i])}catch(e){r=parseSGF('(;GM[1]FF[4]SZ[19])')}openRoot(r,{id:cl.lid});G.id=cl.lid;cur=clAt(G.root,path);renderTree();render()}
@@ -8342,11 +8530,12 @@ function clOut(){if(!cl||!cl.teacher||cl.review||!G||G.id!==cl.lid)return;clearT
 async function clPush(){if(!cl||!G||G.id!==cl.lid)return;const sgf=toSGF(G.root),path=clPath(cur),pk=clKey(cl.page,path);
   if(cl.pk!==undefined&&cl.pk!==pk&&cl.ink.length){cl.inkLog[cl.pk]=cl.ink;cl.ink=[]} // 换手数或换课件：画自动清掉，复习时保留
   cl.pk=pk;cl.pages[cl.page]=sgf;
-  const st={v:1,sgf,path,page:cl.page,pages:cl.pages.length,ink:cl.ink,board:cl.board,quiz:cl.quiz||null,judge:!!judging,cands:cl.cands||null,t:Date.now()},s=JSON.stringify(st);
+  const st={v:1,sgf,path,page:cl.page,pages:cl.pages.length,ink:cl.ink,board:cl.board,quiz:cl.quiz||null,judge:!!judging,cands:cl.cands||null,game:cl.game||null,ctl:cl.ctl||null,showSeq:cl.showSeq||null,t:Date.now()},s=JSON.stringify(st);
   if(s===cl.last)return;cl.last=s;try{const{db}=await clDb();await clRef(db,cl.rid).collection('live').doc('state').set({sgf:s,name:'state',updated:Date.now()})}catch(e){clMsg=T('同步失败：{0}',e.message);renderCl()}}
 async function clSaveWare(){const{db}=await clDb();await clRef(db,cl.rid).collection('live').doc('ware').set(clPack({pages:cl.pages,ink:cl.inkLog}))}
 function clIn(st){const prev=cl.st;cl.st=st;
-  if(st.quiz&&st.quiz.on&&(!prev||!prev.quiz||prev.quiz.id!==st.quiz.id)){cl.myAns=null;if(!cl.follow){cl.follow=true}flash(T('老师出题了：在棋盘上点你的答案'))}
+  if(st.quiz&&st.quiz.on&&(!prev||!prev.quiz||prev.quiz.id!==st.quiz.id)){cl.myAns=null;cl.seq=[];if(!cl.follow){cl.follow=true}flash(st.quiz.type==='choice'?T('老师出题了：按下面的选项作答'):st.quiz.type==='multi'?T('老师出题了：在棋盘上连下 {0} 手',st.quiz.n):T('老师出题了：在棋盘上点你的答案'))}
+  const me=clUidCache,turn=x=>x&&x.game&&x.game.on&&!x.game.paused&&x.game[nextColorOf(x)]===me;if((st.ctl&&st.ctl.uid===me&&!(prev&&prev.ctl&&prev.ctl.uid===me))||(turn(st)&&!turn(prev))){if(!cl.follow)cl.follow=true;flash(st.ctl&&st.ctl.uid===me?T('老师把棋盘交给你了'):T('轮到你下了'))}
   if(cl.follow)clApply();else renderCl()}
 function clApply(){const st=cl.st;if(!st)return;
   if(!G||G.id!==cl.lid||st.sgf!==cl.lastSgf){let r;try{r=parseSGF(st.sgf)}catch(e){return}if(!G||G.id!==cl.lid){openRoot(r,{id:cl.lid});G.id=cl.lid}else G.root=r;cl.lastSgf=st.sgf;renderTree()}
@@ -8356,11 +8545,29 @@ function clApply(){const st=cl.st;if(!st)return;
 /* ---- 棋盘：老师落子、标记、右键删最后一手；学生答题 ---- */
 function clClick(x,y){if(!cl||!G||G.id!==cl.lid)return false;const pt=xyToPt(x,y);
   if(cl.review)return false;
-  if(cl.teacher){if(cl.pen)return true;if(cl.tool!=='play'){snap();markToggle(cur.props,pt,cl.tool);render();return true}return false}
+  if(cl.teacher){if(cl.pen)return true;
+    if(cl.tool.startsWith('EM:')){snap();const P=cur.props,e=cl.tool.slice(3),had=(P.LB||[]).find(v=>v.split(':')[0]===pt);P.LB=(P.LB||[]).filter(v=>v.split(':')[0]!==pt);if(!had||had.slice(had.indexOf(':')+1)!==e)P.LB.push(pt+':'+e);if(!P.LB.length)delete P.LB;render();return true}
+    if(cl.tool!=='play'){snap();markToggle(cur.props,pt,cl.tool);render();return true}return false}
   if(!cl.follow)return false; // 试下：自己摆
-  const q=cl.st&&cl.st.quiz;if(q&&q.on){cl.myAns=pt;clAnswer(q.id,pt);render();return true}
+  const st=cl.st||{},me=clUidCache,q=st.quiz;
+  if(q&&q.on){if(q.type==='choice'){flash(T('请按下面的选项作答'));return true}
+    if(q.type==='multi'){if(cl.myAns)return true;const g=computeState(cur,sizeOf(root())).g;if(g[y][x]||cl.seq.includes(pt))return true;cl.seq.push(pt);if(cl.seq.length>=(q.n||3)){cl.myAns=cl.seq[0];clAnswer(q.id,cl.seq[0],{seq:cl.seq.slice()})}renderCl();clInkDraw();return true}
+    cl.myAns=pt;clAnswer(q.id,pt);render();return true}
+  if((st.ctl&&st.ctl.uid===me)||(st.game&&st.game.on&&!st.game.paused&&st.game[nextColor(cur)]===me)){clSendCtl({pt,n:moveNo(cur)});return true}
+  if(st.game&&st.game.on&&(st.game.B===me||st.game.W===me)){flash(st.game.paused?T('老师暂停了对局'):T('还没轮到你'));return true}
   flash(T('老师讲解中。想自己摆，按「试下」'));return true}
-async function clAnswer(qid,pt){try{const{db,uid}=await clDb();const L=tsLogin();await clRef(db,cl.rid).collection('ans').doc(uid).set({q:qid,pt,name:typeof exName==='function'?exName():'',t:Date.now(),...(L&&L.role==='student'?{cls:L.cls,doc:L.doc}:{})});renderCl()}catch(e){clMsg=e.message;renderCl()}}
+const nextColorOf=st=>{try{return nextColor(clAt(parseSGF(st.sgf),st.path))}catch(e){return'B'}};
+async function clSendCtl(o){try{const{db,uid}=await clDb();await clRef(db,cl.rid).collection('ctl').doc(uid).set({...o,t:Date.now(),name:typeof exName==='function'?exName():''})}catch(e){clMsg=e.message;renderCl()}}
+/* 老师这边：收到学生送来的一手（课堂对弈、控），检查后下在棋盘上 */
+function clCtlIn(uid,m){if(!cl||!cl.teacher||!m||!(m.t>(cl.ctlSeen[uid]||cl.t0||0)))return;cl.ctlSeen[uid]=m.t;
+  const g=cl.game,col=nextColor(cur),ok=(cl.ctl&&cl.ctl.uid===uid)||(g&&g.on&&!g.paused&&g[col]===uid);if(!ok||!G||G.id!==cl.lid)return;
+  if(m.undo){if(cl.ctl&&cl.ctl.uid===uid&&cur.parent&&!cur.children.length&&moveOf(cur)){const p=cur.parent;p.children.splice(p.children.indexOf(cur),1);cur=p;renderTree();render()}return}
+  if(m.n!==moveNo(cur))return;const xy=ptToXY(m.pt,sizeOf(root()));if(xy)clPlace(xy[0],xy[1])}
+function clPlace(x,y){const n=sizeOf(root()),pt=xyToPt(x,y),color=nextColor(cur);const hit=cur.children.find(c=>{const m=moveOf(c);return m&&m[1]===pt});if(hit){cur=hit;render();return true}
+  const st=computeState(cur,n);if(st.g[y][x])return false;const test=st.g.map(r=>r.slice());const res=place(test,x,y,color==='B'?1:2,n);if(res.suicide)return false;
+  snap();const node={props:{[color]:[pt]},children:[],parent:cur};cur.children.push(node);cur=node;cur.parent._sel=cur.parent.children.indexOf(cur);renderTree();render();soundFor(node);return true}
+function clBeep(){try{const a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.frequency.value=880;g.gain.value=0.08;o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+0.18)}catch(e){}}
+async function clAnswer(qid,pt,extra){try{const{db,uid}=await clDb();const L=tsLogin();await clRef(db,cl.rid).collection('ans').doc(uid).set({q:qid,pt,name:typeof exName==='function'?exName():'',t:Date.now(),...(extra||{}),...(L&&L.role==='student'?{cls:L.cls,doc:L.doc}:{})});renderCl()}catch(e){clMsg=e.message;renderCl()}}
 document.addEventListener('contextmenu',e=>{if(!cl||!cl.teacher||cl.review||!G||G.id!==cl.lid||!e.target.closest('#board'))return;e.preventDefault();
   if(cl.tool!=='play'||cl.pen)return;if(cur.parent&&!cur.children.length&&moveOf(cur)){snap();const p=cur.parent;p.children.splice(p.children.indexOf(cur),1);cur=p;renderTree();render()}});
 let clPaint=null; // 拖着画地盘（○ ✕ △ □）：经过的点都加上
@@ -8386,10 +8593,12 @@ function clInkDraw(){const c=$('#clInk');if(!c)return;const g=c.getContext('2d')
   for(const s of strokes){if(!s.p||s.p.length<2)continue;g.strokeStyle=s.c;g.lineWidth=(s.w||3)*sx*(v.width/400);g.beginPath();g.moveTo(tx(s.p[0]),ty(s.p[1]));for(let i=2;i<s.p.length;i+=2)g.lineTo(tx(s.p[i]),ty(s.p[i+1]));if(s.p.length===2)g.lineTo(tx(s.p[0])+0.1,ty(s.p[1]));g.stroke()}
   const n=sizeOf(root()),P=i=>(PAD+U*i),badge=(x,y,txt,bg)=>{const cx=P(x)*sx,cy=P(y)*sy,r=U*0.36*sx;g.fillStyle=bg;g.beginPath();g.arc(cx,cy,r,0,7);g.fill();g.fillStyle='#fff';g.font=`bold ${Math.round(r*1.1)}px sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(txt,cx,cy+1)};
   const q=cl.teacher?cl.quiz:cl.follow&&cl.st&&cl.st.quiz;
-  if(q){const res=cl.teacher&&q.on?clAnsCount(q.id):q.res;if(res&&(cl.teacher||!q.on))for(const pt in res){const xy=ptToXY(pt,n);if(xy)badge(xy[0],xy[1],res[pt],'#C2185B')}
-    if(!cl.teacher&&q.on&&cl.myAns){const xy=ptToXY(cl.myAns,n);if(xy)badge(xy[0],xy[1],'✓','#2E6FA8')}}
+  if(q&&q.type!=='choice'){const res=cl.teacher&&q.on?clAnsCount(q.id):q.res;if(res&&(cl.teacher||!q.on))for(const pt in res){const xy=ptToXY(pt,n);if(xy)badge(xy[0],xy[1],res[pt],'#C2185B')}
+    if(!cl.teacher&&q.on&&q.type!=='multi'&&cl.myAns){const xy=ptToXY(cl.myAns,n);if(xy)badge(xy[0],xy[1],'✓','#2E6FA8')}}
+  const seq=cl.teacher?cl.showSeq:(q&&q.on&&q.type==='multi'?cl.seq:cl.follow&&cl.st&&cl.st.showSeq);
+  if(seq&&seq.length){let c=nextColor(cur);seq.forEach((pt,i)=>{const xy=ptToXY(pt,n);if(xy)badge(xy[0],xy[1],String(i+1),c==='B'?'#111':'#9aa0a6');c=c==='B'?'W':'B'})}
   const cands=cl.teacher?null:cl.follow&&cl.st&&cl.st.cands;if(cands)cands.forEach((c,i)=>badge(c.x,c.y,String.fromCharCode(65+i),i?'#3F8F63':'#2E6FA8'))}
-function clAnsCount(qid){const r={};for(const k in cl.ans){const a=cl.ans[k];if(a.q===qid&&a.pt)r[a.pt]=(r[a.pt]||0)+1}return r}
+function clAnsCount(qid){const r={},q=cl.quiz||(cl.st&&cl.st.quiz)||{};for(const k in cl.ans){const a=cl.ans[k];if(a.q!==qid)continue;const key=a.opt||a.pt;if(key)r[key]=(r[key]||0)+1}return r}
 const clNorm=e=>{const c=$('#clInk'),b=c.getBoundingClientRect();return[+((e.clientX-b.left)/b.width).toFixed(4),+((e.clientY-b.top)/b.height).toFixed(4)]};
 function clPenDown(e){if(!cl||!cl.pen)return;e.preventDefault();$('#clInk').setPointerCapture(e.pointerId);const[x,y]=clNorm(e);cl.pen.cur={c:cl.pen.c,w:cl.pen.w,p:[x,y]};clInkDraw()}
 function clPenMove(e){if(!cl||!cl.pen||!cl.pen.cur)return;const[x,y]=clNorm(e),p=cl.pen.cur.p;if(Math.hypot(x-p[p.length-2],y-p[p.length-1])<0.004)return;p.push(x,y);clInkDraw()}
@@ -8401,27 +8610,62 @@ function clCands(){if(!cl||!cl.teacher||!aiHint)return;try{const s=anaGet(cur),n
 
 /* ---- 画面 ---- */
 function clRoomHtml(){const r=cl.room,on=Object.values(cl.people).filter(p=>Date.now()-p.t<75000),q=cl.teacher?cl.quiz:cl.st&&cl.st.quiz;
-  let h=`<div class="row" style="align-items:center;margin:0"><b>${tsE(r.title)}</b><span class="clst ${r.status||'wait'}">${cl.review?T('复习'):clStatus(r)}</span>${cl.review?'':`<span class="note" style="margin:0">${T('在线 {0} 人',on.length)}</span>`}
-    <span style="margin-left:auto"></span>${cl.teacher&&!cl.review?`<button class="btn warn" data-k="end">${T('下课')}</button>`:''}<button class="btn" data-k="leave">${T('离开')}</button></div>`;
-  if(cl.review){h+=clPagesHtml(false)+`<p class="note" style="margin:0">${T('可以自由翻看；老师当时画的线会在那一手显示。')}</p>`+(cl.board?`<div class="clboard">${tsE(cl.board)}</div>`:'');return h}
+  if(cl.teacher&&document.body.classList.contains('cl-proj'))return clProjHtml(q);
+  let h=`<div class="row" style="align-items:center;margin:0"><b>${tsE(r.title)}</b><span class="clst ${r.status||'wait'}">${cl.review?T('复习'):clStatus(r)}</span>${cl.review?'':`<span class="note" style="margin:0">${T('在线 {0} 人',on.length)}${cl.teacher&&cl.hands.size?' · 🙋 '+cl.hands.size:''}</span>`}
+    <span style="margin-left:auto"></span>${cl.teacher&&!cl.review?`<button class="btn" data-k="proj">📺 ${T('投影模式')}</button><button class="btn warn" data-k="end">${T('下课')}</button>`:''}<button class="btn" data-k="leave">${T('离开')}</button></div>`;
+  if(cl.review){h+=clPagesHtml(false)+`<p class="note" style="margin:0">${T('可以自由翻看；老师当时画的线会在那一手显示。')}</p>`+(cl.board?`<div class="clboard">${tsE(cl.board)}</div>`:'')+clRankHtml(true);return h}
   if(cl.teacher){const tl=[['play','● '+T('落子')],['TR','△'],['CR','○'],['SQ','□'],['MA','✕'],['LB','A'],['LN','1'],['erase',T('擦')]];
-    h+=`<div class="score-opts"><span class="seg">${tl.map(([k,l])=>`<button data-k="tool" data-v="${k}" aria-pressed="${!cl.pen&&cl.tool===k}">${l}</button>`).join('')}</span><button class="btn${cl.pen?' pri':''}" data-k="pen">✏️ ${T('画笔')}</button></div>`;
+    h+=`<div class="score-opts"><span class="seg">${tl.map(([k,l])=>`<button data-k="tool" data-v="${k}" aria-pressed="${!cl.pen&&cl.tool===k}">${l}</button>`).join('')}</span><button class="btn${cl.pen?' pri':''}" data-k="pen">✏️ ${T('画笔')}</button></div>
+      <div class="score-opts"><span>${T('趣味')}</span><span class="seg">${CL_EMO.map(e=>`<button data-k="tool" data-v="EM:${e}" aria-pressed="${!cl.pen&&cl.tool==='EM:'+e}">${e}</button>`).join('')}</span></div>`;
     if(cl.pen)h+=`<div class="score-opts"><span>${T('画笔颜色')}</span>${CL_INK.map(c=>`<button class="clcol${cl.pen.c===c?' on':''}" data-k="pc" data-v="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}<span class="seg"><button data-k="pw" data-v="3" aria-pressed="${cl.pen.w===3}">${T('细')}</button><button data-k="pw" data-v="6" aria-pressed="${cl.pen.w===6}">${T('粗')}</button></span>
       <button class="btn" data-k="inkundo">${T('撤销')}</button><button class="btn" data-k="inkclr">${T('清空画板')}</button><button class="btn" data-k="pen">${T('退出')}</button></div>`;
     else h+=`<p class="note" style="margin:0">${cl.tool==='play'?T('交替落子；右键删最后一手。'):T('点一下加标记，再点一下取消；按住拖动可以连续画地盘。')}</p>`;
     h+=`<div class="row"><button class="btn" data-k="judge" aria-pressed="${judging}">${T('形势判断')}</button><button class="btn" data-k="hint" aria-pressed="${aiHint}">${T('推荐落子')}</button>
       <select data-k="size">${[7,9,13,19].map(n=>`<option value="${n}"${n===sizeOf(root())?' selected':''}>${T('{0} 路',n)}</option>`).join('')}</select><button class="btn" data-k="clear">${T('清空棋盘')}</button></div>`;
     h+=clPagesHtml(true);
+    h+=`<div class="row" style="align-items:center">${cl.play?`<button class="btn pri" data-k="lplay">⏸ ${T('暂停讲义')}</button>`:`<button class="btn" data-k="lplay">▶ ${T('播放讲义')}</button>`}<span class="seg">${[2,4,6].map(v=>`<button data-k="lspd" data-v="${v}" aria-pressed="${(cl.lspd||4)===v}">${v}s</button>`).join('')}</span><span class="note" style="margin:0">${T('沿着主线自动走，评论会显示给学生')}</span></div>`;
     if(clPick)h+=clPickHtml();
     const n=Object.values(cl.ans).filter(a=>q&&a.q===q.id).length;
-    h+=`<div class="row" style="align-items:center">${q&&q.on?`<b>${T('答题中：已作答 {0} 人',n)}</b><button class="btn pri" data-k="qend">${T('结束答题')}</button>`:`<button class="btn" data-k="qstart">🙋 ${T('开始答题')}</button>${q&&q.res?`<button class="btn" data-k="qhide">${T('收起统计')}</button>`:''}`}</div>`;
+    if(q&&q.on)h+=`<div class="row" style="align-items:center"><b>${T('答题中：已作答 {0} / {1} 人',n,on.filter(p=>!p.tch).length)}</b><button class="btn pri" data-k="qend">${T('结束答题')}</button></div>`;
+    else h+=`<div class="row" style="align-items:center"><span class="seg">${[['one',T('一手答题')],['multi',T('多手答题')],['choice',T('选择答题')]].map(([k,l])=>`<button data-k="qtype" data-v="${k}" aria-pressed="${cl.qtype===k}">${l}</button>`).join('')}</span>
+      ${cl.qtype==='multi'?`<select data-k="qn">${[2,3,4,5,6].map(v=>`<option value="${v}"${cl.qn===v?' selected':''}>${T('{0} 手',v)}</option>`).join('')}</select>`:''}<button class="btn" data-k="qstart">🙋 ${T('开始答题')}</button>${q&&q.res?`<button class="btn" data-k="qhide">${T('收起统计')}</button>`:''}</div>
+      ${cl.qtype==='choice'?`<p class="note" style="margin:0">${T('先用字母标记在棋盘上标出 A、B、C 选项；没有标的话预设 A、B、C。')}</p>`:''}`;
     if(q)h+=clStatHtml(q);
+    h+=clGameHtml(on);
     h+=`<b class="sub">${T('黑板')}</b><textarea id="clBoardIn" rows="3" maxlength="2000" placeholder="${T('写给全班看的文字…')}">${tsE(cl.board)}</textarea>`}
-  else{h+=`<div class="row" style="align-items:center">${cl.follow?`<span class="note" style="margin:0">👀 ${T('跟着老师的棋盘')}</span><button class="btn" data-k="try">${T('试下')}</button>`:`<b>✋ ${T('试下中（老师看不到）')}</b><button class="btn pri" data-k="follow">${T('跟随老师')}</button>`}</div>`;
-    if(q&&q.on)h+=`<p class="big">${T('老师出题：在棋盘上点你的答案')}${cl.myAns?` · ${T('已作答')}`:''}</p>`;else if(q&&q.res)h+=clStatHtml(q);
-    if(cl.st&&cl.st.board)h+=`<b class="sub">${T('黑板')}</b><div class="clboard">${tsE(cl.st.board)}</div>`;
-    if(cl.st&&cl.st.pages>1)h+=`<p class="note" style="margin:0">${T('课件 {0} / {1}',cl.st.page+1,cl.st.pages)}</p>`}
-  h+=clChatHtml(on);return h}
+  else{const st=cl.st||{},me=clUidCache;
+    h+=`<div class="row" style="align-items:center">${cl.follow?`<span class="note" style="margin:0">👀 ${T('跟着老师的棋盘')}</span><button class="btn" data-k="try">${T('试下')}</button>`:`<b>✋ ${T('试下中（老师看不到）')}</b><button class="btn pri" data-k="follow">${T('跟随老师')}</button>`}
+      <button class="btn${cl.hand?' pri':''}" data-k="hand">🙋 ${cl.hand?T('放下手'):T('举手')}</button></div>`;
+    if(st.ctl&&st.ctl.uid===me)h+=`<p class="big">🎤 ${T('老师把棋盘交给你了：在棋盘上摆给全班看')}</p><div class="row"><button class="btn" data-k="ctlundo">${T('悔一手')}</button></div>`;
+    else if(st.ctl)h+=`<p class="note" style="margin:0">🎤 ${T('{0} 正在上台摆棋',tsE(st.ctl.name||''))}</p>`;
+    if(st.game&&st.game.on)h+=`<p class="note" style="margin:0">⚔️ ${T('课堂对弈：黑 {0} vs 白 {1}',tsE(st.game.Bn||''),tsE(st.game.Wn||''))}${st.game.paused?' · '+T('暂停中'):''}${st.game[nextColor(cur)]===me&&!st.game.paused?' · <b>'+T('轮到你下')+'</b>':''}</p>`;
+    if(q&&q.on){if(q.type==='choice')h+=`<p class="big">${T('老师出题：选一个答案')}</p><div class="row">${(q.opts||['A','B','C']).map(o=>`<button class="btn${cl.myAns===o?' pri':''}" data-k="opt" data-v="${o}" style="min-width:3em;font-size:20px">${o}</button>`).join('')}</div>`;
+      else if(q.type==='multi')h+=`<p class="big">${T('老师出题：在棋盘上连下 {0} 手',q.n)} · ${cl.myAns?T('已作答'):T('已下 {0} 手',cl.seq.length)}</p>${cl.seq.length&&!cl.myAns?`<div class="row"><button class="btn" data-k="seqclr">${T('重下')}</button></div>`:''}`;
+      else h+=`<p class="big">${T('老师出题：在棋盘上点你的答案')}${cl.myAns?` · ${T('已作答')}`:''}</p>`}
+    else if(q&&q.res)h+=clStatHtml(q);
+    const C=cl.follow&&cur&&cur.props.C&&cur.props.C[0];if(C)h+=`<div class="clboard">📝 ${tsE(C)}</div>`;
+    if(st.board)h+=`<b class="sub">${T('黑板')}</b><div class="clboard">${tsE(st.board)}</div>`;
+    if(st.pages>1)h+=`<p class="note" style="margin:0">${T('课件 {0} / {1}',st.page+1,st.pages)}</p>`}
+  h+=clRankHtml(false)+clRosterHtml(on)+clChatHtml(on);return h}
+function clProjHtml(q){return`<div class="row" style="align-items:center;margin:0"><b>${tsE(cl.room.title)}</b><span style="margin-left:auto"></span><button class="btn" data-k="proj">✕ ${T('退出投影')}</button></div>
+  ${q?clStatHtml(q):''}${cl.board?`<div class="clboard" style="font-size:22px">${tsE(cl.board)}</div>`:''}${clRankHtml(true)}`}
+function clGameHtml(on){const g=cl.game,ppl=[[clUidCache,T('老师')],...on.filter(p=>!p.tch).map(p=>[Object.keys(cl.people).find(k=>cl.people[k]===p),p.name])],sel=(k,v)=>`<select data-k="${k}"><option value="">—</option>${ppl.map(([u,nm])=>`<option value="${u}"${u===v?' selected':''}>${tsE(nm||'?')}</option>`).join('')}</select>`;
+  if(g&&g.on)return`<div class="row" style="align-items:center"><b>⚔️ ${T('课堂对弈：黑 {0} vs 白 {1}',tsE(g.Bn),tsE(g.Wn))}</b>${g.paused?`<button class="btn pri" data-k="gpause">▶ ${T('继续')}</button>`:`<button class="btn" data-k="gpause">⏸ ${T('暂停')}</button>`}<button class="btn warn" data-k="gend">${T('结束对弈')}</button></div>`;
+  return`<details class="clgame"><summary>⚔️ ${T('课堂对弈')}</summary><div class="row" style="align-items:center"><span>${T('黑')}</span>${sel('gB',cl.gB)}<span>${T('白')}</span>${sel('gW',cl.gW)}<button class="btn" data-k="gstart">${T('开始对弈')}</button></div><p class="note" style="margin:0">${T('从现在的局面开始，轮到谁谁下；老师可以暂停、讲解、右键悔棋。')}</p></details>`}
+function clRosterHtml(on){const T0=cl.teacher,q=cl.quiz,ids=Object.keys(cl.people).filter(k=>Date.now()-cl.people[k].t<75000).sort((a,b)=>(!!cl.people[b].hand)-(!!cl.people[a].hand)||(cl.people[a].name||'').localeCompare(cl.people[b].name||'','zh'));
+  if(!T0)return`<details class="clroster"><summary>${T('在线 {0} 人',ids.length)}</summary><div class="note">${ids.map(k=>{const p=cl.people[k];return tsE(p.name||'?')+(p.tch?' 👨‍🏫':'')+(p.hand?' 🙋':'')}).join('、')}</div></details>`;
+  return`<details class="clroster" open><summary>${T('在线 {0} 人',ids.length)}${cl.hands.size?' · 🙋 '+cl.hands.size:''}</summary>
+    <div class="row" style="align-items:center;margin:4px 0"><span>🍎</span><span class="seg">${[10,20,100].map(v=>`<button data-k="rwn" data-v="${v}" aria-pressed="${cl.rewardN===v}">×${v}</button>`).join('')}</span><button class="btn" data-k="rwall">${T('全员奖励')}</button>${cl.ctl?`<button class="btn warn" data-k="ctloff">${T('收回棋盘')}（${tsE(cl.ctl.name)}）</button>`:''}</div>
+    ${ids.filter(k=>!cl.people[k].tch).map(k=>{const p=cl.people[k],a=q&&cl.ans[k]&&cl.ans[k].q===q.id;return`<div class="clp"><span>${tsE(p.name||'?')}</span>${p.hand?`<b>🙋</b><button class="btn" data-k="low" data-v="${k}">${T('放下')}</button>`:''}${q&&q.on?`<span class="clans ${a?'ok':''}">${a?T('已做答'):T('未做答')}</span>`:''}
+      <span style="margin-left:auto"></span>${p.doc?`<button class="btn" data-k="rw1" data-v="${k}" title="${T('奖励')}">🍎</button>`:''}<button class="btn" data-k="ctl" data-v="${k}" title="${T('把棋盘交给他')}">${cl.ctl&&cl.ctl.uid===k?'🎤':T('控')}</button></div>`}).join('')||`<p class="note">${T('还没有学生进来。')}</p>`}</details>`}
+function clRankHtml(open){const rows=Object.entries(cl.rank||{}).sort((a,b)=>(b[1].ok||0)-(a[1].ok||0)||(b[1].ap||0)-(a[1].ap||0));if(!rows.length)return'';
+  return`<details class="clrank"${open?' open':''}><summary>🏆 ${T('课堂排行榜')}</summary><div class="tstable"><table><tr><th></th><th>${T('名字')}</th><th>${T('答对')}</th><th>🍎</th></tr>${rows.map(([u,r],i)=>`<tr${u===clUidCache?' class="tot"':''}><td>${i+1}</td><td>${tsE(r.name||'?')}</td><td>${r.ok||0}</td><td>${r.ap||0}</td></tr>`).join('')}</table></div></details>`}
+async function clRankAdd(uid,name,d){const r=cl.rank[uid]=cl.rank[uid]||{name,ok:0,ap:0};r.name=name||r.name;for(const k in d)r[k]=(r[k]||0)+d[k];
+  try{const{db}=await clDb();await clRef(db,cl.rid).collection('live').doc('rank').set(clPack({u:cl.rank}))}catch(e){}}
+async function clReward(uids,n,why){const by={};let skip=0;for(const u of uids){const p=cl.people[u];if(p&&p.cls&&p.doc)(by[p.cls]=by[p.cls]||[]).push(u);else skip++}
+  let k=0,err='';for(const cls in by){try{const L=tsLogin(),nStu=L&&L.cls===cls&&tsCloud&&tsCloud.users?Object.keys(tsCloud.users).length:by[cls].length;
+      const r=await apGive(cls,by[cls].map(u=>cl.people[u].doc),n,why,{nStu});k+=r.k;for(const u of by[cls])await clRankAdd(u,cl.people[u].name,{ap:n})}catch(e){err=e.message}}
+  clMsg=(k?T('已发给 {0} 人，每人 🍎 {1}',k,n):'')+(err?' '+err:'')+(skip?' '+T('（{0} 人不是班级学生，没有发）',skip):'');renderCl()}
 function clPagesHtml(t){return`<div class="row" style="align-items:center"><span>${T('课件')}</span><button class="btn" data-k="pg" data-v="-1"${cl.page>0?'':' disabled'}>◀</button><span>${cl.page+1} / ${cl.pages.length}</span><button class="btn" data-k="pg" data-v="1"${cl.page<cl.pages.length-1?'':' disabled'}>▶</button>
   ${t?`<button class="btn" data-k="pick">＋ ${T('选择棋谱')}</button><button class="btn" data-k="pgnew">＋ ${T('空白页')}</button>${cl.pages.length>1?`<button class="btn warn" data-k="pgdel">${T('删除这页')}</button>`:''}`:''}</div>`}
 function clPickHtml(){const q=(clPick.q||'').toLowerCase(),ids=Object.keys(store.games).filter(id=>!id.startsWith('__')&&!id.startsWith('ol_')).sort((a,b)=>store.games[b].updated-store.games[a].updated)
@@ -8429,11 +8673,12 @@ function clPickHtml(){const q=(clPick.q||'').toLowerCase(),ids=Object.keys(store
   return`<div class="clpick"><div class="row" style="align-items:center;margin:0"><input id="clPickQ" type="search" value="${tsE(clPick.q||'')}" placeholder="${T('搜索棋谱')}" style="flex:1;height:34px"><button class="btn" data-k="pick">${T('关闭')}</button></div>
     ${ids.length?ids.map(id=>`<button class="li" data-k="pickgo" data-id="${id}"><span class="t">${tsE(store.games[id].title||T('未命名'))}</span></button>`).join(''):`<p class="note">${T('棋谱库里没有棋谱。')}</p>`}</div>`}
 function clStatHtml(q){const res=cl.teacher&&q.on?clAnsCount(q.id):q.res||{},tot=Object.values(res).reduce((a,b)=>a+b,0),n=sizeOf(root());if(!tot)return cl.teacher?`<p class="note" style="margin:0">${T('还没有人作答。')}</p>`:'';
-  const who=pt=>cl.teacher?Object.values(cl.ans).filter(a=>a.q===q.id&&a.pt===pt).map(a=>a.name).join('、'):'';
-  return`<div class="clstat"><b>${T('落子统计')}</b>${Object.entries(res).sort((a,b)=>b[1]-a[1]).map(([pt,c])=>{const xy=ptToXY(pt,n);return`<div><b>${xy?coordName(['B',pt],n):pt}</b> · ${T('{0} 人',c)}${cl.teacher?` <span class="note" style="margin:0">${tsE(who(pt))}</span>`:''}${cl.teacher&&!q.on?(q.paid&&q.paid[pt]?` <span class="note" style="margin:0">✔ ${T('已发 🍎')}</span>`:` <button class="btn" data-k="qright" data-v="${pt}" style="padding:1px 8px;font-size:13px">✔ ${T('这是正解，发 🍎')}</button>`):''}</div>`}).join('')}</div>`}
+  const ch=q.type==='choice',key=a=>ch?a.opt:a.pt,who=v=>cl.teacher?Object.values(cl.ans).filter(a=>a.q===q.id&&key(a)===v).map(a=>a.name).join('、'):'';
+  let h=`<div class="clstat"><b>${ch?T('选项统计'):T('落子统计')}</b>${Object.entries(res).sort((a,b)=>b[1]-a[1]).map(([v,c])=>{const lab=ch?v:(ptToXY(v,n)?coordName(['B',v],n):v);return`<div><b>${lab}</b> · ${T('{0} 人',c)}${cl.teacher?` <span class="note" style="margin:0">${tsE(who(v))}</span>`:''}${cl.teacher&&!q.on?(q.paid&&q.paid[v]?` <span class="note" style="margin:0">✔ ${T('已发 🍎')}</span>`:` <button class="btn" data-k="qright" data-v="${v}" style="padding:1px 8px;font-size:13px">✔ ${T('这是正解，发 🍎')}</button>`):''}</div>`}).join('')}`;
+  if(cl.teacher&&q.type==='multi'){const as=Object.entries(cl.ans).filter(([,a])=>a.q===q.id&&a.seq);if(as.length)h+=`<b class="sub">${T('每个人下的')}</b>`+as.map(([u,a])=>`<div><button class="btn" data-k="seqshow" data-v="${u}" style="padding:1px 8px;font-size:13px">${T('看')}</button> ${tsE(a.name||'?')}：${a.seq.map(p=>ptToXY(p,n)?coordName(['B',p],n):p).join(' → ')}</div>`).join('')}
+  return h+'</div>'}
 function clChatHtml(on){const off=cl.room.chatOff&&!cl.teacher;
-  return`<div class="clchat"><div class="row" style="align-items:center;margin:0"><b>${T('聊天室')}</b>${cl.teacher?`<button class="btn" data-k="mute">${cl.room.chatOff?T('开放发言'):T('全员禁言')}</button>`:cl.room.chatOff?`<span class="note" style="margin:0">${T('老师已关闭发言')}</span>`:''}
-    <details style="margin-left:auto"><summary class="note">${T('在线 {0} 人',on.length)}</summary><div class="note">${on.map(p=>tsE(p.name||'?')+(p.tch?' 👨‍🏫':'')).join('、')}</div></details></div>
+  return`<div class="clchat"><div class="row" style="align-items:center;margin:0"><b>${T('聊天室')}</b>${cl.teacher?`<button class="btn" data-k="mute">${cl.room.chatOff?T('开放发言'):T('全员禁言')}</button>`:cl.room.chatOff?`<span class="note" style="margin:0">${T('老师已关闭发言')}</span>`:''}</div>
     <div class="clmsgs" id="clMsgs">${cl.chat.map(m=>`<div><b>${tsE(m.name||'')}</b>：${tsE(m.text)}</div>`).join('')||`<span class="note">${T('还没有人发言。')}</span>`}</div>
     <div class="row" style="margin:0"><input id="clSay" maxlength="100" placeholder="${off?T('老师已关闭发言'):T('输入要说的话（最多 100 字）')}"${off?' disabled':''} style="flex:1;height:34px"><button class="btn" data-k="say"${off?' disabled':''}>${T('发送')}</button></div></div>`}
 function renderCl(){const b=$('#clBody');if(!b)return;let h='';
@@ -8460,7 +8705,7 @@ async function clAct(e){const t=e.target.closest('[data-k]');if(!t||t.tagName===
     case'del':armed(t,T('再点一次确认删除'),async()=>{const{db}=await clDb();await clRef(db,t.dataset.id).update({removed:true});await clLoadRooms()});break;
     case'leave':clLeave();await clLoadRooms();break;
     case'end':armed(t,T('再点一次：下课'),async()=>{const{db}=await clDb(),ref=clRef(db,cl.rid);await clPush();if(cl.ink.length)cl.inkLog[cl.pk]=cl.ink;
-      await ref.collection('live').doc('rev').set(clPack({pages:cl.pages,ink:cl.inkLog,board:cl.board}));await clSaveWare();await ref.update({status:'end',end:Date.now()});clLeave();clMsg=T('已下课，整堂课已存好给学生复习。');await clLoadRooms()});break;
+      await ref.collection('live').doc('rev').set(clPack({pages:cl.pages,ink:cl.inkLog,board:cl.board,rank:cl.rank}));await clSaveWare();await ref.update({status:'end',end:Date.now()});clLeave();clMsg=T('已下课，整堂课已存好给学生复习。');await clLoadRooms()});break;
     case'tool':cl.tool=t.dataset.v;cl.pen=null;renderCl();break;
     case'pen':cl.pen=cl.pen?null:{c:CL_INK[0],w:3,cur:null};renderCl();break;
     case'pc':cl.pen.c=t.dataset.v;renderCl();break;
@@ -8475,16 +8720,39 @@ async function clAct(e){const t=e.target.closest('[data-k]');if(!t||t.tagName===
     case'pgdel':armed(t,T('再点一次删除这页'),()=>{cl.pages.splice(cl.page,1);clShowPage(Math.min(cl.page,cl.pages.length-1));clSaveWare().catch(()=>{});renderCl()});break;
     case'pick':clPick=clPick?null:{q:''};renderCl();break;
     case'pickgo':{const g=store.games[t.dataset.id];if(!g)break;cl.pages[cl.page]=toSGF(G.root);cl.pages.splice(cl.page+1,0,g.sgf);clPick=null;clShowPage(cl.page+1);clSaveWare().catch(()=>{});renderCl();break}
-    case'qstart':cl.quiz={id:tsId(6),on:true};cl.last='';clOut();renderCl();break;
+    case'qstart':{const ty=cl.qtype;let opts=null;if(ty==='choice'){opts=[...new Set((cur.props.LB||[]).map(v=>v.slice(v.indexOf(':')+1)).filter(x=>/^[A-Z]$/.test(x)))].sort();if(!opts.length)opts=['A','B','C']}
+      cl.quiz={id:tsId(6),on:true,type:ty,...(ty==='multi'?{n:cl.qn}:{}),...(opts?{opts}:{})};cl.showSeq=null;cl.last='';clOut();renderCl();break}
+    case'qtype':cl.qtype=t.dataset.v;renderCl();break;
+    case'seqshow':{const a=cl.ans[t.dataset.v];cl.showSeq=a&&a.seq?a.seq:null;cl.last='';clOut();clInkDraw();break}
+    case'opt':{const q=cl.st&&cl.st.quiz;if(!q||!q.on)break;cl.myAns=t.dataset.v;clAnswer(q.id,'',{opt:t.dataset.v});renderCl();break}
+    case'seqclr':cl.seq=[];renderCl();clInkDraw();break;
+    case'hand':cl.hand=!cl.hand;cl.beatF();renderCl();break;
+    case'low':{const{db}=await clDb(),u=t.dataset.v,p=cl.people[u];if(p)await clRef(db,cl.rid).collection('people').doc(u).set({...p,hand:false,low:Date.now()});break}
+    case'rwn':cl.rewardN=+t.dataset.v;renderCl();break;
+    case'rw1':await clReward([t.dataset.v],cl.rewardN,T('课堂奖励'));break;
+    case'rwall':await clReward(Object.keys(cl.people).filter(k=>!cl.people[k].tch&&Date.now()-cl.people[k].t<75000),cl.rewardN,T('全员奖励'));break;
+    case'ctl':{const u=t.dataset.v;cl.ctl=cl.ctl&&cl.ctl.uid===u?null:{uid:u,name:(cl.people[u]||{}).name||''};cl.ctlSeen[u]=Date.now();cl.last='';clOut();renderCl();break}
+    case'ctloff':cl.ctl=null;cl.last='';clOut();renderCl();break;
+    case'ctlundo':clSendCtl({undo:1});break;
+    case'gstart':{if(!cl.gB||!cl.gW||cl.gB===cl.gW)throw new Error(T('请选好黑方和白方（不能同一个人）'));const nm=u=>u===clUidCache?T('老师'):(cl.people[u]||{}).name||'?';
+      cl.game={on:true,B:cl.gB,W:cl.gW,Bn:nm(cl.gB),Wn:nm(cl.gW),paused:false};cl.ctlSeen[cl.gB]=cl.ctlSeen[cl.gW]=Date.now();cl.tool='play';cl.last='';clOut();renderCl();break}
+    case'gpause':cl.game.paused=!cl.game.paused;cl.last='';clOut();renderCl();break;
+    case'gend':cl.game=null;cl.last='';clOut();renderCl();break;
+    case'lspd':cl.lspd=+t.dataset.v;if(cl.play){clearInterval(cl.playT);cl.playT=setInterval(clLecStep,(cl.lspd||4)*1000)}renderCl();break;
+    case'lplay':if(cl.play){cl.play=null;clearInterval(cl.playT)}else{cl.play={};cl.playT=setInterval(clLecStep,(cl.lspd||4)*1000)}renderCl();break;
+    case'proj':{const on=!document.body.classList.contains('cl-proj');document.body.classList.toggle('cl-proj',on);try{if(on&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}renderCl();setTimeout(clInkSize,300);break}
     case'qend':cl.quiz={...cl.quiz,on:false,res:clAnsCount(cl.quiz.id)};cl.last='';clOut();renderCl();clInkDraw();break;
-    case'qright':{const pt=t.dataset.v,q=cl.quiz;if(!q||q.on)break;const as=Object.values(cl.ans).filter(a=>a.q===q.id&&a.pt===pt);const k=await apClassRight(as);q.paid={...(q.paid||{}),[pt]:1};clMsg=T('已发 🍎 给 {0} 位答对的学生',k);renderCl();break}
+    case'qright':{const v=t.dataset.v,q=cl.quiz;if(!q||q.on)break;const es=Object.entries(cl.ans).filter(([,a])=>a.q===q.id&&(q.type==='choice'?a.opt:a.pt)===v),as=es.map(e=>e[1]);const k=await apClassRight(as);
+      const c=apCfg().cls;for(const[u,a]of es)await clRankAdd(u,a.name,{ok:1,ap:a.doc?+c.n:0});q.paid={...(q.paid||{}),[v]:1};clMsg=T('已发 🍎 给 {0} 位答对的学生',k);renderCl();break}
     case'qhide':cl.quiz=null;cl.last='';clOut();renderCl();clInkDraw();break;
     case'mute':{const{db}=await clDb();await clRef(db,cl.rid).update({chatOff:!cl.room.chatOff});break}
     case'say':await clSay();break;
     case'try':cl.follow=false;renderCl();clInkDraw();break;
     case'follow':cl.follow=true;clApply();break;
   }}catch(err){clMsg=err.message;renderCl()}}
-function clChange(e){const t=e.target;if(t.dataset.k==='size'){const n=+t.value;snap();cl.pages[cl.page]=`(;GM[1]FF[4]SZ[${n}])`;clShowPage(cl.page)}}
+function clChange(e){const t=e.target,k=t.dataset.k;if(k==='size'){const n=+t.value;snap();cl.pages[cl.page]=`(;GM[1]FF[4]SZ[${n}])`;clShowPage(cl.page)}
+  else if(k==='qn'){cl.qn=+t.value}else if(k==='gB'||k==='gW'){cl[k]=t.value}}
+function clLecStep(){if(!cl||!cl.play||!G||G.id!==cl.lid)return;if(!cur.children.length){cl.play=null;clearInterval(cl.playT);renderCl();return}cur=cur.children[cur._sel||0]||cur.children[0];render();renderCl()}
 function clPanelOpen(){if(curMode()!=='play')setMode('play');$('#clBox').hidden=false;if(!cl){clView='lobby';clLoadRooms()}else renderCl()}
 function clPanelClose(){clLeave(true);clView='lobby';$('#clBox').hidden=true;clInkDraw()}
 {const b=$('#clBody');if(b){b.addEventListener('click',clAct);b.addEventListener('change',clChange)}const x=$('#clClose');if(x)x.onclick=clPanelClose}

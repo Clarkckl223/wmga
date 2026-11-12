@@ -100,6 +100,10 @@ service cloud.firestore {
       }
       match /people/{uid} {
         allow read: if signed() && roomOk(room(rid));
+        allow write: if signed() && ((request.auth.uid == uid && roomOk(room(rid))) || roomT(rid));
+      }
+      match /ctl/{uid} {
+        allow read: if signed() && roomOk(room(rid));
         allow write: if signed() && request.auth.uid == uid && roomOk(room(rid));
       }
       match /ans/{uid} {

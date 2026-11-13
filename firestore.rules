@@ -150,6 +150,22 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ---- 观战 AI 解说（第 34 项）：解说机（老师 / 管理员）写；对局者本人（pB / pW）读不到；观战区聊天也一样 ----
+    function notPlayer(d) { return d.pB != request.auth.uid && d.pW != request.auth.uid; }
+    match /olai/{gid} {
+      allow read: if signed() && (resource == null || notPlayer(resource.data));
+      allow create, update: if signed() && isTeacher() && request.resource.data.host == request.auth.uid
+        && notPlayer(request.resource.data) && request.resource.data.ev is string && request.resource.data.ev.size() < 300000
+        && (resource == null || (request.resource.data.pB == resource.data.pB && request.resource.data.pW == resource.data.pW));
+      allow delete: if false;
+      match /chat/{id} {
+        allow read: if signed() && notPlayer(get(/databases/$(database)/documents/olai/$(gid)).data);
+        allow create: if signed() && notPlayer(get(/databases/$(database)/documents/olai/$(gid)).data)
+          && request.resource.data.uid == request.auth.uid && request.resource.data.m is string && request.resource.data.m.size() <= 200;
+        allow update, delete: if false;
+      }
+    }
+
     // ---- 棋谱分享、线上对弈、家里电脑（不是班级）：维持原来的做法 ----
     // wmga_global：内建练习册的「全站原版」修改，大家都能读，只有管理员能改
     match /games/{gid} {

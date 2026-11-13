@@ -259,7 +259,15 @@ body.is-training #tree,body.is-training #vars{visibility:hidden}
 .bugdot{display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:#D93025;color:#fff;font-size:12px;text-align:center;padding:0 5px;margin-left:2px}.bugin{width:min(96vw,720px);gap:8px}.bugin textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;background:var(--panel,#fff);color:var(--ink)}.bugimg{max-height:90px;max-width:160px;border-radius:6px;border:1px solid var(--line)}.bugck{display:flex;gap:6px;align-items:center}.bugpre{white-space:pre-wrap;font-size:12px;max-height:180px;overflow:auto;background:var(--accent-soft);padding:6px;border-radius:6px}.bugit{border:1px solid var(--line);border-left:4px solid #D93025;border-radius:8px;padding:8px;margin:6px 0;display:flex;flex-direction:column;gap:4px}.bugit.doing{border-left-color:#C27C0E}.bugit.done{border-left-color:#2E8B57;opacity:.8}.bugst{margin-left:auto;font-size:13px;font-weight:600}.bugst.new{color:#D93025}.bugst.doing{color:#C27C0E}.bugst.done{color:#2E8B57}.bugtx{white-space:pre-wrap}.bugrep{background:var(--accent-soft);border-radius:6px;padding:6px}.bugexp{font-size:12px}
 #clInk{position:absolute;z-index:4;pointer-events:none;touch-action:none}#clInk.pen{pointer-events:auto;cursor:crosshair}.clst{font-size:13px;font-weight:600;padding:1px 8px;border-radius:10px;background:var(--accent-soft)}.clst.live{background:#2E8B57;color:#fff}.clst.end{opacity:.7}.clcol{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer}.clcol.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--panel,#fff) inset}.clboard{white-space:pre-wrap;background:var(--accent-soft);border-radius:8px;padding:8px}#clBoardIn{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;background:var(--bg);color:var(--ink)}.clchat{border-top:1px solid var(--line);padding-top:6px;display:flex;flex-direction:column;gap:6px}.clmsgs{max-height:220px;overflow:auto;font-size:14px;display:flex;flex-direction:column;gap:2px}.clpick{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px}.clstat{background:var(--accent-soft);border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:2px}
 .apgive{border:1px solid var(--line);border-radius:10px;padding:8px;margin:8px 0;display:flex;flex-direction:column;gap:6px}.apstu{display:flex;flex-wrap:wrap;gap:4px 12px;max-height:200px;overflow:auto}.apstu label{display:flex;gap:4px;align-items:center;cursor:pointer}.aplog{display:flex;flex-direction:column;gap:3px;max-height:300px;overflow:auto}.aplog>div{display:flex;gap:6px;align-items:center}.aplog b{margin-left:auto}.appos{color:#2E8B57}.apneg{color:#C0392B}
-body.play-idle main>.board-wrap,body.play-idle main>.players,body.play-idle main>.nav,body.play-idle #revDots{display:none!important}body[data-sub] #playMenu{display:none!important}body:not([data-sub="snap"]) #snapBox{display:none!important}
+body.play-idle main>.board-wrap,body.play-idle main>.players,body.play-idle main>.nav,body.play-idle #revDots{display:none!important}body[data-sub] #playMenu{display:none!important}
+.labox{border:1px solid var(--line,#ddd);border-radius:10px;padding:8px 10px;margin:6px 0;background:var(--panel,#fff)}
+.labar{position:relative;height:22px;border-radius:11px;overflow:hidden;background:#f2f2f2;border:1px solid #888}.labar .lab{height:100%;background:#1e1e1e;transition:width .6s}
+.labar .lal,.labar .lar{position:absolute;top:2px;font-size:12px;font-weight:700}.labar .lal{left:8px;color:#fff;text-shadow:0 0 3px #000,0 0 2px #000}.labar .lar{right:8px;color:#000;text-shadow:0 0 3px #fff,0 0 2px #fff}
+.lalead{display:flex;gap:10px;align-items:baseline;margin:4px 0}.lalead b{font-size:1.6rem;font-family:ui-monospace,monospace}
+.lachart{width:100%;height:70px;display:block;border-radius:6px}.lamv{margin:6px 0 0}.lamv.bad{color:#c0392b}.lamv.fire{color:#d35400}.lamv.best{color:#2e7d32}
+.lamarks{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.lamk{font-size:12px;padding:1px 6px;border-radius:8px;background:#fde2e2}.lamk.fire{background:#fff0d6}
+body.cl-proj .labox{font-size:1.2em}body.cl-proj .lachart{height:110px}
+body:not([data-sub="snap"]) #snapBox{display:none!important}
 .clroster summary,.clrank summary,.clgame summary{cursor:pointer;font-weight:600}.clp{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--line)}.clp .btn{padding:2px 8px;font-size:13px}.clans{font-size:12px;padding:1px 6px;border-radius:8px;background:#FBE3E1;color:#C0392B}.clans.ok{background:#DFF3E6;color:#2E8B57}
 body.cl-proj header,body.cl-proj #playMenu,body.cl-proj main>.players,body.cl-proj main>.nav,body.cl-proj .homebar{display:none!important}body.cl-proj main{max-width:none!important}body.cl-proj .app{grid-template-columns:minmax(0,1fr) 320px!important;max-width:none}body.cl-proj main{width:100%!important}body.cl-proj main>.board-wrap{width:min(calc(100vw - 340px),calc(100vh - 16px))!important;max-width:none!important;margin:0}body.cl-proj #clBox{position:fixed;right:8px;top:8px;width:310px;max-height:calc(100vh - 16px);overflow:auto;z-index:20}
 .olmine{display:flex;flex-direction:column;gap:6px}.olg{display:flex;flex-wrap:wrap;align-items:center;gap:6px;text-align:left;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--panel);color:var(--ink);cursor:pointer;font:inherit}.olg.my{border-color:#D93025;box-shadow:0 0 0 2px #FBE3E1}.olgs{margin-left:auto;font-size:13px;font-weight:600}.olchat{border-top:1px solid var(--line);padding-top:6px;display:flex;flex-direction:column;gap:4px}.olmsgs{max-height:180px;overflow:auto;font-size:14px}
@@ -2621,6 +2629,62 @@ const EN={
 ,"小镇市集":"Town Market"
 ,"灯塔":"Lighthouse"
 ,"雾峰深山":"Misty Peak"
+,"问题手":"Mistake"
+,"妙手":"Brilliant move"
+,"AI 首选":"AI's top choice"
+,"好棋":"Good move"
+,"AI 正在分析…":"AI analysing…"
+,"第 {0} 手之后":"after move {0}"
+,"第 {0} 手":"Move {0}"
+,"损失 {0} 目":"loses {0} pts"
+,"多赚 {0} 目":"gains {0} pts"
+,"差不多":"about even"
+,"家里电脑":"home PC"
+,"这台电脑":"this computer"
+,"观战者延迟 {0} 手":"spectators delayed {0} moves"
+,"你是解说机：已分析 {0} / {1} 个局面":"You are the commentator: analysed {0} / {1} positions"
+,"停止解说":"Stop commentary"
+,"AI 解说（对局者看不到）":"AI commentary (players can't see)"
+,"这盘棋不开放 AI 解说。":"AI commentary is not allowed for this game."
+,"延迟 {0} 手":"delayed {0} moves"
+,"{0} 正在解说，AI 分析中…":"{0} is commentating, AI analysing…"
+,"（延迟 {0} 手）":"(delayed {0} moves)"
+,"还没有解说机。":"No commentator yet."
+,"接手当解说机":"Take over as commentator"
+,"当解说机":"Be the commentator"
+,"观战区":"Spectator chat"
+,"只有观战者看得到":"only spectators can see this"
+,"和其他观战者聊…":"Chat with other spectators…"
+,"开着 AI 解说：观战者请在下面的观战区聊天。":"AI commentary is on: spectators please chat in the spectator area below."
+,"观战 AI 解说":"Spectator AI commentary"
+,"允许":"Allow"
+,"不允许":"Don't allow"
+,"延迟":"Delay"
+,"允许（观战者延迟 3 手）":"Allow (spectators delayed 3 moves)"
+,"关掉 AI 解说":"Turn off AI commentary"
+,"AI 解说（只在老师屏幕）":"AI commentary (teacher screen only)"
+,"只在老师屏幕":"teacher screen only"
+,"家里电脑没有回应，改用这台电脑算。":"Home PC not responding; using this computer."
+,"多场解说台":"Multi-game commentary desk"
+,"多场解说这一轮":"Commentate this round"
+,"加入多场解说台":"Add to commentary desk"
+,"这一轮没有进行中的对局":"No games in progress this round"
+,"只有老师和管理员可以当解说机":"Only teachers and admins can commentate"
+,"多场解说要用家里电脑：请先在「设置」→「家里电脑」设定配对码":"The commentary desk needs the home PC: set the pairing code in Settings → Home PC first"
+,"看不懂这个链接":"Can't read this link"
+,"你是这盘的对局者，不能解说":"You are playing this game and can't commentate it"
+,"吃子棋不做 AI 解说":"No AI commentary for capture Go"
+,"{0} 盘":"{0} games"
+,"每手 {0} visits":"{0} visits per move"
+,"排队中 {0} 手":"{0} moves queued"
+,"（家里电脑小程序是旧版，请更新）":"(home PC bridge is old, please update)"
+,"自动":"Auto"
+,"贴上观战链接…":"Paste a spectator link…"
+,"加入":"Add"
+,"全屏":"Full screen"
+,"回到总览":"Back to overview"
+,"移除":"Remove"
+,"还没有对局。在比赛页面按「多场解说这一轮」，或贴上观战链接加入。":"No games yet. Press 'Commentate this round' on a tournament page, or paste a spectator link."
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -6095,10 +6159,15 @@ const PC=(()=>{
   async function slot(name){const db=await Shared.db();return db.collection('games').doc('pc_'+code()).collection('layers').doc(name)}
   async function status(){ // 电脑上次报到是几分钟前（null = 从来没有）
     try{const d=await(await slot('hb')).get();if(!d.exists)return null;const o=JSON.parse(d.data().sgf||'{}');return o}catch(e){return null}}
-  async function send(job){await(await slot('job')).set({sgf:JSON.stringify(job),name:'job',updated:Date.now()})}
-  async function watch(id,cb){stop();const ref=await slot('res');unsub=ref.onSnapshot(d=>{if(!d.exists)return;let o=null;try{o=JSON.parse(d.data().sgf||'{}')}catch(e){}if(o&&o.id===id)cb(o)},e=>cb({id,state:'error',msg:e.message}))}
+  // 第 35 项：新版小程序（hb.v >= 2）可以排队：每个分页用自己的 job_<分页> / res_<分页>，再在 q 文件登记；旧版小程序照旧用 job / res
+  const tab=Math.random().toString(36).slice(2,10);let hbC=null,hbT=0,useQ=null;
+  async function qOk(){if(Date.now()-hbT>60000){hbC=await status();hbT=Date.now()}useQ=hbC?!!(hbC.v>=2):null;return!!useQ}
+  async function send(job){if(!job.created)job.created=Date.now();
+    if(await qOk()){await(await slot('job_'+tab)).set({sgf:JSON.stringify(job),name:'job',updated:Date.now()});await(await slot('q')).set({j:{[tab]:job.id}},{merge:true})}
+    else await(await slot('job')).set({sgf:JSON.stringify(job),name:'job',updated:Date.now()})}
+  async function watch(id,cb){stop();const ref=await slot(useQ?'res_'+tab:'res');unsub=ref.onSnapshot(d=>{if(!d.exists)return;let o=null;try{o=JSON.parse(d.data().sgf||'{}')}catch(e){}if(o&&o.id===id)cb(o)},e=>cb({id,state:'error',msg:e.message}))}
   function stop(){if(unsub)unsub();unsub=null}
-  return{code,status,send,watch,stop,on:()=>!!code()&&Shared.avail()};
+  return{code,status,send,watch,stop,on:()=>!!code()&&Shared.avail(),queued:()=>useQ,checkQ:()=>qOk().catch(()=>null)};
 })();
 function pcJob(line,n,visits){ // 把实战主线变成 KataGo 分析引擎看得懂的格式
   const r=root(),init=[];for(const[x,y]of expandPts(r.props.AB,n))init.push(['B',pcGtp(y*n+x,n)]);for(const[x,y]of expandPts(r.props.AW,n))init.push(['W',pcGtp(y*n+x,n)]);
@@ -6541,9 +6610,9 @@ async function olCreate(opt){ // 建立对局：回传 id；opt.resv = {B:名字
   const name=olName();if(!opt.resv&&!opt.seats&&!name)throw new Error(T('请先输入你的名字'));const id='og_'+tsId(10),uid=olUid(),R=await olRating(uid);
   const tk=opt.kind==='corr'?(opt.ctime||'d2'):(opt.time||'10'),[main,byo,per,inc,max]=OL_TIMES[tk]||OL_TIMES['10'],corr=olCorrKey(tk);
   let col=opt.color;if(col==='R')col=Math.random()<.5?'B':'W';const L=tsLogin();
-  const st={v:2,id,n:opt.n,cap:opt.cap||0,komi:opt.cap?0:opt.ha>=2?0.5:KOMI_DEF[opt.n],ha:opt.ha||0,clock:{main,byo,per,inc:inc||0,max:max||0},tk,corr,tB:main*1000,tW:main*1000,pB:per,pW:per,moves:[],status:'wait',re:'',created:Date.now(),turnT:0,seq:0,rated:opt.rated!==false,chat:[],
-    cls:L&&L.cls||'',tour:opt.tour||'',B:opt.resv?{name:opt.resv.B,uid:null,resv:true}:col==='B'?{name,uid,r:R.r}:null,W:opt.resv?{name:opt.resv.W,uid:null,resv:true}:col==='W'?{name,uid,r:R.r}:null};
-  if(opt.seats){for(const c of['B','W']){const x=opt.seats[c];st[c]=x.uid?{name:x.name,uid:x.uid,r:x.r||1000}:{name:x.name,uid:null,resv:true}}if(st.B.uid&&st.W.uid){st.status='play';st.turnT=Date.now()}} // 比赛：两边都排好了
+  const st={v:2,id,n:opt.n,cap:opt.cap||0,komi:opt.cap?0:opt.ha>=2?0.5:KOMI_DEF[opt.n],ha:opt.ha||0,clock:{main,byo,per,inc:inc||0,max:max||0},tk,corr,tB:main*1000,tW:main*1000,pB:per,pW:per,moves:[],status:'wait',re:'',created:Date.now(),turnT:0,seq:0,rated:opt.rated!==false,chat:[],ai:opt.tour?!!opt.ai:String(opt.ai??'1')!=='0',aiD:opt.aiD!=null?+opt.aiD:(opt.tour?3:0),
+    cls:L&&L.cls||'',tour:opt.tour||'',B:opt.resv?{name:opt.resv.B,uid:null,resv:true}:col==='B'?{name,uid,r:R.r,au:laAuth()}:null,W:opt.resv?{name:opt.resv.W,uid:null,resv:true}:col==='W'?{name,uid,r:R.r,au:laAuth()}:null};
+  if(opt.seats){for(const c of['B','W']){const x=opt.seats[c];st[c]=x.uid?{name:x.name,uid:x.uid,r:x.r||1000,au:x.uid}:{name:x.name,uid:null,resv:true}}if(st.B.uid&&st.W.uid){st.status='play';st.turnT=Date.now()}} // 比赛：两边都排好了
   await(await olDoc(id,'state')).set(olPack(st));await olIndex(st);if(corr)olAskNotify();return id}
 /* 「我的对局」索引：games/lobby/layers/g_<对局>，两边谁在线谁更新 */
 async function olIndex(st){try{const c=olToMove(st),who=x=>x&&x.uid||'';await(await olDoc('lobby','g_'+st.id)).set({sgf:JSON.stringify({id:st.id,n:st.n,tk:st.tk||'',corr:!!st.corr,status:st.status,re:st.re||'',Bn:st.B&&st.B.name||'',Wn:st.W&&st.W.name||'',moves:st.moves.length,turnT:st.turnT||st.created,cls:st.cls||''}),
@@ -6557,10 +6626,10 @@ async function olOpen(id){ // 打开对局（下棋或观战）
     // 空位就坐下
     const d0=olUnpack(await ref.get());if(!d0){olMsg=T('找不到这盘对局');olView='home';ol=null;renderOl();return}
     const L=tsLogin(),myN=(L&&L.name)||olName(),rs=['B','W'].find(c=>d0[c]&&d0[c].resv&&!d0[c].uid&&d0[c].name===myN);
-    if(rs&&d0.status!=='end'){const R=await olRating(uid);await olTx(id,st=>{const x=st[rs];if(!x||!x.resv||x.uid)return false;st[rs]={name:x.name,uid,r:R.r};if(st.B&&st.B.uid&&st.W&&st.W.uid&&st.status==='wait'){st.status='play';st.turnT=Date.now()}})}
+    if(rs&&d0.status!=='end'){const R=await olRating(uid);await olTx(id,st=>{const x=st[rs];if(!x||!x.resv||x.uid)return false;st[rs]={name:x.name,uid,r:R.r,au:laAuth()};if(st.B&&st.B.uid&&st.W&&st.W.uid&&st.status==='wait'){st.status='play';st.turnT=Date.now()}})}
     else if(d0.status==='wait'&&(!d0.B||!d0.W)&&!olIsMe(d0.B)&&!olIsMe(d0.W)){const name=olName();
       if(!name){olMsg=T('请先输入你的名字，再打开邀请链接');olPending=id;olView='home';ol=null;renderOl();return}
-      const R=await olRating(uid);await olTx(id,st=>{if(st.status!=='wait')return false;const seat=!st.B?'B':!st.W?'W':null;if(!seat)return false;st[seat]={name,uid,r:R.r};st.status='play';st.turnT=Date.now()})}
+      const R=await olRating(uid);await olTx(id,st=>{if(st.status!=='wait')return false;const seat=!st.B?'B':!st.W?'W':null;if(!seat)return false;st[seat]={name,uid,r:R.r,au:laAuth()};st.status='play';st.turnT=Date.now()})}
     ol.unsub=ref.onSnapshot(d=>{const st=olUnpack(d);if(!st||!ol||ol.id!==id)return;olSync(st)},e=>{olMsg=e.message;renderOl()});
     ol.tick=setInterval(olTick,500);
   }catch(e){olMsg=e.message||String(e);renderOl()}
@@ -6578,6 +6647,7 @@ function olSync(st){
   if(st.status==='end'&&(!prev||prev.status!=='end')){olRateAfter(st);renderLib()}
   if(st.status==='score'&&ol.me)setTimeout(olScore,ol.me==='B'?0:1500); // 两边都试，先算好的写进去
   renderOl();
+  if(!ol.me){laOlSync();if(st.status!=='wait'&&laOlAllowed(st))laOlSub()}else if(ol.cm)laOlStop();
 }
 function olTick(){if(!ol||!ol.st)return;const st=ol.st;if(st.status!=='play'){return}const c=olToMove(st),k=olClock(st,c);
   if(k&&k.out&&!ol.claiming){ol.claiming=true;olTx(ol.id,s=>{if(s.status!=='play'||olToMove(s)!==c)return false;const kk=olClock(s,c);if(!kk||!kk.out)return false;s.status='end';s.re=(c==='B'?'W':'B')+'+T'}).finally(()=>{if(ol)ol.claiming=false})}
@@ -6612,7 +6682,7 @@ async function olScore(){ // 双方停一手：用 GNU Go 判断死子、算胜�
 async function olResign(){if(!ol||!ol.me)return;const c=ol.me;await olTx(ol.id,s=>{if(s.status!=='play'&&s.status!=='score')return false;s.status='end';s.re=(c==='B'?'W':'B')+'+R'})}
 async function olSay(txt){txt=(txt||'').trim().slice(0,200);if(!txt||!ol||!ol.st)return;const who=ol.me||'',nm=olName()||T('观战');await olTx(ol.id,s=>{s.chat=(s.chat||[]).concat([{c:who,n:nm,m:txt,t:Date.now()}]).slice(-40);s.seq--})}
 async function olCancel(){if(!ol||!ol.st||ol.st.status!=='wait')return;await olTx(ol.id,s=>{if(s.status!=='wait')return false;s.status='end';s.re='Void'});olClose()}
-function olClose(keepView){if(ol){if(ol.unsub)ol.unsub();clearInterval(ol.tick)}ol=null;if(!keepView){olView='home';renderOl()}}
+function olClose(keepView){if(ol){if(ol.unsub)ol.unsub();clearInterval(ol.tick);laOlClose(ol)}ol=null;if(!keepView){olView='home';renderOl()}}
 const olLink=id=>shareBase()+'#p='+id.replace(/^og_/,'');
 
 /* ---- 大厅 ---- */
@@ -6640,11 +6710,12 @@ function olOptHtml(){const seg=(id,arr,v)=>`<span class="seg" data-o="${id}">${a
   return`<div class="score-opts"><span>${T('棋盘')}</span>${seg('n',[[9,'9'],[13,'13'],[19,'19']],olOpt.n)}${seg('kind',[['rt',T('实时')],['corr',T('通信')]],olOpt.kind)}</div>
   <div class="score-opts"><span>${T('时间')}</span>${tsel}</div>
   <div class="score-opts"><span>${T('我执')}</span>${seg('color',[['R',T('随机')],['B',T('黑')],['W',T('白')]],olOpt.color)}<label>${T('让子')} <select data-o="ha">${[0,2,3,4,5,6,7,8,9].map(h=>`<option value="${h}"${h==olOpt.ha?' selected':''}>${h?h:T('不让')}</option>`).join('')}</select></label></div>
+  <div class="score-opts"><span>${T('观战 AI 解说')}</span>${seg('ai',[['1',T('允许')],['0',T('不允许')]],String(olOpt.ai??'1'))}${String(olOpt.ai??'1')!=='0'?`<label>${T('延迟')} <select data-o="aiD">${[0,1,3,5,10].map(d=>`<option value="${d}"${d==(olOpt.aiD||0)?' selected':''}>${T('{0} 手',d)}</option>`).join('')}</select></label>`:''}</div>
   <p class="note" style="margin:0">${corr?T('通信对局：不用同时在线，轮到你时会有红点提醒；可以同时下好几盘。'):T('实时对局：双方要同时在线。')}</p>`}
 function renderOl(){
   const box=$('#olBox');if(!box||box.hidden)return;const body=$('#olBody');let h='';const name=olName();
   const nameRow=`<div class="score-opts"><label>${T('我的名字')} <input id="olName" maxlength="16" value="${tsE(name)}" placeholder="${T('必填')}" style="width:9em"${acctName()?` readonly title="${T('登入后用户口名字')}"`:''}></label><span id="olMyR" class="note" style="margin:0"></span></div>`;
-  const tabs=`<div class="row" style="margin:0"><span class="seg"><button data-p="mine" aria-pressed="${olView==='mine'}">${T('我的对局')}${olTurnN?` <span class="bugdot">${olTurnN}</span>`:''}</button><button data-p="home" aria-pressed="${olView==='home'}">${T('开新对局')}</button><button data-p="lobby" aria-pressed="${olView==='lobby'}">${T('大厅')}</button>${olTeacher()?`<button data-p="pairv" aria-pressed="${olView==='pair'}">${T('帮学生开对局')}</button>`:''}<button data-p="tours">🏆 ${T('比赛和联赛')}</button></span></div>`;
+  const tabs=`<div class="row" style="margin:0"><span class="seg"><button data-p="mine" aria-pressed="${olView==='mine'}">${T('我的对局')}${olTurnN?` <span class="bugdot">${olTurnN}</span>`:''}</button><button data-p="home" aria-pressed="${olView==='home'}">${T('开新对局')}</button><button data-p="lobby" aria-pressed="${olView==='lobby'}">${T('大厅')}</button>${olTeacher()?`<button data-p="pairv" aria-pressed="${olView==='pair'}">${T('帮学生开对局')}</button>`:''}<button data-p="tours">🏆 ${T('比赛和联赛')}</button>${laCan()?`<button data-p="desk">🎙 ${T('多场解说台')}</button>`:''}</span></div>`;
   if(olView==='home'){
     h=tabs+nameRow+`<b class="sub">${T('邀请朋友')}</b>`+olOptHtml()+`<div class="row"><button class="btn pri" data-p="create">${T('建立对局，拿邀请链接')}</button></div>`;
   }else if(olView==='mine'){h=tabs+olMineHtml()}
@@ -6665,19 +6736,21 @@ function renderOl(){
       else if(st.status==='score')msg=ol.scoring?T('双方停一手，AI 正在算胜负…'):T('双方停一手，正在算胜负…');
       else msg=st.re==='Void'?T('对局已取消'):T('对局结束：{0}',resultText(st.re))+(st.why==='score'?T('（GNU Go 判断死子）'):'');
       if(st.cap){const k2=computeState(cur,st.n);h+=`<p class="note" style="margin:0"><b>${T('吃子棋（先吃 {0} 子）',st.cap)}</b> · ${T('黑吃 {0} / {1}',k2.capB,st.cap)} · ${T('白吃 {0} / {1}',k2.capW,st.cap)}</p>`}
-      h+=`<p class="big${st.status==='end'?' ok':''}">${msg}</p>`;if(ol.rateMsg)h+=`<p class="note" style="margin:0">${tsE(ol.rateMsg)}</p>`;
+      h+=`<p class="big${st.status==='end'?' ok':''}">${msg}</p>`;if(!ol.me)h+=laOlHtml();if(ol.rateMsg)h+=`<p class="note" style="margin:0">${tsE(ol.rateMsg)}</p>`;
       if(ol.pend&&!ol.trial)h+=`<div class="row" style="align-items:center"><b>${T('下在 {0}？',coordName(['B',ol.pend],st.n))}</b><button class="btn pri" data-p="confirm">✔ ${T('确认送出')}</button><button class="btn" data-p="unpend">${T('取消')}</button></div>`;
       if(st.status==='wait')h+=`<div class="row"><input readonly id="olLinkI" value="${tsE(olLink(st.id))}" style="flex:1;min-width:10em;height:34px"><button class="btn pri" data-p="copy">${T('复制链接')}</button><button class="btn" data-p="cancel">${T('取消对局')}</button></div>`;
       else if(st.status==='play'&&ol.me)h+=`<div class="row"><button class="btn" data-p="pass">${T('停一手')}</button><button class="btn warn" data-p="resign">${T('认输')}</button>${ol.trial?`<button class="btn pri" data-p="trial">↩ ${T('回到对局')}</button>`:`<button class="btn" data-p="trial">🧪 ${T('试下')}</button>`}</div>${ol.trial?`<p class="note" style="margin:0">${T('试下中：自己摆变化，对手看不到；按「回到对局」回来。')}</p>`:''}`;
       h+=`<div class="row">${st.status!=='wait'?`<button class="btn" data-p="copy">${T('复制观战链接')}</button>`:''}${st.status==='end'?`<button class="btn pri" data-p="again">${T('再下一盘')}</button><button class="btn" data-p="count" aria-pressed="${!!scoring}">${T('数子 / 数目')}</button><button class="btn" data-p="torev">📖 ${T('进入这棋谱')}</button><button class="btn" data-p="review">${T('整盘分析')}</button>`:''}<button class="btn" data-p="leave">${st.status==='end'?T('我的对局'):T('离开')}</button>${st.status==='end'?`<button class="btn" data-p="gohome">🏠 ${T('回主页')}</button>`:''}</div>`;
       h+=`<div class="olchat"><b class="sub">💬 ${T('留言')}</b><div class="olmsgs">${(st.chat||[]).map(m=>`<div><b>${m.c==='B'?'⚫':m.c==='W'?'⚪':''} ${tsE(m.n)}</b>：${tsE(m.m)} <span class="note" style="margin:0">${new Date(m.t).toLocaleString([], {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>`).join('')||`<span class="note">${T('还没有留言。')}</span>`}</div>
-        <div class="row" style="margin:0"><input id="olSayI" maxlength="200" placeholder="${T('写几句话给对手…')}" style="flex:1;height:34px"><button class="btn" data-p="say">${T('发送')}</button></div></div>`;
+        ${!ol.me&&ol.ai?`<p class="note" style="margin:0">${T('开着 AI 解说：观战者请在下面的观战区聊天。')}</p>`:`<div class="row" style="margin:0"><input id="olSayI" maxlength="200" placeholder="${T('写几句话给对手…')}" style="flex:1;height:34px"><button class="btn" data-p="say">${T('发送')}</button></div>`}</div>`+laOlChatHtml();
     }
   }
   if(olMsg)h+=`<p class="note" style="color:var(--bad,#C0392B)">${tsE(olMsg)}</p>`;
-  body.innerHTML=h;renderOlClock();
+  const keep=['olSayI','laSayI'].map(id=>{const e=$('#'+id);return e?[id,e.value,document.activeElement===e]:null}).filter(Boolean);
+  body.innerHTML=h;renderOlClock();keep.forEach(([id,v,f])=>{const e=$('#'+id);if(e){e.value=v;if(f)e.focus()}});
   const ni=$('#olName');if(ni)ni.onchange=()=>{if(acctName())return;ng.name=ni.value.trim();ngSave();if(olPending&&ng.name){const p=olPending;olPending=null;olMsg='';olOpen(p)}};
-  body.querySelectorAll('select[data-o]').forEach(sel=>sel.onchange=()=>{const k=sel.dataset.o;olOpt[k]=k==='ha'?+sel.value:sel.value;olOptSave()});
+  body.querySelectorAll('select[data-o]').forEach(sel=>sel.onchange=()=>{const k=sel.dataset.o;olOpt[k]=k==='ha'||k==='aiD'?+sel.value:sel.value;olOptSave()});
+  const ls=$('#laSayI');if(ls)ls.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();laOlSay(ls.value).then(()=>{ls.value=''}).catch(x=>flash(x.message))}};
   const si=$('#olSayI');if(si)si.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();olSay(si.value).catch(x=>flash(x.message))}};
   const myR=$('#olMyR');if(myR)olRating(olUid()).then(R=>{if(myR.isConnected)myR.textContent=T('等级分 {0}（{1}，{2} 盘）',R.r,olRankName(R.r),R.g)}).catch(()=>{});
 }
@@ -6729,6 +6802,11 @@ async function olAct(e){
     case'unpend':ol.pend=null;render();renderOl();break;
     case'trial':ol.trial=!ol.trial;ol.pend=null;if(!ol.trial)olSync(ol.st);else renderOl();break;
     case'say':{const i=$('#olSayI');await olSay(i&&i.value);break}
+    case'lasay':{const i=$('#laSayI');await laOlSay(i&&i.value);if(i)i.value='';break}
+    case'cmstart':laOlStart();break;
+    case'desk':deskOpen([]);break;
+    case'deskadd':{const id=ol.id;olClose(true);olView='mine';renderOl();deskOpen([id]);break}
+    case'cmstop':laOlStop();break;
     case'chal':if(!need())return;t.disabled=true;await olChallenge(t.dataset.u,olOpt);break;
     case'yes':await olAnswer(t.dataset.c,true);break;case'no':await olAnswer(t.dataset.c,false);break;
     case'copy':{const v=olLink(ol.st.id);try{await navigator.clipboard.writeText(v);flash(T('已复制链接'))}catch(x){const i=$('#olLinkI');if(i){i.select();document.execCommand('copy')}flash(v)}break}
@@ -8734,7 +8812,7 @@ async function clEnter(rid,review){const r=(clRooms||[]).find(x=>x.id===rid);if(
     else{const me=p[uid];if(me&&cl.hand&&me.hand===false&&me.low){cl.hand=false}}renderCl()},()=>{}));
   const L0=tsLogin();cl.beatF=()=>ref.collection('people').doc(uid).set({name:typeof exName==='function'?exName():'',t:Date.now(),tch:teacher,hand:!!cl.hand,...(L0&&L0.role==='student'?{cls:L0.cls,doc:L0.doc}:{})}).catch(()=>{});cl.beatF();cl.beat=setInterval(()=>cl&&cl.beatF(),30000);
   renderCl();clInkSize()}
-function clLeave(keep){document.body.classList.remove('cl-proj');if(cl){cl.unsubs.forEach(f=>{try{f()}catch(e){}});clearInterval(cl.beat);clearTimeout(cl.outT);clearInterval(cl.candT);clearInterval(cl.playT);if(cl.teacher&&!cl.review)clSaveWare().catch(()=>{});if(aiHint)setAiHint(false);judging=false;
+function clLeave(keep){document.body.classList.remove('cl-proj');if(la&&!(ol&&ol.cm))laClOn(false);if(cl){cl.unsubs.forEach(f=>{try{f()}catch(e){}});clearInterval(cl.beat);clearTimeout(cl.outT);clearInterval(cl.candT);clearInterval(cl.playT);if(cl.teacher&&!cl.review)clSaveWare().catch(()=>{});if(aiHint)setAiHint(false);judging=false;
     const g=cl;cl=null;if(G&&G.id===g.lid){if(typeof blankBoard==='function')blankBoard()}}
   clInkDraw();if(!keep){clView='lobby';renderCl()}}
 function clShowPage(i,path){if(cl.page!==i&&cl.quiz&&!cl.quiz.on)cl.quiz=null;cl.page=i;let r;try{r=parseSGF(cl.pages[i])}catch(e){r=parseSGF('(;GM[1]FF[4]SZ[19])')}openRoot(r,{id:cl.lid});G.id=cl.lid;cur=clAt(G.root,path);renderTree();render()}
@@ -8862,9 +8940,9 @@ function clRoomHtml(){const r=cl.room,on=Object.values(cl.people).filter(p=>Date
     if(st.pages>1)h+=`<p class="note" style="margin:0">${T('课件 {0} / {1}',st.page+1,st.pages)}</p>`}
   h+=clRankHtml(false)+clRosterHtml(on)+clChatHtml(on);return h}
 function clProjHtml(q){return`<div class="row" style="align-items:center;margin:0"><b>${tsE(cl.room.title)}</b><span style="margin-left:auto"></span><button class="btn" data-k="proj">✕ ${T('退出投影')}</button></div>
-  ${q?clStatHtml(q):''}${cl.board?`<div class="clboard" style="font-size:22px">${tsE(cl.board)}</div>`:''}${clRankHtml(true)}`}
+  ${q?clStatHtml(q):''}${cl.game&&cl.game.on&&la?laClHtml():''}${cl.board?`<div class="clboard" style="font-size:22px">${tsE(cl.board)}</div>`:''}${clRankHtml(true)}`}
 function clGameHtml(on){const g=cl.game,ppl=[[clUidCache,T('老师')],...on.filter(p=>!p.tch).map(p=>[Object.keys(cl.people).find(k=>cl.people[k]===p),p.name])],sel=(k,v)=>`<select data-k="${k}"><option value="">—</option>${ppl.map(([u,nm])=>`<option value="${u}"${u===v?' selected':''}>${tsE(nm||'?')}</option>`).join('')}</select>`;
-  if(g&&g.on)return`<div class="row" style="align-items:center"><b>⚔️ ${T('课堂对弈：黑 {0} vs 白 {1}',tsE(g.Bn),tsE(g.Wn))}</b>${g.paused?`<button class="btn pri" data-k="gpause">▶ ${T('继续')}</button>`:`<button class="btn" data-k="gpause">⏸ ${T('暂停')}</button>`}<button class="btn warn" data-k="gend">${T('结束对弈')}</button></div>`;
+  if(g&&g.on)return`<div class="row" style="align-items:center"><b>⚔️ ${T('课堂对弈：黑 {0} vs 白 {1}',tsE(g.Bn),tsE(g.Wn))}</b>${g.paused?`<button class="btn pri" data-k="gpause">▶ ${T('继续')}</button>`:`<button class="btn" data-k="gpause">⏸ ${T('暂停')}</button>`}<button class="btn" data-k="gai" aria-pressed="${!!la}">🤖 ${la?T('关掉 AI 解说'):T('AI 解说（只在老师屏幕）')}</button><button class="btn warn" data-k="gend">${T('结束对弈')}</button></div>${la?laClHtml():''}`;
   return`<details class="clgame"><summary>⚔️ ${T('课堂对弈')}</summary><div class="row" style="align-items:center"><span>${T('黑')}</span>${sel('gB',cl.gB)}<span>${T('白')}</span>${sel('gW',cl.gW)}<button class="btn" data-k="gstart">${T('开始对弈')}</button></div><p class="note" style="margin:0">${T('从现在的局面开始，轮到谁谁下；老师可以暂停、讲解、右键悔棋。')}</p></details>`}
 function clRosterHtml(on){const T0=cl.teacher,q=cl.quiz,ids=Object.keys(cl.people).filter(k=>Date.now()-cl.people[k].t<75000).sort((a,b)=>(!!cl.people[b].hand)-(!!cl.people[a].hand)||(cl.people[a].name||'').localeCompare(cl.people[b].name||'','zh'));
   if(!T0)return`<details class="clroster"><summary>${T('在线 {0} 人',ids.length)}</summary><div class="note">${ids.map(k=>{const p=cl.people[k];return tsE(p.name||'?')+(p.tch?' 👨‍🏫':'')+(p.hand?' 🙋':'')}).join('、')}</div></details>`;
@@ -8954,7 +9032,8 @@ async function clAct(e){const t=e.target.closest('[data-k]');if(!t||t.tagName===
     case'gstart':{if(!cl.gB||!cl.gW||cl.gB===cl.gW)throw new Error(T('请选好黑方和白方（不能同一个人）'));const nm=u=>u===clUidCache?T('老师'):(cl.people[u]||{}).name||'?';
       cl.game={on:true,B:cl.gB,W:cl.gW,Bn:nm(cl.gB),Wn:nm(cl.gW),paused:false};cl.ctlSeen[cl.gB]=cl.ctlSeen[cl.gW]=Date.now();cl.tool='play';cl.last='';clOut();renderCl();break}
     case'gpause':cl.game.paused=!cl.game.paused;cl.last='';clOut();renderCl();break;
-    case'gend':cl.game=null;cl.last='';clOut();renderCl();break;
+    case'gai':laClOn(!la);renderCl();break;
+    case'gend':laClOn(false);cl.game=null;cl.last='';clOut();renderCl();break;
     case'lspd':cl.lspd=+t.dataset.v;if(cl.play){clearInterval(cl.playT);cl.playT=setInterval(clLecStep,(cl.lspd||4)*1000)}renderCl();break;
     case'lplay':if(cl.play){cl.play=null;clearInterval(cl.playT)}else{cl.play={};cl.playT=setInterval(clLecStep,(cl.lspd||4)*1000)}renderCl();break;
     case'proj':{const on=!document.body.classList.contains('cl-proj');document.body.classList.toggle('cl-proj',on);try{if(on&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}renderCl();setTimeout(clInkSize,300);break}
@@ -9198,7 +9277,7 @@ function trChamp(g){if(g.fmt==='de'){const Ls=trLosses(g);return Object.keys(Ls)
 
 /* ---- 开一轮：为每一对开线上对局 ---- */
 async function trStartRound(t,g,ms){for(const m of ms){if(m.bye||!m.B||!m.W)continue;const P=k=>g.players.find(p=>p.key===k)||{name:'?'};const b=P(m.B),w=P(m.W);
-    m.gid=await olCreate({n:t.n,kind:t.kindT,time:t.tk,ctime:t.tk,ha:0,rated:true,tour:t.id,seats:{B:{name:b.name,uid:b.uid,r:b.r},W:{name:w.name,uid:w.uid,r:w.r}}})}
+    m.gid=await olCreate({n:t.n,kind:t.kindT,time:t.tk,ctime:t.tk,ha:0,rated:true,tour:t.id,ai:!!t.ai,aiD:3,seats:{B:{name:b.name,uid:b.uid,r:b.r},W:{name:w.name,uid:w.uid,r:w.r}}})}
   g.rounds.push(ms);g.roundT=Date.now()}
 /* 同步：读每盘对局的结果；到期的判超时；一轮下完就开下一轮 */
 async function trSync(t){if(!t||t.status!=='run'||trBusy||!trIsOrg(t))return;trBusy=true;let changed=false;
@@ -9253,6 +9332,7 @@ function trFormHtml(){const f=trForm,lg=f.kind==='league',seg=(k,arr,v)=>`<span 
     <div class="score-opts"><label>${T('每季每组升')} <select data-trs="promote">${[1,2,3].map(v=>`<option${v===f.promote?' selected':''}>${v}</option>`).join('')}</select></label><label>${T('降')} <select data-trs="relegate">${[1,2,3].map(v=>`<option${v===f.relegate?' selected':''}>${v}</option>`).join('')}</select></label></div>`:''}
   <div class="score-opts"><span>${T('棋盘')}</span>${seg('n',[[9,'9'],[13,'13'],[19,'19']],f.n)}${seg('kindT',[['rt',T('实时')],['corr',T('通信')]],f.kindT)}
     <select data-trs="tk">${(f.kindT==='corr'?OL_CORR.map(([k,l])=>[k,l]):OL_RT.flatMap(([,L])=>L)).map(([k,l])=>`<option value="${k}"${k===f.tk?' selected':''}>${T(l)}</option>`).join('')}</select></div>
+  <div class="score-opts"><span>${T('观战 AI 解说')}</span>${seg('ai',[['0',T('不允许')],['1',T('允许（观战者延迟 3 手）')]],f.ai?'1':'0')}</div>
   <div class="score-opts"><span>${T('谁可以报名')}</span>${seg('open',[...(L&&L.cls?[['0',T('本班')]]:[]),['1',T('所有人')]],f.open?'1':'0')}</div>
   <div class="row"><button class="btn pri" data-tr="create">${T('建立')}</button><button class="btn" data-tr="list">${T('取消')}</button></div>`}
 function trViewHtml(t){if(!t)return`<p class="note">${T('载入中…')}</p>`;const org=trIsOrg(t),me=trMe(t),lg=t.kind==='league';
@@ -9267,6 +9347,7 @@ function trViewHtml(t){if(!t)return`<p class="note">${T('载入中…')}</p>`;co
       <div class="row">${me?(t.status==='reg'?`<button class="btn" data-tr="quit">${T('退出')}</button>`:''):myReg&&!myReg.quit?'':`<button class="btn pri" data-tr="join">${T('报名')}</button>`}${org&&t.status==='reg'?`<button class="btn" data-tr="addcls">${T('加入本班学生')}</button><button class="btn pri" data-tr="start">${lg?T('开始第一季'):T('开始比赛')}</button>`:''}</div>`}
   for(const g of t.groups||[])h+=trGroupHtml(t,g,org);
   if(org&&t.status!=='reg')h+=`<div class="row">${lg?`<button class="btn" data-tr="season">${T('结束这一季，升降组，开下一季')}</button>`:''}${t.status==='run'?`<button class="btn" data-tr="sync">↻ ${T('更新结果')}</button><button class="btn warn" data-tr="end">${T('结束')}</button>`:''}<button class="btn" data-tr="csv">${T('导出成绩（CSV）')}</button></div>`;
+  if(laCan()&&t.status!=='reg'&&t.ai)h+=`<div class="row"><button class="btn" data-tr="desk">🎙 ${T('多场解说这一轮')}</button></div>`;
   if(org)h+=`<div class="row"><button class="btn" data-tr="log">📜 ${T('修改记录')}</button><button class="btn warn" data-tr="del">${T('删除')}</button></div>`;return h}
 function trGroupHtml(t,g,org){const lg=t.kind==='league',elim=g.fmt==='se'||g.fmt==='de',nm=k=>tsE(trName(g,k)),ids=[olAcct(),olLocal()],mine=k=>{const p=g.players.find(p=>p.key===k);return p&&ids.includes(p.uid)};
   let h=`<div class="trg"><b>${lg?tsE(g.name):''}${g.done&&g.champ!=null?` 🏆 ${T('冠军')}：${nm(g.champ)}`:''}</b>`;
@@ -9305,9 +9386,9 @@ async function trAct(e){const t=e.target.closest('[data-tr]');if(!t||!$('#trBody
     case'reload':await trLoad();break;
     case'list':trView='list';trForm=null;await trLoad();break;
     case'new':trForm={title:'',kind:'tour',fmt:'rr',swissRounds:5,adv:'auto',every:3,size:8,len:30,promote:2,relegate:2,n:19,kindT:'corr',tk:'d2',open:!(tsLogin()&&tsLogin().cls)};trView='form';renderTr();break;
-    case'f':{const k=t.dataset.k,v=t.dataset.v;trForm.title=$('#trTitle').value;trForm[k]=k==='n'?+v:k==='open'?v==='1':v;if(k==='kindT')trForm.tk=v==='corr'?'d2':'10';if(k==='fmt'&&v==='swiss'&&!trForm.swissRounds)trForm.swissRounds=5;renderTr();break}
+    case'f':{const k=t.dataset.k,v=t.dataset.v;trForm.title=$('#trTitle').value;trForm[k]=k==='n'?+v:k==='open'||k==='ai'?v==='1':v;if(k==='kindT')trForm.tk=v==='corr'?'d2':'10';if(k==='fmt'&&v==='swiss'&&!trForm.swissRounds)trForm.swissRounds=5;renderTr();break}
     case'create':{const f=trForm;f.title=($('#trTitle').value||'').trim();if(!f.title)throw new Error(T('请输入名称'));const L=tsLogin(),id=tsId(10);
-      const tt={id,title:f.title,kind:f.kind,fmt:f.fmt,swissRounds:f.swissRounds,adv:f.kind==='league'?'date':f.adv,every:f.every,size:f.size,len:f.len,promote:f.promote,relegate:f.relegate,n:f.n,kindT:f.kindT,tk:f.tk,open:!!f.open,cls:L&&L.cls||'',
+      const tt={id,title:f.title,kind:f.kind,fmt:f.fmt,swissRounds:f.swissRounds,adv:f.kind==='league'?'date':f.adv,every:f.every,size:f.size,len:f.len,promote:f.promote,relegate:f.relegate,n:f.n,kindT:f.kindT,tk:f.tk,open:!!f.open,ai:!!f.ai,cls:L&&L.cls||'',
         org:{uid:olUid(),name:olName()||(L&&L.name)||''},status:'reg',players:[],groups:[],created:Date.now()};
       const db=await Shared.db(),u=firebase.auth().currentUser,lid=tsId(14);tt.lastLog=lid;const bt=db.batch?db.batch():null;
       const logD={uid:u?u.uid:'',name:olName()||'',tid:id,title:tt.title,act:'create',desc:T('建立「{0}」',tt.title),before:'',t:trSrvT()},tr=await trRef(id);
@@ -9329,6 +9410,7 @@ async function trAct(e){const t=e.target.closest('[data-tr]');if(!t||!$('#trBody
     case'del':armed(t,T('再点一次确认删除'),async()=>{await trTx(trCur.id,T2=>{T2.removed=true},'del');trView='list';await trLoad()});break;
     case'csv':trCsv(trCur);break;
     case'log':await trLogOpen(trCur.id);break;
+    case'desk':{const ids=[];for(const g of trCur.groups||[]){const r=g.rounds[g.rounds.length-1]||[];for(const m of r)if(m.gid&&!m.res)ids.push(m.gid)}if(!ids.length){flash(T('这一轮没有进行中的对局'));break}deskOpen(ids);break}
     case'back':trView='view';renderTr();break;
     case'restore':{const x=(trLogs||[]).find(l=>l.id===t.dataset.l);if(!x||!x.before)break;armed(t,T('再点一次：还原'),async()=>{const old=JSON.parse(x.before);
       await trTx(x.tid,T2=>{for(const k of Object.keys(T2))if(!['id','org','lastLog'].includes(k))delete T2[k];Object.assign(T2,old,{id:T2.id||x.tid,org:T2.org})},'restore');trMsg=T('已还原。');await trLogOpen(trLogTid)});break}
@@ -9559,7 +9641,7 @@ function qCss(){if($('#qCss'))return;const s=document.createElement('style');s.i
 #qBox .qmap{width:100%;border-radius:12px;display:block}#qBox .qloc{cursor:pointer}#qBox .qloc.lock{cursor:not-allowed}
 #qBox .qcard{background:#fffdf5;color:#222;border-radius:12px;padding:12px;margin:10px 8px}#qBox .qcard h3{margin:0 0 6px}
 #qBox .qrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
-#qBox .qcards{display:flex;gap:8px;flex-wrap:wrap}#qBox .qcards div{background:#f3ead7;border-radius:10px;padding:6px;width:110px;text-align:center;font-size:.85rem}#qBox .qcards .qspr{width:64px;height:64px}
+#qBox .qcards{display:flex;gap:8px;flex-wrap:wrap}#qBox .qcards div{background:#f3ead7;border-radius:10px;padding:6px;width:110px;text-align:center;font-size:.85rem}#qBox .qcards .qspr{width:64px;height:64px;display:block;margin:0 auto 4px}
 #qBox .qavs{display:flex;gap:8px;flex-wrap:wrap}#qBox .qavs button{background:#e9f2f8;border:3px solid transparent;border-radius:10px;padding:4px;cursor:pointer}#qBox .qavs button[aria-pressed="true"]{border-color:#ffb100}#qBox .qavs .qspr{width:64px;height:64px;display:block}
 #qBox input.qin{font:inherit;font-size:1rem;padding:6px 10px;border-radius:8px;border:2px solid #9bb8d6;width:12em}
 #qBox .qok{color:#2e7d32;font-weight:700}#qBox .qno{color:#c62828;font-weight:700}
@@ -9587,7 +9669,7 @@ function qMapHtml(){const unl=Q.unl||1;let m=`<rect width="200" height="150" fil
   m+=`<g fill="#6f7f72"><path d="M78 40 L92 14 L106 40Z"/><path d="M96 42 L112 10 L128 42Z"/><path d="M118 40 L132 18 L146 40Z"/></g><g fill="#fff"><path d="M89 20 L92 14 L95 20Z"/><path d="M108 18 L112 10 L116 18Z"/></g>`;
   m+=`<path d="M112 40 C96 56 98 70 114 78 S150 100 156 128" stroke="#5bb4ea" stroke-width="5" fill="none" stroke-linecap="round"/><text x="128" y="96" font-size="6" fill="#2d6fa6" font-family="sans-serif">${T('弯月河')}</text>`;
   m+=`<g fill="#3f8f3f">${[[40,90],[52,100],[60,82],[90,120],[100,110],[140,60],[160,74],[150,90]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5"/>`).join('')}</g>`;
-  m+=`<g opacity=".93" fill="#eef3f6"><ellipse cx="90" cy="26" rx="26" ry="11"/><ellipse cx="118" cy="20" rx="28" ry="12"/><ellipse cx="140" cy="32" rx="18" ry="8"/><ellipse cx="74" cy="36" rx="14" ry="6"/></g>`;
+  m+=`<g opacity=".88" fill="#eef3f6"><ellipse cx="92" cy="36" rx="22" ry="7"/><ellipse cx="118" cy="32" rx="24" ry="8"/><ellipse cx="140" cy="38" rx="14" ry="5"/><ellipse cx="112" cy="16" rx="16" ry="4" opacity=".7"/></g>`;
   for(const L of Q_LOC){const open=L.ch<=unl&&L.ch<=Q_TOP,soon=L.ch<=unl&&L.ch>Q_TOP,done=Q.done[L.ch],here=open&&(L.ch===Math.min(unl,Q_TOP));
     m+=`<g class="qloc${open||soon?'':' lock'}" data-q="loc" data-v="${L.ch}"><circle cx="${L.x}" cy="${L.y}" r="9" fill="${open?'#fffdf5':soon?'#fff3c4':'#c9d3db'}" stroke="${here?'#ffb100':'#3b2a1a'}" stroke-width="${here?2:1}"/>
       <text x="${L.x}" y="${L.y+3.5}" font-size="10" text-anchor="middle">${open||soon?L.ic:'🔒'}</text>
@@ -9665,7 +9747,7 @@ function qFight(){const st=qStep(),B=st.battle;qBattle={ch:qs.ch,i:qs.i,over:fal
   if(vs)vsStop();if(typeof cg!=='undefined'&&cg){cg=null;$('#cgBox').hidden=true}if(scoring)stopScoring();if(train)stopTrain();
   setMode('play');document.body.dataset.sub='quest';closeNew();$('#duelBox').hidden=true;$('#certBox').hidden=true;if(!$('#olBox').hidden)olPanelClose();
   if(B.kind==='cg'){const save={...cgOpt};Object.assign(cgOpt,{n:B.n,goal:B.goal,opp:'ai',lvl:B.lvl,color:'B'});$('#cgBox').hidden=false;cgNew();Object.assign(cgOpt,save);
-    if(cg){cg.quest=true;const r=root();r.props.PW=[B.opp];r.props.GN=[T('小棋士之旅：对 {0}',B.opp)];changed();renderInfo()}renderCg();$('#cgBox').scrollIntoView({block:'nearest'});return}
+    if(cg){cg.quest=true;const r=root();r.props.PW=[B.opp];r.props.PB=[Q.name||T('我')];r.props.GN=[T('小棋士之旅：对 {0}',B.opp)];changed();renderInfo()}renderCg();$('#cgBox').scrollIntoView({block:'nearest'});return}
   const n=B.n,lv=levelObj(B.lv,n),d=new Date().toISOString().slice(0,10),esc=s=>String(s).replace(/([\]\\])/g,'\\$1');
   const r=parseSGF(`(;GM[1]FF[4]CA[UTF-8]SZ[${n}]KM[${KOMI_DEF[n]}]RU[Chinese]DT[${d}]GN[${esc(T('小棋士之旅：对 {0}',B.opp))}]PB[${esc(Q.name||T('我'))}]PW[${esc(B.opp)}])`),id=newId();
   store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};openRoot(r,{id});
@@ -9683,6 +9765,205 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-qb]');if(!
   if(a==='go'){qBattle=null;qBack();qs={view:'scene',ch:b.ch,i:b.i};qNext();return}
   if(a==='retry'){qs={view:'scene',ch:b.ch,i:b.i,hintI:b.hintI,lost:1};qFight();return}
   if(a==='map'){qBattle=null;qBack();qs={view:'map',loc:b.ch};Q.at={ch:b.ch,i:b.i};qSave();qRender()}});
+
+/* ===================== 第 34 项：观战 AI 实时解说 =====================
+   一台「解说机」（老师 / 管理员，默认用家里电脑）算每一手的胜率和目差，写进 olai/{对局}，观战者只负责显示。
+   防作弊：对局者看不到（网页不订阅 + 规则挡 pB/pW）；可以延迟 N 手才公开；观战者另有观战区聊天（olai/{对局}/chat）。
+   课堂对弈：只在老师的屏幕 / 投影显示，不广播。 */
+let la=null; // 解说机 {line, sig:[], ev:[[w,l,best]], eng:'pc'|'web', visits, busy, stop, onUpd}
+const laAuth=()=>{try{const u=firebase.auth().currentUser;return u?u.uid:''}catch(e){return''}};
+const laCan=()=>typeof clIsT==='function'&&clIsT(); // 老师、管理员（比赛主办也是老师）才可以当解说机
+function laMainLine(){if(!G||!G.root)return[];let n=G.root;const L=[n];while(n.children.length){n=n.children[n._sel||0]||n.children[0];L.push(n)}return L}
+const laSigOf=nd=>{const m=moveOf(nd);return m?m[0]+m[1]:'.'};
+function laStart(onUpd){laStop();la={line:[],sig:[],ev:[],eng:PC.on()?'pc':'web',busy:false,stop:false,onUpd,err:''};la.visits=la.eng==='pc'?1000:32;return la}
+function laStop(){if(la){la.stop=true;if(la.eng==='pc')PC.stop()}la=null}
+function laFeed(line){if(!la)return;const sig=line.map(laSigOf);let k=0;while(k<sig.length&&k<la.sig.length&&sig[k]===la.sig[k])k++;
+  if(k<la.sig.length){la.ev.length=Math.min(la.ev.length,k)}la.line=line;la.sig=sig;laLoop()}
+async function laEval1(nd){
+  if(la.eng==='pc'){const r=await pcMove(nd,la.visits);return[r.w,r.l,(r.best||[])[0]??-1]}
+  await AI.load();const it=AI.itemFor(nd),[o]=await AI.run([it]);const s=new Search(it);await s.run(Infinity,null,la.visits);const r=s.results(),b=r[0];
+  return[b?b.winB:o.winB,b?b.leadB:o.leadB,b?b.move:-1]}
+async function laEvalAll(line){const n=sizeOf(root()),job=pcJob(line,n,Math.min(la.visits,200));await PC.send(job);
+  return new Promise((res,rej)=>{const to=setTimeout(()=>{PC.stop();rej(new Error(T('家里电脑没有回应')))},300000);
+    PC.watch(job.id,o=>{if(o.state==='error'){clearTimeout(to);PC.stop();rej(new Error(o.msg||'KataGo'))}else if(o.state==='done'){clearTimeout(to);PC.stop();res((o.rows||[]).map(r=>r?[r.w,r.l,r.b?r.b[0]:-1]:null))}})})}
+async function laLoop(){const me=la;if(!me||me.busy)return;me.busy=true;
+  try{while(la===me&&!me.stop){const L=me.line,miss=[];for(let k=0;k<L.length;k++)if(!me.ev[k])miss.push(k);if(!miss.length)break;
+      const sig=me.sig.join();
+      if(me.eng==='pc'&&miss.length>5){const rows=await laEvalAll(L);if(la!==me||me.sig.join()!==sig)continue;rows.forEach((r,k)=>{if(r&&!me.ev[k])me.ev[k]=r})}
+      else{const k=miss.includes(L.length-1)?L.length-1:miss[0],r=await laEval1(L[k]);if(la!==me||me.sig.join()!==sig)continue;me.ev[k]=r}
+      me.err='';if(me.onUpd)me.onUpd()}}
+  catch(e){if(la===me){if(me.eng==='pc'){me.eng='web';me.visits=32;me.err=T('家里电脑没有回应，改用这台电脑算。')}else me.err=e.message||String(e);if(me.onUpd)me.onUpd();me.busy=false;if(!me.stop)setTimeout(laLoop,me.eng==='web'?300:3000);return}}
+  me.busy=false}
+const laRound=ev=>ev.map(e=>e?[Math.round(e[0]*1000)/1000,Math.round(e[1]*10)/10,e[2]]:null);
+
+/* ---- 显示：形势条、走势图、这一手的评价 ---- */
+const laLead=l=>l>=0?`B+${l.toFixed(1)}`:`W+${(-l).toFixed(1)}`;
+function laMoves(line){return line.map(nd=>moveOf(nd))} // [color, pt] 或 null（第 0 个是开局）
+function laJudge(ev,mv,k,n){ // 第 k 手的评价 {loss, tag, best}
+  const a=ev[k-1],b=ev[k],m=mv[k];if(!a||!b||!m)return null;const sg=m[0]==='B'?1:-1,d=(b[1]-a[1])*sg,dw=(b[0]-a[0])*sg;
+  const xy=m[1]?ptToXY(m[1],n):null,idx=xy?xy[1]*n+xy[0]:-1,best=idx>=0&&idx===a[2],bad=n>=19?3:n>=13?2:1.5;
+  const tag=(d<=-bad||dw<=-.15)?'bad':best&&dw>=.1?'fire':best?'best':d>-.5?'good':'';return{loss:d,tag,best}}
+function laTagTxt(j){return!j?'':j.tag==='bad'?'❗ '+T('问题手'):j.tag==='fire'?'🔥 '+T('妙手'):j.tag==='best'?'✓ '+T('AI 首选'):j.tag==='good'?T('好棋'):''}
+/* mv：每一手 [颜色, 点]，第 0 个是开局（null） */
+function laHtml(ev,mv,n,note){ev=ev||[];let last=-1;for(let k=0;k<ev.length;k++)if(ev[k])last=k;
+  if(last<0)return`<div class="labox"><p class="note" style="margin:0">🤖 ${note||T('AI 正在分析…')}</p></div>`;
+  const e=ev[last],w=Math.round(e[0]*100);
+  let h=`<div class="labox"><div class="labar"><div class="lab" style="width:${w}%"></div><span class="lal">⚫ ${w}%</span><span class="lar">${100-w}% ⚪</span></div>
+    <div class="lalead"><b>${laLead(e[1])}</b><span class="note" style="margin:0">${T('第 {0} 手之后',last)}${note?' · '+note:''}</span></div>`;
+  // 走势图：黑胜率
+  const N=Math.max(10,ev.length-1),W=300,H=70,X=k=>k/N*W,Y=v=>H-v*H;let pts='',dots='';
+  ev.forEach((x,k)=>{if(!x)return;pts+=`${X(k).toFixed(1)},${Y(x[0]).toFixed(1)} `;const j=k?laJudge(ev,mv,k,n):null;if(j&&(j.tag==='bad'||j.tag==='fire'))dots+=`<circle cx="${X(k).toFixed(1)}" cy="${Y(x[0]).toFixed(1)}" r="2.6" fill="${j.tag==='bad'?'#e74c3c':'#f39c12'}"/>`});
+  h+=`<svg class="lachart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><rect width="${W}" height="${H}" fill="var(--panel2,#f4f1ea)"/><path d="M0 ${H/2}H${W}" stroke="#999" stroke-dasharray="3 3" stroke-width=".6"/><polyline points="${pts}" fill="none" stroke="#222" stroke-width="1.6"/>${dots}</svg>`;
+  // 这一手
+  const j=last?laJudge(ev,mv,last,n):null,m=mv[last];
+  if(j&&m)h+=`<p class="lamv ${j.tag}"><b>${T('第 {0} 手',last)} ${m[0]==='B'?'⚫':'⚪'} ${m[1]?coordName(m,n):T('停一手')}</b>：${j.loss<-.05?T('损失 {0} 目',(-j.loss).toFixed(1)):j.loss>.05?T('多赚 {0} 目',j.loss.toFixed(1)):T('差不多')} ${laTagTxt(j)}</p>`;
+  const marks=[];for(let k=last;k>=1&&marks.length<6;k--){const jj=laJudge(ev,mv,k,n);if(jj&&(jj.tag==='bad'||jj.tag==='fire'))marks.push(`<span class="lamk ${jj.tag}">${jj.tag==='bad'?'❗':'🔥'} ${k} ${mv[k][0]==='B'?'⚫':'⚪'}${mv[k][1]?coordName(mv[k],n):''} ${jj.loss.toFixed(1)}</span>`)}
+  if(marks.length)h+=`<div class="lamarks">${marks.join('')}</div>`;
+  return h+`</div>`}
+
+/* ---- 线上对局：解说机 ---- */
+let laPubT=0;
+function laOlStart(){if(!ol||!ol.st||ol.me)return;ol.cm=true;laStart(()=>{laOlPub();renderOl()});laFeed(laMainLine());renderOl()}
+function laOlStop(){if(ol)ol.cm=false;laStop();renderOl()}
+function laOlSync(){if(ol&&ol.cm&&la){laFeed(laMainLine());laOlPub()}}
+async function laOlPub(force){if(!ol||!ol.cm||!la||!ol.st)return;const now=Date.now();if(!force&&now-laPubT<1500){clearTimeout(laOlPub.t);laOlPub.t=setTimeout(()=>laOlPub(true),1600);return}laPubT=now;
+  const st=ol.st,d=st.status==='end'?0:(+st.aiD||0),lim=Math.max(0,la.line.length-d);let k=0;while(k<lim&&la.ev[k])k++;
+  const seat=c=>st[c]&&(st[c].au||st[c].uid)||'-';
+  try{const db=await Shared.db();await db.collection('olai').doc(st.id).set({host:laAuth(),hn:olName()||T('老师'),pB:seat('B'),pW:seat('W'),eng:la.eng,d,ev:JSON.stringify(laRound(la.ev.slice(0,k))),n:k,t:now})}catch(e){la.err=e.message;renderOl()}}
+/* 观战者：订阅解说和观战区聊天 */
+async function laOlSub(){if(!ol||ol.me||ol.aiSub||!ol.st)return;const id=ol.st.id;ol.aiSub=true;
+  try{const db=await Shared.db(),ref=db.collection('olai').doc(id);
+    const u1=ref.onSnapshot(d=>{if(!ol||ol.st&&ol.st.id!==id)return;const x=d.exists?d.data():null;ol.ai=x?{...x,ev:(()=>{try{return JSON.parse(x.ev||'[]')}catch(e){return[]}})()}:null;
+      if(x&&!ol.aiChatUnsub)ol.aiChatUnsub=ref.collection('chat').orderBy('t').limitToLast(60).onSnapshot(s=>{if(!ol)return;ol.aiChat=s.docs.map(q=>q.data());renderOl()},()=>{});renderOl()},()=>{});
+    ol.aiUnsub=()=>{u1();if(ol&&ol.aiChatUnsub)ol.aiChatUnsub()}}catch(e){}}
+function laOlClose(o){if(!o)return;if(o.aiUnsub)try{o.aiUnsub()}catch(e){}if(o.cm)laStop()}
+async function laOlSay(txt){txt=(txt||'').trim().slice(0,200);if(!txt||!ol||!ol.st)return;const db=await Shared.db();
+  await db.collection('olai').doc(ol.st.id).collection('chat').add({uid:laAuth(),n:olName()||T('观战'),m:txt,t:Date.now()})}
+function laOlAllowed(st){return st.ai!=null?!!st.ai:!st.tour}
+function laOlHtml(){const st=ol.st;if(ol.me||st.status==='wait')return'';const n=st.n,line=laMainLine();let h=`<b class="sub">🤖 ${T('AI 解说（对局者看不到）')}</b>`;
+  if(!laOlAllowed(st))return h+`<p class="note" style="margin:0">${T('这盘棋不开放 AI 解说。')}</p>`;
+  if(ol.cm&&la){h+=laHtml(la.ev,laMoves(line),n,(la.eng==='pc'?T('家里电脑'):T('这台电脑'))+(st.aiD&&st.status!=='end'?' · '+T('观战者延迟 {0} 手',st.aiD):''));
+    h+=`<div class="row" style="margin:0;align-items:center"><span class="note" style="margin:0">🎙 ${T('你是解说机：已分析 {0} / {1} 个局面',la.ev.filter(Boolean).length,line.length)}</span><button class="btn" data-p="cmstop">${T('停止解说')}</button></div>`;
+    if(la.err)h+=`<p class="note" style="margin:0;color:var(--bad,#C0392B)">${tsE(la.err)}</p>`;return h}
+  const A=ol.ai;
+  if(A&&A.ev&&A.ev.length){const d=st.status==='end'?0:A.d;h+=laHtml(A.ev,laMoves(line),n,`🎙 ${tsE(A.hn||'')}${d?' · '+T('延迟 {0} 手',d):''}`)}
+  else if(A)h+=`<p class="note" style="margin:0">🎙 ${T('{0} 正在解说，AI 分析中…',tsE(A.hn||''))}${A.d?' '+T('（延迟 {0} 手）',A.d):''}</p>`;
+  else h+=`<p class="note" style="margin:0">${T('还没有解说机。')}</p>`;
+  if(laCan())h+=`<div class="row" style="margin:0"><button class="btn" data-p="cmstart">🎙 ${A?T('接手当解说机'):T('当解说机')}${PC.on()?'（'+T('家里电脑')+'）':''}</button>${PC.on()?`<button class="btn" data-p="deskadd">➕ ${T('加入多场解说台')}</button>`:''}</div>`;
+  return h}
+function laOlChatHtml(){if(!ol||ol.me||!ol.ai)return'';
+  return`<div class="olchat"><b class="sub">🗨 ${T('观战区')}</b><span class="note" style="margin:0"> ${T('只有观战者看得到')}</span><div class="olmsgs">${(ol.aiChat||[]).map(m=>`<div><b>${tsE(m.n)}</b>：${tsE(m.m)}</div>`).join('')||`<span class="note">${T('还没有留言。')}</span>`}</div>
+    <div class="row" style="margin:0"><input id="laSayI" maxlength="200" placeholder="${T('和其他观战者聊…')}" style="flex:1;height:34px"><button class="btn" data-p="lasay">${T('发送')}</button></div></div>`}
+
+/* ---- 课堂对弈：只在老师屏幕 / 投影 ---- */
+let laClT=null;
+function laClOn(on){clearInterval(laClT);laClT=null;if(!on){laStop();return}laStart(()=>{clearTimeout(laClOn.r);laClOn.r=setTimeout(()=>{if(typeof renderCl==='function')renderCl()},200)});laFeed(laMainLine());laClT=setInterval(()=>{if(!la){clearInterval(laClT);return}laFeed(laMainLine())},1000)}
+function laClHtml(){if(!la)return'';return laHtml(la.ev,laMoves(laMainLine()),sizeOf(root()),(la.eng==='pc'?T('家里电脑'):T('这台电脑'))+' · '+T('只在老师屏幕'))+(la.err?`<p class="note" style="margin:0">${tsE(la.err)}</p>`:'')}
+
+/* ===================== 第 35 项：多场解说台 =====================
+   一个页面同时解说很多盘：每盘订阅对局状态，新的一手排队送家里电脑算（小程序新版可以排队），各自发布到 olai/{对局}。
+   总览：多盘并排（小棋盘、形势条、目差），可以全屏投影；点一格放大看完整解说。 */
+let dk=null; // {g:{gid:{id,st,ev:[],unsub,err,pubT,flash}}, order:[], vis:'auto', busy, on, zoom, msg}
+const DK_AUTO=[[1,1000],[3,500],[8,400],[12,200],[Infinity,100]];
+const dkVisOf=()=>{if(dk.vis!=='auto')return+dk.vis;const n=Math.max(1,dk.order.filter(id=>dk.g[id].st&&!dk.g[id].skip&&dk.g[id].st.status!=='end').length);return DK_AUTO.find(([k])=>n<=k)[1]};
+function dkMv(st){const L=[null];let c=st.ha>=2?'W':'B';for(const m of st.moves){L.push([c,m]);c=c==='B'?'W':'B'}return L}
+function dkJob(st,turns,visits,kind){const n=st.n,init=[];
+  if(st.ha>=2)for(const[x,y]of handicapPts(n,st.ha))init.push(['B',pcGtp(y*n+x,n)]);
+  const mv=dkMv(st).slice(1,turns+1).map(([c,m])=>{const xy=m?ptToXY(m,n):null;return[c,xy?pcGtp(xy[1]*n+xy[0],n):'pass']});
+  return{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),n,visits,komi:Math.round(st.komi*2)/2,rules:'chinese',initialStones:init,initialPlayer:st.ha>=2?'W':'B',moves:mv,created:Date.now(),kind}}
+function dkRun(job,ms){return new Promise((res,rej)=>{let to;PC.send(job).then(()=>{to=setTimeout(()=>{PC.stop();rej(new Error(T('家里电脑没有回应')))},ms);
+    PC.watch(job.id,o=>{if(o.state==='error'){clearTimeout(to);PC.stop();rej(new Error(o.msg||'KataGo'))}else if(o.state==='done'){clearTimeout(to);PC.stop();res(o)}})}).catch(rej)})}
+async function deskOpen(gids){if(!laCan()){flash(T('只有老师和管理员可以当解说机'));return}
+  if(!PC.on()){flash(T('多场解说要用家里电脑：请先在「设置」→「家里电脑」设定配对码'));return}
+  if(ol&&ol.cm)laOlStop();if(la)laClOn(false);PC.checkQ().then(()=>dkRender());
+  if(!dk){dk={g:{},order:[],vis:(()=>{try{return localStorage.getItem('goReview.dkVis')||'auto'}catch(e){return'auto'}})(),busy:false,on:true,zoom:null,msg:''};dkCss()}
+  let b=$('#dkBox');if(!b){b=document.createElement('div');b.id='dkBox';document.body.appendChild(b);b.addEventListener('click',dkClick);b.addEventListener('change',dkChange)}
+  b.hidden=false;document.body.style.overflow='hidden';for(const id of gids||[])await dkAdd(id);dkRender()}
+async function dkAdd(raw){let id=String(raw||'').trim();const m=id.match(/#p=([A-Za-z0-9]+)/);if(m)id=m[1];if(id&&!id.startsWith('og_'))id='og_'+id;if(!/^og_[A-Za-z0-9]+$/.test(id)){dk.msg=T('看不懂这个链接');return}
+  if(dk.g[id])return;const g=dk.g[id]={id,st:null,ev:[],err:'',pubT:0};dk.order.push(id);
+  try{const ref=await olDoc(id,'state');g.unsub=ref.onSnapshot(d=>{const st=olUnpack(d);if(!st||!dk||!dk.g[id])return;dkSync(g,st)},e=>{g.err=e.message;dkRender()})}catch(e){g.err=e.message}}
+function dkRemove(id){const g=dk.g[id];if(!g)return;if(g.unsub)g.unsub();delete dk.g[id];dk.order=dk.order.filter(x=>x!==id);if(dk.zoom===id)dk.zoom=null}
+function dkSync(g,st){const prev=g.st;g.st=st;
+  if(olIsMe(st.B)||olIsMe(st.W)){g.err=T('你是这盘的对局者，不能解说');g.skip=true}
+  else if(st.cap){g.err=T('吃子棋不做 AI 解说');g.skip=true}
+  else if(!laOlAllowed(st)){g.err=T('这盘棋不开放 AI 解说。');g.skip=true}
+  else{g.skip=false;g.err=''}
+  if(prev&&prev.moves.length>st.moves.length)g.ev.length=Math.min(g.ev.length,st.moves.length+1); // 悔棋 / 改棋
+  if(prev&&st.moves.length>prev.moves.length)g.flash=0;
+  dkRender();dkPub(g);dkLoop()}
+function dkMiss(g){const L=g.st.moves.length+1,m=[];for(let k=0;k<L;k++)if(!g.ev[k])m.push(k);return m}
+function dkQueueN(){return dk?dk.order.filter(id=>{const g=dk.g[id];return g.st&&!g.skip&&!g.ev[g.st.moves.length]}).length:0}
+async function dkLoop(){if(!dk||dk.busy||!dk.on)return;dk.busy=true;const me=dk;
+  try{while(dk===me&&me.on){
+      // 先算每盘「最新的一手」（轮流），都算好了再补前面的
+      const act=me.order.map(id=>me.g[id]).filter(g=>g&&g.st&&!g.skip);
+      let g=act.filter(g=>!g.ev[g.st.moves.length]).sort((a,b)=>(a.doneT||0)-(b.doneT||0))[0],full=false;
+      if(!g){g=act.find(g=>dkMiss(g).length);full=true}
+      if(!g)break;const st=g.st,L=st.moves.length,vis=dkVisOf();me.msg='';
+      if(full&&dkMiss(g).length>3){const o=await dkRun(dkJob(st,L,Math.min(vis,400),'full'),300000);if(!me.g[g.id]||g.st.moves.length<L)continue;
+        (o.rows||[]).forEach((r,k)=>{if(r&&!g.ev[k])g.ev[k]=[r.w,r.l,r.b?r.b[0]:-1]})}
+      else{const k=full?dkMiss(g)[0]:L,o=await dkRun(dkJob(st,k,vis,'move'),60000);if(!me.g[g.id]||g.st.moves.length<k)continue;
+        if(k<=g.st.moves.length&&dkMv(g.st)[k]+''===dkMv(st)[k]+'')g.ev[k]=[o.w,o.l,(o.best||[])[0]??-1]}
+      g.doneT=Date.now();const j=laJudge(g.ev,dkMv(g.st),g.st.moves.length,g.st.n);if(j&&j.tag==='bad'&&g.ev[g.st.moves.length]&&!full)g.flash=Date.now();
+      dkPub(g);dkRender()}}
+  catch(e){if(dk===me){me.msg=e.message||String(e);dkRender();me.busy=false;setTimeout(dkLoop,5000);return}}
+  me.busy=false}
+async function dkPub(g,force){if(!dk||!g.st||g.skip)return;const now=Date.now();if(!force&&now-g.pubT<1500){clearTimeout(g.pubTo);g.pubTo=setTimeout(()=>dkPub(g,true),1600);return}g.pubT=now;
+  const st=g.st,d=st.status==='end'?0:(+st.aiD||0),lim=Math.max(0,st.moves.length+1-d);let k=0;while(k<lim&&g.ev[k])k++;
+  const seat=c=>st[c]&&(st[c].au||st[c].uid)||'-';
+  try{const db=await Shared.db();await db.collection('olai').doc(st.id).set({host:laAuth(),hn:olName()||T('老师'),pB:seat('B'),pW:seat('W'),eng:'pc',d,ev:JSON.stringify(laRound(g.ev.slice(0,k))),n:k,t:now})}catch(e){g.err=e.message}}
+function deskClose(){if(!dk)return;dk.on=false;dk.order.slice().forEach(dkRemove);PC.stop();dk=null;const b=$('#dkBox');if(b)b.hidden=true;document.body.style.overflow='';try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}}
+/* 小棋盘：照着手顺摆子、提子 */
+function dkBoard(st){const n=st.n,B=new Array(n*n).fill(0);if(st.ha>=2)for(const[x,y]of handicapPts(n,st.ha))B[y*n+x]=1;
+  const nb=p=>{const x=p%n,y=(p/n)|0,o=[];if(x>0)o.push(p-1);if(x<n-1)o.push(p+1);if(y>0)o.push(p-n);if(y<n-1)o.push(p+n);return o};
+  const grp=p=>{const c=B[p],g=[p],seen=new Set(g);let lib=0;for(let i=0;i<g.length;i++)for(const q of nb(g[i])){if(!B[q])lib++;else if(B[q]===c&&!seen.has(q)){seen.add(q);g.push(q)}}return{g,lib}};
+  let last=-1;for(const[c,m]of dkMv(st).slice(1)){if(!m)continue;const xy=ptToXY(m,n);if(!xy)continue;const p=xy[1]*n+xy[0],col=c==='B'?1:2;B[p]=col;last=p;
+    for(const q of nb(p))if(B[q]&&B[q]!==col){const r=grp(q);if(!r.lib)r.g.forEach(z=>B[z]=0)}const r=grp(p);if(!r.lib)r.g.forEach(z=>B[z]=0)}
+  return{B,last}}
+function dkBoardSvg(st,big){const n=st.n,{B,last}=dkBoard(st),u=10,p=6,L=p+u*(n-1);let h=`<rect width="${L+p}" height="${L+p}" fill="#e3b866"/>`;
+  for(let i=0;i<n;i++)h+=`<path d="M${p} ${p+i*u}H${L}M${p+i*u} ${p}V${L}" stroke="#5a3d1a" stroke-width="${big?.5:.7}"/>`;
+  B.forEach((c,i)=>{if(c)h+=`<circle cx="${p+(i%n)*u}" cy="${p+((i/n)|0)*u}" r="4.6" fill="${c===1?'#111':'#fafafa'}" stroke="#222" stroke-width=".4"/>`});
+  if(last>=0)h+=`<circle cx="${p+(last%n)*u}" cy="${p+((last/n)|0)*u}" r="1.8" fill="#e74c3c"/>`;
+  return`<svg class="dkbd" viewBox="0 0 ${L+p} ${L+p}">${h}</svg>`}
+function dkCell(g){const st=g.st;if(!st)return`<div class="dkc"><p>${T('载入中…')}</p>${g.err?`<p class="note">${tsE(g.err)}</p>`:''}<button class="dkx" data-dk="rm" data-v="${g.id}">✕</button></div>`;
+  const L=st.moves.length,mv=dkMv(st),e=g.ev[L]||g.ev.slice().reverse().find(Boolean),w=e?Math.round(e[0]*100):50,j=laJudge(g.ev,mv,L,st.n),fl=g.flash&&Date.now()-g.flash<4000;
+  return`<div class="dkc${fl?' dkfl':''}" data-dk="zoom" data-v="${g.id}"><button class="dkx" data-dk="rm" data-v="${g.id}" title="${T('移除')}">✕</button>
+    <div class="dkn"><span>⚫ ${tsE(st.B&&st.B.name||'?')}</span><span>⚪ ${tsE(st.W&&st.W.name||'?')}</span></div>${dkBoardSvg(st)}
+    ${g.skip?`<p class="note" style="margin:2px 0">${tsE(g.err)}</p>`:`<div class="labar"><div class="lab" style="width:${w}%"></div><span class="lal">${w}%</span><span class="lar">${100-w}%</span></div>
+    <div class="dkl"><b>${e?laLead(e[1]):'…'}</b><span>${T('第 {0} 手',L)}${st.status==='end'?' · '+tsE(resultText(st.re)):''}${!g.ev[L]&&st.status!=='end'?' ⏳':''}</span></div>
+    ${j&&(j.tag==='bad'||j.tag==='fire')?`<div class="lamv ${j.tag}">${laTagTxt(j)} ${j.loss.toFixed(1)}</div>`:''}`}</div>`}
+function dkRender(){const b=$('#dkBox');if(!b||b.hidden||!dk)return;const vis=dkVisOf(),q=dkQueueN();
+  let h=`<div class="dktop"><b>🎙 ${T('多场解说台')}</b><span>${T('{0} 盘',dk.order.length)} · ${T('每手 {0} visits',vis)}${q?' · '+T('排队中 {0} 手',q):''}${PC.queued()===false?' · '+T('（家里电脑小程序是旧版，请更新）'):''}</span>
+    <label>visits <select data-dk="vis">${['auto',100,200,400,500,1000].map(v=>`<option value="${v}"${String(v)===String(dk.vis)?' selected':''}>${v==='auto'?T('自动'):v}</option>`).join('')}</select></label>
+    <input id="dkAddI" placeholder="${T('贴上观战链接…')}"><button class="btn" data-dk="add">➕ ${T('加入')}</button><button class="btn" data-dk="fs">📺 ${T('全屏')}</button><button class="btn warn" data-dk="close">✕ ${T('关闭')}</button></div>`;
+  if(dk.msg)h+=`<p class="dkmsg">${tsE(dk.msg)}</p>`;
+  const z=dk.zoom&&dk.g[dk.zoom];
+  if(z&&z.st){const st=z.st;h+=`<div class="dkz"><div><button class="btn" data-dk="back">← ${T('回到总览')}</button><p><b>⚫ ${tsE(st.B&&st.B.name||'?')} vs ⚪ ${tsE(st.W&&st.W.name||'?')}</b></p>${dkBoardSvg(st,1)}</div>
+    <div>${laHtml(z.ev,dkMv(st),st.n,(st.aiD&&st.status!=='end'?T('观战者延迟 {0} 手',st.aiD):''))}</div></div>`}
+  else h+=dk.order.length?`<div class="dkgrid">${dk.order.map(id=>dkCell(dk.g[id])).join('')}</div>`:`<p class="dkmsg">${T('还没有对局。在比赛页面按「多场解说这一轮」，或贴上观战链接加入。')}</p>`;
+  const ki=$('#dkAddI'),keep=ki?ki.value:'',kf=ki&&document.activeElement===ki;b.innerHTML=h;const ni=$('#dkAddI');if(ni){ni.value=keep;if(kf)ni.focus();ni.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();$('#dkBox [data-dk="add"]').click()}}}}
+async function dkClick(e){const t=e.target.closest('[data-dk]');if(!t)return;const a=t.dataset.dk,v=t.dataset.v;
+  if(a==='rm'){e.stopPropagation();dkRemove(v);dkRender();return}
+  if(a==='zoom'){dk.zoom=v;dkRender();return}
+  if(a==='back'){dk.zoom=null;dkRender();return}
+  if(a==='close'){deskClose();return}
+  if(a==='fs'){try{if(!document.fullscreenElement)$('#dkBox').requestFullscreen();else document.exitFullscreen()}catch(x){}return}
+  if(a==='add'){const i=$('#dkAddI');dk.msg='';await dkAdd(i.value);i.value='';dkRender()}}
+function dkChange(e){const t=e.target.closest('select[data-dk="vis"]');if(!t)return;dk.vis=t.value;try{localStorage.setItem('goReview.dkVis',dk.vis)}catch(x){}dkRender()}
+setInterval(()=>{if(dk&&dk.order.some(id=>dk.g[id].flash))dkRender()},2000); // 问题手闪烁几秒后停
+function dkCss(){if($('#dkCss'))return;const s=document.createElement('style');s.id='dkCss';s.textContent=`
+#dkBox{position:fixed;inset:0;z-index:58;background:#16202b;color:#eef;overflow:auto;padding:10px}
+#dkBox .dktop{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}#dkBox .dktop b{font-size:1.1rem}#dkBox .dktop>span{flex:1;opacity:.8;font-size:.9rem}
+#dkBox input,#dkBox select{height:34px;border-radius:8px;border:1px solid #567;padding:0 8px}#dkBox .btn,#dkBox input,#dkBox select{color:#1d2b3a}#dkBox .btn.warn{color:#c0392b}#dkBox .dkmsg{color:#ffd27a}
+#dkBox .dkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+#dkBox .dkc{position:relative;background:#22303f;border-radius:12px;padding:8px;cursor:pointer;border:2px solid transparent}#dkBox .dkc:hover{border-color:#5b8fd6}
+#dkBox .dkfl{animation:dkfl .8s 4;border-color:#e74c3c}@keyframes dkfl{50%{background:#5a2323}}
+#dkBox .dkx{position:absolute;top:4px;right:4px;background:none;border:0;color:#aaa;cursor:pointer;font-size:14px}
+#dkBox .dkn{display:flex;justify-content:space-between;font-size:.85rem;margin:0 18px 4px 0;gap:4px}#dkBox .dkn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#dkBox .dkbd{width:100%;display:block;border-radius:6px;margin-bottom:6px}#dkBox .dkl{display:flex;justify-content:space-between;align-items:baseline;margin-top:4px}#dkBox .dkl b{font-size:1.4rem;font-family:ui-monospace,monospace}
+#dkBox .dkz{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}#dkBox .dkz .dkbd{max-width:min(100%,70vh)}#dkBox .dkz .labox{color:#222}
+#dkBox:fullscreen .dkgrid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+@media (max-width:700px){#dkBox .dkz{grid-template-columns:1fr}}`;document.head.appendChild(s)}
 /* ===================== 吃子关卡、限时挑战 ===================== */
 // 小型吃子计算：黑要在 k 手内吃掉目标白棋（t），白尽力逃。棋盘是一维数组：0 空、1 黑、2 白
 const Cap=(()=>{

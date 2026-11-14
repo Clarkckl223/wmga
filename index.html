@@ -281,6 +281,7 @@ body.cl-proj header,body.cl-proj #playMenu,body.cl-proj main>.players,body.cl-pr
 .gcard label{font-size:13px;margin-top:4px}.bzscore{font-size:28px!important}
 .fxpop{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);font-size:56px;font-weight:800;color:#e0a800;text-shadow:0 2px 10px rgba(0,0,0,.35);pointer-events:none;animation:fxpop .9s ease-out forwards;z-index:9999;white-space:nowrap}
 .fxpop.bad{color:#d33;font-size:40px}
+#syncBadge{position:fixed;left:12px;bottom:12px;z-index:70;background:#fff8e1;color:#5a4300;border:1px solid #e0b84a;border-radius:10px;padding:6px 12px;font-size:14px;box-shadow:0 2px 8px #0003}#syncBadge.bad{background:#fde2e2;color:#8a1f1f;border-color:#d9534f}
 @keyframes fxpop{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-110%) scale(1)}}
 @media (prefers-reduced-motion:reduce){.fxpop{animation-duration:.01s}}
 .tsp{width:46px;height:46px;border:1px solid var(--line);border-radius:8px;background:var(--panel);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-weight:600;font-variant-numeric:tabular-nums}
@@ -2685,6 +2686,10 @@ const EN={
 ,"回到总览":"Back to overview"
 ,"移除":"Remove"
 ,"还没有对局。在比赛页面按「多场解说这一轮」，或贴上观战链接加入。":"No games yet. Press 'Commentate this round' on a tournament page, or paste a spectator link."
+,"白棋放弃逃跑（脱先）了，△ 还没被吃，继续下，把它吃掉！":"White gave up and played elsewhere. △ is not captured yet — keep going and capture it!"
+,"△ 还没被吃！":"△ not captured yet!"
+,"记录上传中":"Uploading records"
+,"记录未上传，稍后重试":"Records not uploaded, will retry"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -7305,10 +7310,11 @@ function tsExit(){ // 回到原来的棋谱
   if(!ts)return;const p=ts;ts=null;tsCrop=null;tsCardSync();document.body.classList.remove('is-ts');
   if(p.prevG){G=p.prevG;cur=p.prevCur||G.root}tool='play';renderWho();renderTree();render();renderInfo();
 }
-function tsReset(){if(!ts||ts.mode!=='solve')return;tsClean(G.root);cur=G.root;ts.node=G.root;ts.wrong=null;ts.busy=false;ts.failView=false;ts.refPath=null;capReset();render();renderTs()}
+function tsReset(){if(!ts||ts.mode!=='solve')return;if(ts.card&&!ts.solved&&!ts.over)ts.card=null;tsClean(G.root);cur=G.root;ts.node=G.root;ts.wrong=null;ts.busy=false;ts.failView=false;ts.refPath=null;capReset();render();renderTs()}
 function tsClick(x,y){
   if(ts.mode==='edit')return tsEditClick(x,y);
   if(ts.trial){tsTrialClick(x,y);return}
+  if(ts.busy&&ts.busyT&&performance.now()-ts.busyT>3000)ts.busy=false; // 保险：思考中超过 3 秒自动解锁（第 38 项）
   if(capOn())return capClick(x,y);
   if(ts.card&&!ts.view&&(ts.solved||ts.over)){if(!ts.card.hidden){ts.card.hidden=true;tsCardSync()}return} // 答完了：点棋盘先收起结果卡，看清楚棋盘
   if((ts.failView||ts.card)&&!ts.busy&&!ts.over&&!ts.view){ts.card=null;ts.wrong=null;ts.msg='';tsReset()} // 看完失败图，点棋盘就重新开始
@@ -7362,13 +7368,27 @@ async function tsRecord(ok,viewed){ // 记录做题结果，回传这次得到�
   if(ok&&ts.ms){e.ms=Math.min((prev&&prev.ms)||Infinity,ts.ms);e.lastMs=ts.ms}else if(prev&&prev.ms){e.ms=prev.ms;if(prev.lastMs)e.lastMs=prev.lastMs}
   const W=tsStore.wrong=tsStore.wrong||{};if(W[pid]&&ok&&ts.tries===0&&!ts.shown){W[pid].n=(W[pid].n||0)+1;if(W[pid].n>=3){delete W[pid];flash(T('这题答对 3 次，已移出错题本'))}}
   tsStore.log[pid]=e;tsStore.pts=(tsStore.pts||0)+gain;tsSave();
-  const L=tsLogin();if(L&&L.role==='student'){try{const u=(await TsCloud.get(L.cls,L.doc))||{name:L.name};u.log=u.log||{};u.log[pid]=e;u.wrong=tsStore.wrong||{};u.pts=(u.pts||0)+gain;u.last=Date.now();
-    await TsCloud.set(L.cls,L.doc,u);if(tsCloud)tsCloud.users[L.doc]=u;L.pts=u.pts;tsStore.login=L;tsSave();if(gain>0)apEarn('q')}catch(err){flash(T('记录没有上传，请检查网络'))}}
+  const L=tsLogin();if(L&&L.role==='student'){tsCloudMark(pid,gain);if(gain>0)apEarn('q')} // 不等上传：在后台排队写（第 38 项）
   return gain;
 }
+/* 学生纪录上传（第 38 项）：在后台排队写，不卡做题；限时挑战中先记在本机，结束才一次上传；失败自动重试 */
+const tsCP={pids:new Set(),gain:0,award:[],fail:0,queued:false};
+function tsCloudMark(pid,gain){tsCP.pids.add(pid);tsCP.gain+=gain;if(!bzOn())tsCloudFlush()}
+function tsCloudFlush(delay){const L=tsLogin();if(!L||L.role!=='student'||tsCP.queued)return;tsCP.queued=true;
+  apQ=apQ.then(()=>new Promise(r=>setTimeout(r,delay??400))).then(async()=>{tsCP.queued=false;if(bzOn()||!tsCP.pids.size&&!tsCP.gain&&!tsCP.award.length)return;
+    const pids=[...tsCP.pids],gain=tsCP.gain,aw=tsCP.award.splice(0);tsCP.pids.clear();tsCP.gain=0;tsSyncBadge(1);
+    try{const u=(await TsCloud.get(L.cls,L.doc))||{name:L.name};u.log=u.log||{};for(const p of pids)if(tsStore.log[p])u.log[p]=tsStore.log[p];u.wrong=tsStore.wrong||{};u.pts=(u.pts||0)+gain;
+      for(const a of aw){u.pts+=a.pts;u[a.what]=(u[a.what]||0)+1;if(a.extra)Object.assign(u,a.extra)}u.last=Date.now();
+      await TsCloud.set(L.cls,L.doc,u);if(tsCloud)tsCloud.users[L.doc]=u;L.pts=u.pts;tsStore.login=L;tsSave();tsCP.fail=0;tsSyncBadge(0)}
+    catch(e){pids.forEach(p=>tsCP.pids.add(p));tsCP.gain+=gain;tsCP.award.unshift(...aw);tsCP.fail++;tsSyncBadge(2);setTimeout(()=>tsCloudFlush(0),Math.min(60000,5000*tsCP.fail))}})}
+function tsSyncBadge(s){let el=$('#syncBadge');if(!el){el=document.createElement('div');el.id='syncBadge';el.hidden=true;document.body.appendChild(el)}clearTimeout(tsSyncBadge.t);
+  if(s===0){el.hidden=true;return}
+  if(s===1){tsSyncBadge.t=setTimeout(()=>{el.textContent='⏳ '+T('记录上传中');el.className='';el.hidden=false},1500);return}
+  el.textContent='⚠ '+T('记录未上传，稍后重试');el.className='bad';el.hidden=false}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)tsCloudFlush(0)});
 async function tsAward(pts,what,extra){ // 其他得分（和 AI 下完一盘、升级赛升级）；extra：一起记下的资料（例如级位）
   const L=tsLogin();tsStore.pts=(tsStore.pts||0)+pts;tsSave();
-  if(L&&L.role==='student'){try{const u=(await TsCloud.get(L.cls,L.doc))||{name:L.name};u.pts=(u.pts||0)+pts;u[what]=(u[what]||0)+1;if(extra)Object.assign(u,extra);u.last=Date.now();await TsCloud.set(L.cls,L.doc,u);L.pts=u.pts;tsStore.login=L;tsSave()}catch(e){}}
+  if(L&&L.role==='student'){tsCP.award.push({pts,what,extra});tsCloudFlush()}
 }
 
 /* ---- 出题 ---- */
@@ -8169,7 +8189,7 @@ function tsCardInfo(){const c=ts.card,hw=!!(ts.quiz&&tsQuiz&&tsQuiz.mode==='hw')
   let note=c.ok?tsNote(ts.node):ts.msg||'';if(c.ok)note=note.replace(/【AI[^】]*】[^\n]*/g,'').trim();
   return{peek,retry,next,last,note}}
 function tsCardSync(){const wrap=document.querySelector('.board-wrap');let el=document.getElementById('tsCard');
-  const show=ts&&ts.card&&ts.mode==='solve'&&tsView==='solve'&&!ts.view&&!ts.trial&&!ts.busy&&wrap&&!$('#tsBox').hidden;
+  const show=ts&&ts.card&&(!ts.card.ok||ts.solved)&&ts.mode==='solve'&&tsView==='solve'&&!ts.view&&!ts.trial&&!ts.busy&&wrap&&!$('#tsBox').hidden;
   if(!show){if(el)el.remove();return}
   const c=ts.card,key=(c.ok?'ok':'bad')+(c.hidden?'h':'')+c.t+(ts.over?'o':'');if(el&&el.dataset.k===key)return;if(el)el.remove();
   el=document.createElement('div');el.id='tsCard';el.dataset.k=key;wrap.appendChild(el);
@@ -10032,9 +10052,9 @@ function capClick(x,y){
   ts.capN=(ts.capN||0)+1;capAdd('B',p,r.b);
   if(r.b[c.t]!==2){capWin();return}
   const lim=c.k+2,left=lim-ts.capN;if(left<=0){tsFail(T('手数用完了，白棋还没被吃掉。'));return}
-  ts.busy=true;renderTs();
-  setTimeout(()=>{if(!capOn())return;const rep=Cap.reply(r.b,n,c.t,left,r.ko);ts.busy=false;ts.capKo=rep.ko;capAdd('W',rep.p,rep.b);
-    if(rep.p<0)ts.msg=T('白棋没有应，走了别的地方。');
+  ts.busy=true;ts.busyT=performance.now();renderTs();const me=ts;
+  setTimeout(()=>{if(!capOn()){if(me)me.busy=false;return}const rep=Cap.reply(r.b,n,c.t,left,r.ko);ts.busy=false;ts.capKo=rep.ko;capAdd('W',rep.p,rep.b);
+    if(rep.p<0){ts.msg=T('白棋放弃逃跑（脱先）了，△ 还没被吃，继续下，把它吃掉！');capFx(T('△ 还没被吃！'),true)}
     if(!rep.k){tsFail(T('白棋逃掉了！'));return}renderTs()},350)}
 function capWin(){const c=ts.prob.cap,s=ts.capN<=c.k?3:ts.capN<=c.k+1?2:1,S=tsStore.capStars=tsStore.capStars||{};
   if(!ts.shown&&(!S[ts.pid]||s>S[ts.pid]))S[ts.pid]=s;tsSave();ts.capS=s;
@@ -10072,6 +10092,7 @@ function bzEnd(){const q=tsQuiz;if(!q||q.ended)return;q.ended=true;tsQuiz=null;
   const ok=q.res.filter(x=>x.ok).length,key=bzKey(q.bookId,q.sec),B=tsStore.bzBest=tsStore.bzBest||{},old=B[key]||{n:0};
   q.ok=ok;q.best=Math.max(ok,old.n);q.newBest=ok>old.n;q.gain=0;
   if(q.newBest){B[key]={n:ok,t:Date.now()};q.gain=Math.min(30,(ok-old.n)*2);tsSave();tsAward(q.gain,'blitz',{['bz_'+key]:B[key]})}
+  tsCloudFlush(0); // 限时挑战中先记在本机，现在一次上传（第 38 项）
   tsQuizDone=q;tsExit();tsView='blitzEnd';renderTs();if(q.newBest&&ok)mascotSay('wow',T('新纪录：{0} 题！',ok));else mascotSay('encourage',T('加油，下次一定更多！'))}
 function bzSecSel(){const v=tsStore.bzSec||60;return`<select id="bzSec">${BZ_SECS.map(s=>`<option value="${s}"${s==v?' selected':''}>${T('{0} 秒',s)}</option>`).join('')}</select>`}
 function bzHead(){const q=tsQuiz,ok=q.res.filter(x=>x.ok).length;

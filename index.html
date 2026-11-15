@@ -2719,6 +2719,19 @@ const EN={
 ,"棋谱正文存在 IndexedDB":"Game records are stored in IndexedDB"
 ,"再点一次：删除 {0} 盘自动棋谱（放进文件夹的不删）":"Tap again: delete {0} auto games (games in folders are kept)"
 ,"已清理 {0} 盘自动棋谱":"Removed {0} auto games"
+,"题型":"Type"
+,"一般题（自己摆答案）":"Regular (you set the answer)"
+,"引擎吃子题":"Engine capture problem"
+,"引擎吃子题：摆好棋子，用上面的 △ 标出要吃的白棋（一块棋标一颗就好），黑先。存的时候引擎会自动算出最少几手能吃；学生用任何吃法吃掉都算对。":"Engine capture problem: set up the stones and mark the white group to capture with △ above (one stone per group is enough). Black plays first. When you save, the engine works out the fewest moves needed; any way the student captures it counts as correct."
+,"引擎检查并存进练习册":"Check with engine and save"
+,"新题目（引擎吃子题）":"New problem (engine capture)"
+,"点题目进去，按「修改这题」可以改局面、△、说明":"Open a problem and tap \"Edit\" to change the position, △ or text"
+,"请先摆好白棋":"Place the white stones first"
+,"请用 △ 标出要吃的白棋（点在白子上）":"Mark the white group to capture with △ (on a white stone)"
+,"太复杂了，引擎算不完。请把题目改简单一点（例如少一点棋子、缩小范围）。":"Too complex for the engine. Please simplify the problem (fewer stones, smaller area)."
+,"黑棋 6 手之内吃不掉 △ 的白棋，请改一下题目。":"Black cannot capture the △ group within 6 moves. Please change the problem."
+,"已存好。注意：最少手数从 {0} 手变成 {1} 手":"Saved. Note: fewest moves changed from {0} to {1}"
+,"已存好：最少 {0} 手可以吃掉":"Saved: can be captured in {0} moves at least"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -7535,7 +7548,8 @@ async function tsSaveBook(b,force){const L=tsLogin();b.updated=Date.now();
   if(b.builtin){ // 内建练习册：只存「和原版不一样的地方」到班级
     const pure=TS_BUILTIN.find(x=>x.id===b.id),glob=force==='global'||tsScope(b)==='global',orig=glob?pure:tsBase(pure),fix={},have=new Set(); // 全站：和内建原版比；班级：和全站原版比
     for(const p of b.problems){have.add(p.id);const o=orig.problems.find(x=>x.id===p.id);
-      if(!o)fix[p.id]={add:1,title:p.title,level:p.level,sgf:p.sgf};else if(o.sgf!==p.sgf||o.title!==p.title||o.level!==p.level)fix[p.id]={title:p.title,level:p.level,sgf:p.sgf}}
+      const cp=p.cap?{cap:p.cap}:o&&o.cap?{cap:null}:{}; // 引擎吃子题的 △ 和手数也要存
+      if(!o)fix[p.id]={add:1,title:p.title,level:p.level,sgf:p.sgf,...cp};else if(o.sgf!==p.sgf||o.title!==p.title||o.level!==p.level||JSON.stringify(o.cap||null)!==JSON.stringify(p.cap||null))fix[p.id]={title:p.title,level:p.level,sgf:p.sgf,...cp}}
     for(const o of orig.problems)if(!have.has(o.id))fix[o.id]={hide:1};
     const nat=tsApplyFix({...orig,problems:orig.problems},{...fix,__order:null},false).problems.map(p=>p.id),ids=b.problems.map(p=>p.id);if(nat.join()!==ids.join())fix.__order=ids;
     if(b.title&&b.title!==orig.title)fix.__title=b.title;
@@ -7689,10 +7703,11 @@ function tsEditStart(bookId,idx,fromGame){
   else if(fromGame&&ts.prevG){const pg=ts.prevG,n=sizeOf(pg.root),st=computeState(ts.prevCur||pg.root,n),B=[],W=[];
     for(let y=0;y<n;y++)for(let x=0;x<n;x++){if(st.g[y][x]===1)B.push(xyToPt(x,y));if(st.g[y][x]===2)W.push(xyToPt(x,y))}
     r=parseSGF(`(;GM[1]FF[4]SZ[${n}]PL[${nextColor(ts.prevCur||pg.root)}]C[${T('黑先')}])`);if(B.length)r.props.AB=B;if(W.length)r.props.AW=W}
-  else r=parseSGF(`(;GM[1]FF[4]SZ[19]PL[B]C[${T('黑先')}])`);
+  else r=parseSGF(`(;GM[1]FF[4]SZ[${b.cap?9:19}]PL[B]C[${T('黑先')}])`); // 引擎吃子题本：新题预设 9 路
   G={id:'__ts',root:r};cur=r;
   undoStack=[];redoStack=[];undoUI(); // 复原只管这一题
-  Object.assign(ts,{mode:'edit',bookId,idx:old?idx:null,stone:'AB',mark:null,phase:old?'answer':'setup',title:old?old.title:'',level:old?old.level||2:2});
+  const capT=old?!!old.cap:!!b.cap; // 第 39f 项：引擎吃子题（只摆局面、标 △，答案由引擎判）
+  Object.assign(ts,{mode:'edit',bookId,idx:old?idx:null,stone:'AB',mark:null,capT,phase:old&&!capT?'answer':'setup',title:old?old.title:'',level:old?old.level||2:2});
   tsCrop=null;tsView='edit';document.body.classList.remove('is-ts');tool='play';renderTree();render();renderTs();
 }
 function tsEditClick(x,y,right){ // 摆题阶段：左键放选好的颜色（预设黑）、右键放白子，同色再点一次就擦掉；答案阶段：照一般下法记录变化
@@ -7751,6 +7766,22 @@ async function tsEditSave(){
   try{await tsSaveBook(b);flash(T('题目已存好'))}catch(e){flash(T('存不进去：{0}',e.message));return}
   tsBookId=b.id;tsExit();tsView='book';renderTs();
 }
+async function tsCapSave(){ // 第 39f 项：引擎吃子题——引擎先检查吃不吃得掉、最少几手，才存
+  const b=tsWork(tsBook(ts.bookId));if(!b)return;const r=G.root,n=sizeOf(r);
+  if(!r.props.AW){flash(T('请先摆好白棋'));return}
+  const st=computeState(r,n),ix=pt=>{const q=ptToXY(pt,n);return q?q[1]*n+q[0]:-1},tr=(r.props.TR||[]).map(ix).filter(t=>t>=0&&st.g[(t/n)|0][t%n]===2);
+  if(!tr.length){flash(T('请用 △ 标出要吃的白棋（点在白子上）'));return}
+  const t=tr[0],bd=capFlat(r,n),LIM=4e6;Cap.setBudget(LIM);let k=0,over=false;
+  try{k=Cap.minK(bd,n,t,6,-1);over=!k&&Cap.nodes()>LIM}finally{Cap.setBudget(1e12)}
+  if(!k){flash(over?T('太复杂了，引擎算不完。请把题目改简单一点（例如少一点棋子、缩小范围）。'):T('黑棋 6 手之内吃不掉 △ 的白棋，请改一下题目。'));return}
+  const old=ts.idx!=null?b.problems[ts.idx]:null,title=(ts.title||'').trim()||T('第 {0} 题',(ts.idx!=null?ts.idx:b.problems.length)+1);
+  const q=$('#tsQ')?$('#tsQ').value.trim():'',auto=T('黑先：吃掉有 △ 的白棋（最少 {0} 手）',k);
+  r.props.C=[!q||/△/.test(q)&&/最少|at least|fewest/i.test(q)||q===T('黑先')?auto:q];r.props.GN=[title];r.props.PL=['B'];r.props.TR=[xyToPt(t%n,(t/n)|0)];r.children=[];
+  const p={id:old?old.id:tsId(),title,level:ts.level||2,sgf:toSGF(r),cap:{t,k}};
+  if(old)b.problems[ts.idx]=p;else b.problems.push(p);
+  try{await tsSaveBook(b)}catch(e){flash(T('存不进去：{0}',e.message));return}
+  flash(old&&old.cap&&old.cap.k!==k?T('已存好。注意：最少手数从 {0} 手变成 {1} 手',old.cap.k,k):T('已存好：最少 {0} 手可以吃掉',k));
+  tsBookId=b.id;tsExit();tsView='book';renderTs()}
 async function tsImport(files,bookId){
   const b=tsWork(tsBook(bookId));if(!tsCanEdit(b))return;let added=0,bad=0;
   for(const f of files){const text=await sgfText(f);for(const s of tsSplitSgf(text)){try{const r=parseSGF(s);if(!r.props.AB&&!r.props.AW){bad++;continue}tsNormalize(r);
@@ -7839,6 +7870,7 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
     if(b.problems.length&&!b.view&&!b.cap){const qb=(tsStore.quizBest||{})[b.id];h+=`<div class="row" style="align-items:center"><button class="btn pri" data-a="hw">${T('作业本（随机 {0} 题）',Math.min(10,b.problems.length))}</button><button class="btn" data-a="quiz">${T('闯关模式（{0} 题）',Math.min(10,b.problems.length))}</button><label>${T('限时')} <select id="tsLimit">${[['0',T('不限')],['30',T('30 秒')],['60',T('60 秒')],['auto',T('按难度')]].map(([v,l])=>`<option value="${v}"${String(tsStore.limit||'0')===v?' selected':''}>${l}</option>`).join('')}</select></label>${qb?`<span class="note" style="margin:0">${T('最好成绩：{0}/{1}，{2}',qb.ok,qb.n,tsFmt(qb.ms))}</span>`:''}</div>`}
     if(b.problems.length&&!b.view)h+=`<div class="row" style="align-items:center"><button class="btn" data-a="bzbook">⏱ ${T('限时挑战')}</button>${bzSecSel()}<span class="note" style="margin:0">${T('答错扣 2 秒')}</span></div>`;
     if(b.problems.length&&!b.cap)h+=`<div class="row"><button class="btn" data-a="print6">${T('打印（每页 6 题）')}</button><button class="btn" data-a="print12">${T('打印（每页 12 题）')}</button>${ed&&b.problems.some(p=>!/;[BW]\[/.test(p.sgf.slice(p.sgf.indexOf(';',1))))?`<button class="btn" data-a="aifill">${T('AI 补上没有答案的题')}</button>`:''}</div>`;
+    if(ed&&b.cap)h+=`<div class="row"><button class="btn pri" data-a="newp">${T('新题目（引擎吃子题）')}</button><span class="note" style="margin:0">${T('点题目进去，按「修改这题」可以改局面、△、说明')}</span></div>`;
     if(ed&&!b.cap)h+=`<div class="row"><button class="btn pri" data-a="newp">${T('新题目')}</button>${ts&&ts.prevG||G.id!=='__ts'?`<button class="btn" data-a="newpg">${T('用目前棋局出题')}</button>`:''}<label class="btn" style="cursor:pointer">${T('导入 SGF')}<input type="file" id="tsFile" accept=".sgf,text/plain" multiple hidden></label><label class="btn" style="cursor:pointer">${T('从图片导入（可一页多题）')}<input type="file" id="tsImgB" accept="image/*" hidden></label>${b.builtin?'':`<button class="btn" data-a="dlbook">${T('下载练习册')}</button><button class="btn warn" data-a="delbook">${T('删除练习册')}</button>`}</div>`;
   }else if(tsView==='solve'&&ts){
     const b=tsBook(ts.bookId),p=ts.prob,col=nextColor(G.root);
@@ -7869,12 +7901,13 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
     h+=`<div class="score-opts"><label>${T('标题')} <input id="tsTitle" value="${tsE(ts.title)}" style="width:10em"></label><label>${T('难度')} <select id="tsLevel">${[1,2,3,4,5].map(v=>`<option value="${v}"${v==ts.level?' selected':''}>${tsStars(v)}</option>`).join('')}</select></label></div>`;
     h+=`<div class="score-opts"><label style="flex:1">${T('题目说明')} <input id="tsQ" value="${tsE(tsNote(G.root))}" placeholder="${T('例如：黑先活')}" style="flex:1;min-width:10em"></label></div>`;
     h+=`<div class="score-opts"><span>${T('标记')}</span><span class="seg" id="tsMark">${[['','✋',T('不标记')],['TR','△'],['CR','○'],['SQ','□'],['MA','✕'],['LB','A',T('字母 A B C')],['LN','1',T('数字 1 2 3')],['erase',T('擦标记')]].map(([k,l,tt])=>`<button data-mk="${k}" aria-pressed="${(ts.mark||'')===k}"${tt?` title="${tt}"`:''}>${l}</button>`).join('')}</span>${ts.mark?`<span class="note" style="margin:0">${setup?T('标记放在题目开始的局面'):T('标记放在现在这一手')}${T('；同一点再点一次取消，右键擦掉')}</span>`:''}</div>`;
+    if(setup)h+=`<div class="score-opts"><span>${T('题型')}</span><span class="seg"><button data-a="ptype" data-v="0" aria-pressed="${!ts.capT}">${T('一般题（自己摆答案）')}</button><button data-a="ptype" data-v="1" aria-pressed="${!!ts.capT}">${T('引擎吃子题')}</button></span></div>`+(ts.capT?`<p class="note" style="margin:0">${T('引擎吃子题：摆好棋子，用上面的 △ 标出要吃的白棋（一块棋标一颗就好），黑先。存的时候引擎会自动算出最少几手能吃；学生用任何吃法吃掉都算对。')}</p>`:'');
     if(setup)h+=`<div class="score-opts"><span class="seg" id="tsStone"><button data-s="AB" aria-pressed="${ts.stone==='AB'}">${T('放黑子')}</button><button data-s="AW" aria-pressed="${ts.stone==='AW'}">${T('放白子')}</button><button data-s="AE" aria-pressed="${ts.stone==='AE'}">${T('擦掉')}</button></span>
-      <span class="seg" id="tsFirst"><button data-c="B" aria-pressed="${prop(G.root,'PL')!=='W'}">${T('黑先')}</button><button data-c="W" aria-pressed="${prop(G.root,'PL')==='W'}">${T('白先')}</button></span></div>
+      ${ts.capT?'':`<span class="seg" id="tsFirst"><button data-c="B" aria-pressed="${prop(G.root,'PL')!=='W'}">${T('黑先')}</button><button data-c="W" aria-pressed="${prop(G.root,'PL')==='W'}">${T('白先')}</button></span>`}</div>
       <p class="note" style="margin:0">${T('电脑：左键放选好的颜色（预设黑子），右键放另一种颜色；同一颜色再点一次就擦掉。Ctrl+Z 复原。')}</p>
       <div class="row" style="align-items:center"><span>${T('整题移动')}</span>${tsShiftBtns('shift')}<button class="btn" data-a="swapc" title="${T('黑白互换')}">⚫⇄⚪ ${T('黑白互换')}</button><span class="note" style="margin:0">${T('图片导入放错角落时用：箭头移一路，斜箭头贴到那个角。答案会一起移。')}</span></div>
       <div class="row"><label class="btn" style="cursor:pointer">${T('从图片导入（截图／照片）')}<input type="file" id="tsImg" accept="image/*" hidden></label></div>
-      <div class="row"><button class="btn pri" data-a="toanswer">${T('下一步：摆答案')}</button><button class="btn" data-a="cancel">${T('取消')}</button></div>`;
+      <div class="row">${ts.capT?`<button class="btn pri" data-a="savecap">${T('引擎检查并存进练习册')}</button>`:`<button class="btn pri" data-a="toanswer">${T('下一步：摆答案')}</button>`}<button class="btn" data-a="cancel">${T('取消')}</button></div>`;
     else h+=`<div id="tsVarBox">${tsVarHtml()}</div><div class="score-opts" id="tsNoteRow"${cur===G.root?' hidden':''}><label style="flex:1;display:flex;gap:6px;align-items:center">${T('这一手的说明')} <input id="tsNodeNote" value="${tsE(cur===G.root?'':tsNote(cur))}" placeholder="${T('例如：白 2 断，黑棋不够气')}" style="flex:1;min-width:10em"></label><span id="tsNodeKind">${tsKindTag(cur)}</span></div>
       <p class="note" style="margin:0">${T('错的变化：把对方的应手也摆出来，再按「这条是错的」，并在「这一手的说明」写原因。学生下错时会看到整个失败图和这段说明。')}</p>
       <div class="row"><button class="btn" data-a="eback" title="${T('右键点棋盘，或按 ←')}">◀ ${T('退一手')}</button><button class="btn" data-a="efwd" title="→">▶</button><button class="btn warn" data-a="edel" title="Delete">✕ ${T('删掉这一手')}</button><button class="btn" data-a="eundo" title="Ctrl+Z">↶ ${T('复原')}</button></div>
@@ -8094,6 +8127,8 @@ async function tsAct(e){
     case'right':tsMark(true);break;
     case'wrongm':tsMark(false);break;
     case'savep':await busy(tsEditSave);break;
+    case'savecap':ts.title=$('#tsTitle').value;ts.level=+$('#tsLevel').value;await busy(tsCapSave);break;
+    case'ptype':ts.title=$('#tsTitle').value;ts.level=+$('#tsLevel').value;G.root.props.C=[$('#tsQ').value||T('黑先')];ts.capT=t.dataset.v==='1';if(ts.capT)G.root.props.PL=['B'];renderTs();render();break;
     case'cancel':{const bid=ts.bookId;tsExit();tsBookId=bid;tsView='book';renderTs();break}
     case'slogin':await busy(async()=>{if(!tsStore.agree){if(!($('#tsAgree')||{}).checked)throw new Error(T('请先请家长看「私隐说明」，再勾选同意'));tsStore.agree=Date.now();tsSave()}await tsStudentLogin($('#tsCls').value,$('#tsName').value,$('#tsPin').value);tsView='home'});break;
     case'bindg':await busy(async()=>{await tsBindGoogle();tsMsg=T('已绑定 Google 账号。以后用「老师登录（Google）」登录。')});break;

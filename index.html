@@ -80,7 +80,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .app{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
-@media (max-width:900px){.app{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:900px){.app{grid-template-columns:minmax(0,1fr)}}.app>aside,.app>main{min-width:0}@media (max-width:900px){.app>aside{align-self:stretch;max-width:100%}}
 /* 手机、平板直放：对局面板在棋盘上方，工具在棋盘下方，再来评论、棋谱树、整盘分析 */
 @media (max-width:900px){
   .app{display:flex;flex-direction:column;gap:12px}.app>main{display:contents}
@@ -2706,6 +2706,11 @@ const EN={
 ,"还没有训练资料":"No training data yet"
 ,"已导出 {0} 张照片的训练资料":"Exported training data from {0} photos"
 ,"导出失败：{0}":"Export failed: {0}"
+,"黑白互换":"Swap colours"
+,"黑白互换好了":"Colours swapped"
+,"黑白互换好 {0} 题":"Swapped colours in {0} problems"
+,"观战者不能在对局里留言。":"Spectators can't post in the game chat."
+,"今天的苹果已经拿满了（每天最多 {0} 个）":"You've reached today's apple limit ({0} a day)"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -5615,7 +5620,7 @@ function vsUndo(){ // 悔棋：拿掉 AI 的一手和自己的一手
   vs.over=false;vs.finished=false;vs.endMsg='';vs.msg='';vs.low=0;if(scoring)stopScoring();changed();render();renderVs();
 }
 function vsStop(){vs=null;$('#vsBox').hidden=true;if(judging){judging=false;$('#judgeToggle').setAttribute('aria-pressed','false')}}
-function renderVs(){if(vs&&vs.relay)relayMark();
+function renderVs(){if(vs&&vs.relay)relayMark();if(!(vs&&vs.quest)&&typeof qOppStop==='function'&&$('#qOpp'))qOppStop();
   if(!vs){return}const box=$('#vsBox');box.hidden=false;
   const r=root(),n=sizeOf(r),ha=parseInt(prop(r,'HA')||'0',10)||0,user=vs.ai===1?'W':'B';
   $('#vsSub').textContent=[T('AI 棋力：{0}',lvName(vs.level)),T('{0} 路',n),ha>=2?T('让 {0} 子',ha):'',komiText(n,prop(r,'KM')||'0')].filter(Boolean).join(' · ');
@@ -6701,17 +6706,19 @@ const olIsMe=p=>!!p&&!!p.uid&&(p.uid===olAcct()||p.uid===olLocal());
 function acctName(){try{const L=typeof tsLogin==='function'&&tsLogin();return(L&&L.name)||(typeof acct!=='undefined'&&acct&&acct.name)||''}catch(e){return''}} // 登入了：「我的名字」一律用户口名字
 const olName=()=>acctName()||(ng&&ng.name)||me()||'';
 async function olDoc(gid,name){const db=await Shared.db();return db.collection('games').doc(gid).collection('layers').doc(name)}
-const olPack=o=>({sgf:JSON.stringify(o),name:'state',updated:Date.now()});
+const olSeatAu=x=>!x?'':x.au||(x.uid&&x.uid===olUid()?laAuth():x.resv?'':'legacy'); // 规则用：这个位子是谁（登录身份）；旧对局没有记录的写 legacy
+const olPack=o=>({sgf:JSON.stringify(o),name:'state',updated:Date.now(),pB:olSeatAu(o.B),pW:olSeatAu(o.W)}); // 第 44 项：规则只让对局者改
 const olUnpack=d=>{try{return d&&d.exists?JSON.parse(d.data().sgf):null}catch(e){return null}};
 
 /* ---- 等级分（Elo）：1000 分起，大约 100 分一级；2100 = 1 段 ---- */
 function olRankName(r){r=Math.round(r);if(r>=2100)return T('{0} 段',Math.min(9,1+Math.floor((r-2100)/100)));return T('{0} 级',Math.min(30,Math.max(1,Math.ceil((2100-r)/100))))}
-async function olRating(uid){try{let d=olUnpack(await(await olDoc('lobby','r_'+uid)).get());if(!d&&uid===olAcct())d=olUnpack(await(await olDoc('lobby','r_'+olLocal())).get());return d||{r:1000,g:0}}catch(e){return{r:1000,g:0}}}
+async function olRating(uid){try{const keys=uid===olUid()?[laAuth(),uid,olLocal()]:[uid];let d=null; // 第 44 项：自己的分数存在登录身份下（规则只准写自己的）；旧的位置拿来接续
+    for(const k of keys){if(!k)continue;d=olUnpack(await(await olDoc('lobby','r_'+k)).get());if(d)break}return d||{r:1000,g:0}}catch(e){return{r:1000,g:0}}}
 async function olRateAfter(st){ // 对局结束：更新自己的分数（每个人只更新自己的）
   if(!ol||!ol.me||st.rated===false||!/^[BW]\+/.test(st.re||''))return;const k='rated_'+st.id;try{if(localStorage.getItem(k))return;localStorage.setItem(k,'1')}catch(e){}
   const meP=st[ol.me],op=st[ol.me==='B'?'W':'B'],mine=await olRating(meP.uid),R=mine.r,O=op.r||1000;
   const win=st.re[0]===ol.me?1:0,E=1/(1+Math.pow(10,(O-R)/400)),K=mine.g<10?40:24,nr=Math.round(R+K*(win-E));
-  await(await olDoc('lobby','r_'+meP.uid)).set({sgf:JSON.stringify({r:nr,g:mine.g+1,name:meP.name,t:Date.now()}),name:'r_'+meP.uid,updated:Date.now()});
+  const rk='r_'+(laAuth()||meP.uid);await(await olDoc('lobby',rk)).set({sgf:JSON.stringify({r:nr,g:mine.g+1,name:meP.name,t:Date.now()}),name:rk,updated:Date.now()});
   ol.rateMsg=T('等级分 {0} → {1}（{2}）',R,nr,olRankName(nr));renderOl();
 }
 
@@ -6868,7 +6875,7 @@ function renderOl(){
       else if(st.status==='play'&&ol.me)h+=`<div class="row"><button class="btn" data-p="pass">${T('停一手')}</button><button class="btn warn" data-p="resign">${T('认输')}</button>${ol.trial?`<button class="btn pri" data-p="trial">↩ ${T('回到对局')}</button>`:`<button class="btn" data-p="trial">🧪 ${T('试下')}</button>`}</div>${ol.trial?`<p class="note" style="margin:0">${T('试下中：自己摆变化，对手看不到；按「回到对局」回来。')}</p>`:''}`;
       h+=`<div class="row">${st.status!=='wait'?`<button class="btn" data-p="copy">${T('复制观战链接')}</button>`:''}${st.status==='end'?`<button class="btn pri" data-p="again">${T('再下一盘')}</button><button class="btn" data-p="count" aria-pressed="${!!scoring}">${T('数子 / 数目')}</button><button class="btn" data-p="torev">📖 ${T('进入这棋谱')}</button><button class="btn" data-p="review">${T('整盘分析')}</button>`:''}<button class="btn" data-p="leave">${st.status==='end'?T('我的对局'):T('离开')}</button>${st.status==='end'?`<button class="btn" data-p="gohome">🏠 ${T('回主页')}</button>`:''}</div>`;
       h+=`<div class="olchat"><b class="sub">💬 ${T('留言')}</b><div class="olmsgs">${(st.chat||[]).map(m=>`<div><b>${m.c==='B'?'⚫':m.c==='W'?'⚪':''} ${tsE(m.n)}</b>：${tsE(m.m)} <span class="note" style="margin:0">${new Date(m.t).toLocaleString([], {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>`).join('')||`<span class="note">${T('还没有留言。')}</span>`}</div>
-        ${!ol.me&&ol.ai?`<p class="note" style="margin:0">${T('开着 AI 解说：观战者请在下面的观战区聊天。')}</p>`:`<div class="row" style="margin:0"><input id="olSayI" maxlength="200" placeholder="${T('写几句话给对手…')}" style="flex:1;height:34px"><button class="btn" data-p="say">${T('发送')}</button></div>`}</div>`+laOlChatHtml();
+        ${!ol.me?`<p class="note" style="margin:0">${ol.ai?T('开着 AI 解说：观战者请在下面的观战区聊天。'):T('观战者不能在对局里留言。')}</p>`:`<div class="row" style="margin:0"><input id="olSayI" maxlength="200" placeholder="${T('写几句话给对手…')}" style="flex:1;height:34px"><button class="btn" data-p="say">${T('发送')}</button></div>`}</div>`+laOlChatHtml();
     }
   }
   if(olMsg)h+=`<p class="note" style="color:var(--bad,#C0392B)">${tsE(olMsg)}</p>`;
@@ -6981,7 +6988,7 @@ function restoreLast(){const id=store.lastId&&store.games[store.lastId]?store.la
 function gotoReview(){ // 「进入这棋谱」：把棋盘上这盘棋打开在复盘
   if(vs)vsStop();if(typeof cg!=='undefined'&&cg){cg=null;$('#cgBox').hidden=true}if(typeof ol!=='undefined'&&ol){olClose(true);$('#olBox').hidden=true}
   if(scoring)stopScoring();setMode('review');document.body.classList.remove('pick');render()}
-function goHome(){
+function goHome(){if(typeof qOppStop==='function')qOppStop();
   if(ol&&ol.st&&ol.st.status==='play'&&ol.me&&!ol.st.corr){flash(T('对局还在进行，请先认输或下完'));return}
   if(ol&&ol.st&&ol.st.corr){olClose(true);$('#olBox').hidden=true}
   if(vs&&vs.over)vsStop();  if(ts)tsExit();if(!$('#tsBox').hidden)tsClosePanel();if(!$('#olBox').hidden)olPanelClose();closeNew();if(rev&&!rev.running)revClose();
@@ -7311,10 +7318,20 @@ async function tsHash(s){const d=await crypto.subtle.digest('SHA-256',new TextEn
 const tsLogin=()=>tsStore.login||null;
 
 /* ---- 云端（班级） ---- */
+const TS_CAP_A=100,TS_CAP_P=3000; // 学生自己一天最多加的苹果、积分（老师发的不算）；要改的话，firestore.rules 里的数字也要一起改
 const TsCloud={
   async col(cls){const db=await Shared.db();return db.collection('games').doc('cls_'+cls).collection('layers')},
-  async get(cls,name){const d=await(await this.col(cls)).doc(name).get();if(!d.exists)return null;try{return JSON.parse(d.data().sgf||'null')}catch(e){return null}},
-  async set(cls,name,obj,extra){await(await this.col(cls)).doc(name).set({sgf:JSON.stringify(obj),name,updated:Date.now(),...(extra||{})})},
+  meta:{}, // 学生纪录的顶层栏位（ap、pts、dd、dA、dP）：规则靠它们限制学生自己一天最多加多少（第 44 项）
+  async get(cls,name){const d=await(await this.col(cls)).doc(name).get();if(!d.exists)return null;const x=d.data();if(/^u_/.test(name)&&!/_b_/.test(name))this.meta[cls+'/'+name]={ap:x.ap,pts:x.pts,dd:x.dd,dA:x.dA,dP:x.dP};try{return JSON.parse(x.sgf||'null')}catch(e){return null}},
+  async set(cls,name,obj,extra){const top={};
+    if(/^u_/.test(name)&&!/_b_/.test(name)&&obj&&typeof obj==='object'){const L=tsLogin(),self=L&&L.role==='student'&&L.doc===name,m=this.meta[cls+'/'+name]||{},today=Math.floor(Date.now()/864e5);
+      if(m.ap==null&&self){const d0=await(await this.col(cls)).doc(name).get();if(d0.exists){const x=d0.data();Object.assign(m,{ap:x.ap,pts:x.pts,dd:x.dd,dA:x.dA,dP:x.dP})}}
+      let ap=Math.round(obj.ap||0),pts=Math.round(obj.pts||0),dd=m.dd??today,dA=m.dA||0,dP=m.dP||0;
+      if(self){if(dd!==today){dd=today;dA=0;dP=0}const oA=m.ap??ap,oP=m.pts??pts;let iA=Math.max(0,ap-oA),iP=Math.max(0,pts-oP);
+        if(dA+iA>TS_CAP_A){const cut=dA+iA-TS_CAP_A;ap-=cut;obj.ap=ap;iA-=cut;flash(T('今天的苹果已经拿满了（每天最多 {0} 个）',TS_CAP_A))}
+        if(dP+iP>TS_CAP_P){const cut=dP+iP-TS_CAP_P;pts-=cut;obj.pts=pts;iP-=cut}dA+=iA;dP+=iP}
+      Object.assign(top,{ap,pts,dd,dA,dP});this.meta[cls+'/'+name]={...top}}
+    await(await this.col(cls)).doc(name).set({sgf:JSON.stringify(obj),name,updated:Date.now(),...top,...(extra||{})})},
   async keys(cls){const db=await Shared.db();return db.collection('games').doc('cls_'+cls).collection('keys')}, // 密码的「钥匙」：只能用名字取，不能列出
   async hasKey(cls,k){try{const d=await(await this.keys(cls)).doc(k).get();return d.exists?d.data():null}catch(e){return null}},
   async addKey(cls,k){await(await this.keys(cls)).doc(k).set({t:Date.now()})},
@@ -7703,14 +7720,14 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
     if(setup)h+=`<div class="score-opts"><span class="seg" id="tsStone"><button data-s="AB" aria-pressed="${ts.stone==='AB'}">${T('放黑子')}</button><button data-s="AW" aria-pressed="${ts.stone==='AW'}">${T('放白子')}</button><button data-s="AE" aria-pressed="${ts.stone==='AE'}">${T('擦掉')}</button></span>
       <span class="seg" id="tsFirst"><button data-c="B" aria-pressed="${prop(G.root,'PL')!=='W'}">${T('黑先')}</button><button data-c="W" aria-pressed="${prop(G.root,'PL')==='W'}">${T('白先')}</button></span></div>
       <p class="note" style="margin:0">${T('电脑：左键放选好的颜色（预设黑子），右键放另一种颜色；同一颜色再点一次就擦掉。Ctrl+Z 复原。')}</p>
-      <div class="row" style="align-items:center"><span>${T('整题移动')}</span>${tsShiftBtns('shift')}<span class="note" style="margin:0">${T('图片导入放错角落时用：箭头移一路，斜箭头贴到那个角。答案会一起移。')}</span></div>
+      <div class="row" style="align-items:center"><span>${T('整题移动')}</span>${tsShiftBtns('shift')}<button class="btn" data-a="swapc" title="${T('黑白互换')}">⚫⇄⚪ ${T('黑白互换')}</button><span class="note" style="margin:0">${T('图片导入放错角落时用：箭头移一路，斜箭头贴到那个角。答案会一起移。')}</span></div>
       <div class="row"><label class="btn" style="cursor:pointer">${T('从图片导入（截图／照片）')}<input type="file" id="tsImg" accept="image/*" hidden></label></div>
       <div class="row"><button class="btn pri" data-a="toanswer">${T('下一步：摆答案')}</button><button class="btn" data-a="cancel">${T('取消')}</button></div>`;
     else h+=`<div id="tsVarBox">${tsVarHtml()}</div><div class="score-opts" id="tsNoteRow"${cur===G.root?' hidden':''}><label style="flex:1;display:flex;gap:6px;align-items:center">${T('这一手的说明')} <input id="tsNodeNote" value="${tsE(cur===G.root?'':tsNote(cur))}" placeholder="${T('例如：白 2 断，黑棋不够气')}" style="flex:1;min-width:10em"></label><span id="tsNodeKind">${tsKindTag(cur)}</span></div>
       <p class="note" style="margin:0">${T('错的变化：把对方的应手也摆出来，再按「这条是错的」，并在「这一手的说明」写原因。学生下错时会看到整个失败图和这段说明。')}</p>
       <div class="row"><button class="btn" data-a="eback" title="${T('右键点棋盘，或按 ←')}">◀ ${T('退一手')}</button><button class="btn" data-a="efwd" title="→">▶</button><button class="btn warn" data-a="edel" title="Delete">✕ ${T('删掉这一手')}</button><button class="btn" data-a="eundo" title="Ctrl+Z">↶ ${T('复原')}</button></div>
       <p class="note" style="margin:0">${T('电脑：右键或 ← 退一手、→ 前进、↑↓ 换变化、Delete 删掉这一手、Ctrl+Z 复原。')}</p>
-      <div class="row" style="align-items:center"><span>${T('整题移动')}</span>${tsShiftBtns('shift')}</div>
+      <div class="row" style="align-items:center"><span>${T('整题移动')}</span>${tsShiftBtns('shift')}<button class="btn" data-a="swapc" title="${T('黑白互换')}">⚫⇄⚪ ${T('黑白互换')}</button></div>
       <div class="row"><button class="btn" data-a="right">${T('这条是正解')}</button><button class="btn" data-a="wrongm">${T('这条是错的')}</button><button class="btn" data-a="tostart">${T('回到开头')}</button><button class="btn" data-a="tosetup">${T('回去改棋子')}</button><button class="btn" data-a="aisolve">${T('AI 解答')}</button></div>
       <div class="row"><button class="btn pri" data-a="savep">${T('存进练习册')}</button><button class="btn" data-a="cancel">${T('取消')}</button></div>`;
   }else if(tsView==='classes'){
@@ -7820,8 +7837,10 @@ async function tsAct(e){
     case'bvis':await busy(async()=>{const b=tsStore.books[tsBookId];if(!b)return;b.vis=t.dataset.v;tsSave();await tsShareSync(tsBookId);tsMsg=b.vis==='tea'?T('老师现在看得到这本。'):T('现在只有你自己看得到。')});break;
     case'bpub':await busy(async()=>{tsMsg=await tsPublish(tsWork(tsBook(tsBookId)))});break;
     case'gbdel':armed(t,T('再点一次确认整本删除'),()=>busy(async()=>{const db=await Shared.db();await db.collection('games').doc(TS_GLOBAL).collection('layers').doc(tsBookId).set({sgf:JSON.stringify({removed:true}),name:tsBookId,updated:Date.now()});delete tsGBooks[tsBookId];tsView='home';tsMsg=T('已从全站删除')}));break;
+    case'swapc':if(ts&&ts.mode==='edit'){tsSwapColors(G.root);cur=G.root;render();renderTs();flash(T('黑白互换好了'))}break;
     case'shift':if(ts&&ts.mode==='edit'){if(!tsShiftDir(G.root,sizeOf(G.root),t.dataset.d))flash(T('再移就超出棋盘了'));cur=G.root;render();renderTs()}break;
     case'selshift':await busy(()=>tsSelShift(t.dataset.d));break;
+    case'selswap':await busy(()=>tsSelSwap());break;
     case'selplace':await busy(()=>tsSelPlace(($('#tsSelPos')||{}).value));break;
     case'aud':tsAudStart(tsBookId);break;
     case'audstop':if(tsAudRun){tsAudRun.stop=true;tsAudRun.msg=T('停止中…（这一题算完就停）');renderTs()}break;
@@ -8112,7 +8131,7 @@ function tsSelBar(b,ed){const n=tsSel.set.size,tg=tsSelTargets(b);
   <div class="row" style="align-items:center"><select id="tsSelTo"><option value="__new">${T('＋ 新练习册')}</option>${tg.map(x=>`<option value="${x.id}"${x.id===tsStore.selTo?' selected':''}>${tsE(x.title)}</option>`).join('')}</select>
     <button class="btn" data-a="selcopy"${n?'':' disabled'}>${T('复制到')}</button>${ed?`<button class="btn" data-a="selmove"${n?'':' disabled'}>${T('移到')}</button><button class="btn warn" data-a="seldel"${n?'':' disabled'}>${T('删除')}</button>`:''}
     <button class="btn" data-a="selprint" data-per="6"${n?'':' disabled'}>${T('打印')}</button><button class="btn" data-a="seldl"${n?'':' disabled'}>${T('下载 SGF')}</button></div>
-  ${ed?`<div class="row" style="align-items:center"><span>${T('移到第')}</span><input id="tsSelPos" type="number" min="1" max="${b.problems.length}" style="width:4.5em;height:34px"><span>${T('题的位置')}</span><button class="btn" data-a="selplace"${n?'':' disabled'}>${T('移过去')}</button><span style="margin-left:8px">${T('整题移动')}</span>${tsShiftBtns('selshift')}</div>`:''}
+  ${ed?`<div class="row" style="align-items:center"><span>${T('移到第')}</span><input id="tsSelPos" type="number" min="1" max="${b.problems.length}" style="width:4.5em;height:34px"><span>${T('题的位置')}</span><button class="btn" data-a="selplace"${n?'':' disabled'}>${T('移过去')}</button><span style="margin-left:8px">${T('整题移动')}</span>${tsShiftBtns('selshift')}<button class="btn" data-a="selswap">⚫⇄⚪ ${T('黑白互换')}</button></div>`:''}
   <p class="note" style="margin:0">${T('点题号勾选或取消；电脑上按住 Shift 再点，可以连续选一段。')}${b.builtin&&ed?' '+T('内建题删掉后，可以按「恢复原版」找回来。'):''}</p></div>`}
 async function tsSelCopy(move){const b=tsBook(tsSel.bookId),ps=tsSelPs();if(!ps.length)return;const tid=$('#tsSelTo').value;tsStore.selTo=tid;tsSave();
   let t;if(tid==='__new'){t=tsNewBook();t.title=b.title+' · '+T('选取')}else{const tb=tsBook(tid);if(tb&&tb.src&&!tb.problems.length)await tsLoadBook(tb);t=tsWork(tsBook(tid))}
@@ -8489,10 +8508,20 @@ function tsShiftTree(r,n,dx,dy){const PT=['AB','AW','AE','TR','SQ','CR','MA','SL
   walk(r,false);if(!ok)return false;walk(r,true);return true}
 function tsBBox(r,n){let x0=n,y0=n,x1=-1,y1=-1;(function w(nd){for(const k of['AB','AW'])for(const[x,y]of expandPts(nd.props[k],n)){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y)}
   const m=moveOf(nd),xy=m&&ptToXY(m[1],n);if(xy){x0=Math.min(x0,xy[0]);y0=Math.min(y0,xy[1]);x1=Math.max(x1,xy[0]);y1=Math.max(y1,xy[1])}nd.children.forEach(w)})(r);return x1<0?null:[x0,y0,x1,y1]}
+function tsSwapColors(r){ // 黑白互换（第 42 项）：摆子、答案每一手、轮到谁下、说明文字里的「黑 / 白」
+  const pl=(r.props.PL||[nextColor(r)])[0];
+  const SW={B:'W',W:'B',AB:'AW',AW:'AB',TB:'TW',TW:'TB',PB:'PW',PW:'PB',BR:'WR',WR:'BR'};
+  const sc=s=>String(s).replace(/[黑白]/g,c=>c==='黑'?'白':'黑');
+  (function walk(nd){const o={};for(const k of Object.keys(nd.props))o[SW[k]||k]=nd.props[k];
+    if(o.C)o.C=o.C.map(sc);nd.props=o;nd.children.forEach(walk)})(r);
+  r.props.PL=[pl==='B'?'W':'B']}
 function tsShiftDir(r,n,d){ // d：l r u d（一路）或 tl tr bl br（贴到角）
   if(d.length===1)return tsShiftTree(r,n,d==='l'?-1:d==='r'?1:0,d==='u'?-1:d==='d'?1:0);
   const bb=tsBBox(r,n);if(!bb)return false;const dx=d[1]==='l'?-bb[0]:n-1-bb[2],dy=d[0]==='t'?-bb[1]:n-1-bb[3];return dx||dy?tsShiftTree(r,n,dx,dy):true}
 const tsShiftBtns=a=>`<span class="seg tsshift">${[['l','←'],['r','→'],['u','↑'],['d','↓'],['tl','↖'],['tr','↗'],['bl','↙'],['br','↘']].map(([d,l])=>`<button data-a="${a}" data-d="${d}" title="${d.length===1?T('整题移一路'):T('贴到这个角')}">${l}</button>`).join('')}</span>`;
+async function tsSelSwap(){const b=tsWork(tsBook(tsSel.bookId)),idx=[...tsSel.set];let ok=0; // 第 43 项：勾选的题目一起黑白互换
+  for(const i of idx){const p=b.problems[i];if(!p)continue;try{const r=parseSGF(p.sgf);tsSwapColors(r);b.problems[i]={...p,sgf:toSGF(r)};ok++}catch(e){}}
+  await tsSaveBook(b);tsMsg=T('黑白互换好 {0} 题',ok)}
 async function tsSelShift(d){const b=tsWork(tsBook(tsSel.bookId)),idx=[...tsSel.set];let ok=0,bad=0;
   for(const i of idx){const p=b.problems[i];if(!p)continue;try{const r=parseSGF(p.sgf),n=sizeOf(r);if(tsShiftDir(r,n,d)){b.problems[i]={...p,sgf:toSGF(r)};ok++}else bad++}catch(e){bad++}}
   await tsSaveBook(b);tsMsg=T('移好 {0} 题',ok)+(bad?T('，{0} 题会移出棋盘，没有移',bad):'')}
@@ -10430,7 +10459,8 @@ function cgEnd(re){cg.over=true;root().props.RE=[re];changed();renderInfo();
     (win?S.w:S.l)[cg.lvl]++;tsSave();const pts=win?[0,3,6,10][cg.lvl]:0;
     m=(win?T('你赢了！'):T('AI 赢了，再来！'))+(re.endsWith('+C')?' '+T('（黑吃 {0} 子，白吃 {1} 子）',c.B,c.W):'')+(pts?' '+T('+{0} 分',pts):'');tsAward(pts,'capgo',{cg:S});if(win)mascotSay('cheer',T('赢了！'));else mascotSay('encourage',T('别灰心，再来一盘！'))}
   cg.msg=m;render();renderCg();if(cg.quest&&typeof qBattleEnd==='function')qBattleEnd(!!cg.ai&&w===(cg.ai===1?'W':'B'))}
-function renderCg(){const box=$('#cgBox');if(!box||box.hidden)return;const o=cgOpt,body=$('#cgBody');
+function renderCg(){const box=$('#cgBox');if(!box||box.hidden)return;if(!(cg&&cg.quest)&&typeof qOppStop==='function'&&$('#qOpp'))qOppStop(); // 第 44 项：不是冒险对局就收起对手头像
+  const o=cgOpt,body=$('#cgBody');
   const seg=(k,arr)=>`<span class="seg" data-g="${k}">${arr.map(([v,l])=>`<button data-v="${v}" aria-pressed="${String(o[k])===String(v)}">${l}</button>`).join('')}</span>`;
   let h='';
   if(!cgOn()){if(G&&G.id==='__blank'&&G.cgp!==o.n){const r=parseSGF(cgRootSgf({n:o.n,goal:o.goal,pb:'',pw:''}));G={id:'__blank',root:r,cgp:o.n};cur=r;renderTree();render()}

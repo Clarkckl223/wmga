@@ -38,7 +38,7 @@ service cloud.firestore {
         || (request.auth.uid == uid && request.resource.data.role == 'admin' && isAdmin())
         || (isTeacher() && request.resource.data.role == 'student'));
       allow update: if isAdmin()
-        || (request.auth.uid == uid && request.resource.data.role == resource.data.role)
+        || (request.auth.uid == uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['classes', 'mustPw'])) // 第 44 项：自己只能改这两栏（不能改学生编号）
         || (isTeacher() && resource.data.role == 'student' && request.resource.data.role in ['student', 'revoked']);
       allow delete: if false;
     }
@@ -166,6 +166,40 @@ service cloud.firestore {
       }
     }
 
+    // ---- 第 44 项：线上对局只让对局者改；等级分只能写自己的 ----
+    function ogProtected(gid, name) {
+      return (gid.matches('og_.*') && name == 'state') || (gid == 'lobby' && (name.matches('r_.*') || name.matches('g_.*')));
+    }
+    function legacySeat(d) { return d.pB == 'legacy' || d.pW == 'legacy'; }
+    function ogStateOk(gid) {
+      return (request.resource.data.pB is string && request.resource.data.pW is string) && (
+        resource == null
+          ? (request.auth.uid in [request.resource.data.pB, request.resource.data.pW] || isTeacher())
+          : (!('pB' in resource.data) || legacySeat(resource.data) || isAdmin()
+             || (request.auth.uid in [resource.data.pB, resource.data.pW]
+                 && request.resource.data.pB == resource.data.pB && request.resource.data.pW == resource.data.pW)
+             || (resource.data.pB == '' && request.resource.data.pB == request.auth.uid && request.resource.data.pW == resource.data.pW)
+             || (resource.data.pW == '' && request.resource.data.pW == request.auth.uid && request.resource.data.pB == resource.data.pB)));
+    }
+    function ogIndexOk(name) {
+      let sp = /databases/$(database)/documents/games/$(name.split('g_')[1])/layers/state;
+      return isTeacher() || (exists(sp) && (!('pB' in get(sp).data) || legacySeat(get(sp).data)
+        || request.auth.uid in [get(sp).data.pB, get(sp).data.pW]));
+    }
+    // ---- 第 44 项：学生自己写纪录时，一天最多加 100 个苹果、3000 积分（老师发的不算）----
+    function stuInc(o, n) {
+      let day = request.time.toMillis() / 86400000;
+      return n.ap is int && n.pts is int && n.dd is int && n.dA is int && n.dP is int
+        && n.dd >= o.dd && n.dd >= day - 2 && n.dd <= day + 1
+        && n.dA <= 100 && n.dP <= 3000
+        && n.ap - o.ap <= n.dA - (n.dd == o.dd ? o.dA : 0)
+        && n.pts - o.pts <= n.dP - (n.dd == o.dd ? o.dP : 0)
+        && (n.dd != o.dd || (n.dA >= o.dA && n.dP >= o.dP));
+    }
+    function stuSelfOk() {
+      return resource == null || !('dA' in resource.data) || stuInc(resource.data, request.resource.data);
+    }
+
     // ---- 棋谱分享、线上对弈、家里电脑（不是班级）：维持原来的做法 ----
     // wmga_global：内建练习册的「全站原版」修改，大家都能读，只有管理员能改
     match /games/{gid} {
@@ -176,7 +210,10 @@ service cloud.firestore {
       match /layers/{name} {
         // 不是班级：登录（含匿名）就可以
         allow read: if signed() && !gid.matches('cls_.*');
-        allow create, update: if signed() && small() && !gid.matches('cls_.*') && gid != 'wmga_global';
+        allow create, update: if signed() && small() && !gid.matches('cls_.*') && gid != 'wmga_global' && !ogProtected(gid, name);
+        allow create, update: if signed() && small() && gid.matches('og_.*') && name == 'state' && ogStateOk(gid);
+        allow create, update: if signed() && small() && gid == 'lobby' && name.matches('r_.*') && name == 'r_' + request.auth.uid;
+        allow create, update: if signed() && small() && gid == 'lobby' && name.matches('g_.*') && ogIndexOk(name);
         allow create, update: if gid == 'wmga_global' && isAdmin() && small();
         // 班级：老师、这班的学生、管理员可以读
         allow read: if signed() && gid.matches('cls_.*') && (ownsClass(gid) || inClass(gid) || isAdmin()
@@ -186,7 +223,7 @@ service cloud.firestore {
           && (name != 'meta' || request.resource.data.get('owner', null) == request.auth.uid);
         // 学生纪录（u_…）和学生分享给老师的练习册（u_…_b_…）：老师，或学生自己的
         allow create, update: if signed() && small() && gid.matches('cls_.*') && !teacherDoc(name)
-          && (ownsClass(gid) || isAdmin() || (inClass(gid) && (stu().get('docs', {}).get(gid, '') == name
+          && (ownsClass(gid) || isAdmin() || (inClass(gid) && ((stu().get('docs', {}).get(gid, '') == name && stuSelfOk())
               || (stu().get('docs', {}).get(gid, '') != '' && name.matches(stu().get('docs', {}).get(gid, '') + '_b_.*')))));
         allow delete: if false;
       }

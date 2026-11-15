@@ -195,7 +195,7 @@ h1{font-family:var(--f-display);font-size:1.35rem;margin:0;letter-spacing:.04em}
 .libbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
 .libbar input,.libbar select{height:34px;border:1px solid var(--line);border-radius:6px;padding:0 8px;background:var(--bg);font-size:.86rem;min-width:0}
 .libbar input{flex:1 1 160px}
-.libbar2 .row{margin:0 0 8px;flex-wrap:wrap}.libbar2 select{height:34px}.li.pick{background:var(--accent-soft)}.li.fo .t{font-weight:600}
+.libbar2 .row{margin:0 0 8px;flex-wrap:wrap}.libstore{font-size:12px;color:var(--muted);margin:0 0 8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}.libstore .btn{font-size:12px;padding:4px 8px;min-height:0;height:auto}.libbar2 select{height:34px}.li.pick{background:var(--accent-soft)}.li.fo .t{font-weight:600}
 .libtags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
 .libtags:empty{display:none}
 .libtags button{height:26px;padding:0 9px;border-radius:999px;border:1px solid var(--line);background:transparent;font-size:.78rem}
@@ -2711,6 +2711,14 @@ const EN={
 ,"黑白互换好 {0} 题":"Swapped colours in {0} problems"
 ,"观战者不能在对局里留言。":"Spectators can't post in the game chat."
 ,"今天的苹果已经拿满了（每天最多 {0} 个）":"You've reached today's apple limit ({0} a day)"
+,"共 {0} 盘":"{0} games"
+,"（自动 {0} 盘）":" ({0} auto)"
+,"清理自动棋谱（{0} 盘）":"Clean auto games ({0})"
+,"本机已用 {0} MB / 约 {1} MB":"Using {0} MB of ~{1} MB on this device"
+,"储存空间快满了，请清理自动棋谱或删除旧棋谱":"Storage almost full — clean auto games or delete old ones"
+,"棋谱正文存在 IndexedDB":"Game records are stored in IndexedDB"
+,"再点一次：删除 {0} 盘自动棋谱（放进文件夹的不删）":"Tap again: delete {0} auto games (games in folders are kept)"
+,"已清理 {0} 盘自动棋谱":"Removed {0} auto games"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -4461,8 +4469,45 @@ const moveNo=node=>pathTo(node).filter(moveOf).length;
 /* ===================== 存储 ===================== */
 const LS_KEY='goReview.v1';
 function lsGet(){try{return JSON.parse(localStorage.getItem(LS_KEY))||null}catch(e){return null}}
-function lsSet(v){try{localStorage.setItem(LS_KEY,JSON.stringify(v));return true}catch(e){return false}}
+/* 第45项：棋谱正文放 IndexedDB（容量大）；localStorage 放得下就整份放，放不下只放目录（light） */
+const GDB={db:null,ready:false,cache:{},fail:false};
+function gdbOpen(){return new Promise(res=>{try{const q=indexedDB.open('wmgaGames',1);q.onupgradeneeded=()=>{q.result.createObjectStore('g')};q.onsuccess=()=>res(q.result);q.onerror=()=>res(null);q.onblocked=()=>res(null)}catch(e){res(null)}})}
+async function gdbLoad(){const db=GDB.db=await gdbOpen();if(!db){GDB.fail=true;return null}
+  return new Promise(res=>{try{const out={},tx=db.transaction('g','readonly'),os=tx.objectStore('g'),c=os.openCursor();
+    c.onsuccess=()=>{const k=c.result;if(k){out[k.key]=k.value;k.continue()}else res(out)};c.onerror=()=>res(null)}catch(e){res(null)}})}
+function gdbSync(v){if(!GDB.ready||!GDB.db)return;const put=[],del=[];
+  for(const id in v.games){const r=v.games[id];if(!r||r.sgf==null)continue;const s=JSON.stringify(r);if(GDB.cache[id]!==s){put.push([id,r]);GDB.cache[id]=s}}
+  for(const id in GDB.cache)if(!v.games[id]){del.push(id);delete GDB.cache[id]}
+  if(!put.length&&!del.length)return;
+  try{const tx=GDB.db.transaction('g','readwrite'),os=tx.objectStore('g');for(const[id,r]of put)os.put(r,id);for(const id of del)os.delete(id)}catch(e){console.warn('gdb',e)}}
+let lsLight=false;
+function lsLightOf(v){const g={};for(const id in v.games){const{sgf,review,...rest}=v.games[id];g[id]=rest}return{...v,games:g,light:true}}
+function lsSet(v){gdbSync(v);let ok=false;const idb=GDB.ready&&!!GDB.db;
+  let full=null;try{full=JSON.stringify(v)}catch(e){}
+  if(full&&!(idb&&full.length>4.5e6)){try{localStorage.setItem(LS_KEY,full);lsLight=false;ok=true}catch(e){}}
+  if(!ok&&idb){try{localStorage.setItem(LS_KEY,JSON.stringify(lsLightOf(v)));lsLight=true;ok=true}catch(e){}}
+  return ok||idb}
 let store=lsGet()||{games:{},lastId:null};
+const lsHad=!!localStorage.getItem(LS_KEY);
+async function gdbBoot(){ // 开机：读 IndexedDB，补回 light 模式缺的正文；第一次用就把旧棋谱搬过去
+  let got=null;try{got=await Promise.race([gdbLoad(),new Promise(r=>setTimeout(()=>r(null),2500))])}catch(e){}
+  if(!got){GDB.fail=true;return}
+  if(!lsHad||!Object.keys(store.games).length){for(const id in got)store.games[id]=got[id]}
+  else for(const id in store.games){const r=store.games[id],x=got[id];if(!x)continue;
+    if(r.sgf==null)store.games[id]={...x,...r,sgf:x.sgf,review:x.review}; // light：目录在 localStorage，正文在 IndexedDB
+    else if((x.updated||0)>(r.updated||0))store.games[id]=x}  // 上次 localStorage 没写成功
+  for(const id in store.games)if(store.games[id].sgf==null)delete store.games[id]; // 正文丢了的空目录项
+  for(const id in got)if(store.games[id])GDB.cache[id]=JSON.stringify(got[id]);
+  delete store.light;GDB.ready=true;pruneAuto(true);lsSet(store);
+  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}}
+/* 自动产生的棋谱（闯关、拍照数子、AI 练习…）：只留最新 200 盘；放进文件夹的、正在看的不删 */
+const AUTO_KEEP=200;
+function autoIds(){return Object.keys(store.games).filter(id=>store.games[id].auto&&!(G&&G.id===id)&&!metaOf(store.games[id]).folder)}
+function pruneAuto(quiet,all){const ids=autoIds().sort((a,b)=>(store.games[b].updated||0)-(store.games[a].updated||0));
+  const gone=all?ids:ids.slice(AUTO_KEEP);const tq=store.trashQueue=store.trashQueue||[];
+  for(const id of gone){const r=store.games[id];if(r.driveId)tq.push(r.driveId);if(r.reportDriveId)tq.push(r.reportDriveId);delete store.games[id]}
+  if(gone.length&&!quiet){lsSet(store);renderLib();try{Drive.autoSync()}catch(e){}}return gone.length}
+function markAuto(){if(G&&store.games[G.id]&&!/^__/.test(G.id)){store.games[G.id].auto=true;if(autoIds().length>AUTO_KEEP+20)pruneAuto(false)}}
 const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function prop(r,k){return(r.props[k]||[''])[0]}
 function titleOf(r){const pb=prop(r,'PB')||'黑',pw=prop(r,'PW')||'白';const dt=prop(r,'DT');return(prop(r,'GN')||`${pb} vs ${pw}`)+(dt?` · ${dt}`:'')}
@@ -4840,6 +4885,8 @@ function renderLib(){
       <select data-l="move"${n?'':' disabled'}><option value="">${T('移到文件夹…')}</option><option value="__none">${T('（未归类）')}</option>${fnames.map(f=>`<option value="${escH(f)}">📁 ${escH(f)}</option>`).join('')}<option value="__new">＋ ${T('新文件夹…')}</option></select>
       <button class="btn" data-l="cancel">${T('取消')}</button></div>`}
   else if(all.length)bh=`<div class="row">${libFolder&&!searching?`<button class="btn" data-l="up">← ${T('返回')}</button><b style="align-self:center">📁 ${escH(libFolder)}</b><button class="btn" data-l="ren">${T('改名')}</button><button class="btn warn" data-l="fdel">${T('删除文件夹')}</button>`:`<button class="btn" data-l="newf">＋ ${T('新文件夹')}</button>`}<button class="btn" data-l="sel">☑ ${T('选择')}</button></div>`;
+  {const na=all.filter(id=>store.games[id].auto).length;bh+=`<div class="libstore"><span id="libStore">${T('共 {0} 盘',all.length)}${na?T('（自动 {0} 盘）',na):''}</span>${autoIds().length?` <button class="btn" data-l="autoclr">🧹 ${T('清理自动棋谱（{0} 盘）',autoIds().length)}</button>`:''}</div>`;
+    libStoreEst(all.length,na)}
   bar.innerHTML=bh;
   if(!all.length){el.innerHTML='<div class="empty">'+T('还没有棋谱。')+'</div>';return}
   let fh='';if(!searching&&!libFolder)fh=fnames.map(f=>`<button class="li fo" data-fo="${escH(f)}"><span class="k">📁</span><span class="t">${escH(f)}</span><span class="x">${fcnt[f]}</span></button>`).join('');
@@ -4849,6 +4896,10 @@ function renderLib(){
     return`<button class="li${G&&id===G.id&&!libSel?' on':''}${on?' pick':''}" data-id="${id}"><span class="k">${libSel?(on?'☑':'☐'):shared?'⇄':g.driveId?'☁':'·'}</span><span class="t">${escH(g.title||T('未命名'))}${(()=>{const sub=[m.gn&&(m.pb||m.pw)?`${m.pb||T('黑')} vs ${m.pw||T('白')}`:'',m.re?resultText(m.re):''].filter(Boolean).join(' · ');return sub?`<span class="sub">${escH(sub)}</span>`:''})()}${(g.review&&g.review.done&&g.review.key===g.key)||/XR\[1:/.test(g.sgf||'')?`<span class="tag rep">${T('有报告')}</span>`:''}${searching&&m.folder?`<span class="tag">📁 ${escH(m.folder)}</span>`:''}</span><span class="x">${d.getMonth()+1}/${d.getDate()}</span></button>`}).join('');
 }
 let libFolder='',libSel=null;
+let libEstT=0;
+function libStoreEst(n,na){if(!navigator.storage||!navigator.storage.estimate)return;clearTimeout(libEstT);libEstT=setTimeout(async()=>{try{const e=await navigator.storage.estimate(),el=$('#libStore');if(!el)return;
+  const mb=x=>(x/1048576).toFixed(x<1048576*10?1:0),u=e.usage||0,q=e.quota||0,pc=q?u/q:0;
+  el.innerHTML=escH(T('共 {0} 盘',n)+(na?T('（自动 {0} 盘）',na):'')+' · '+T('本机已用 {0} MB / 约 {1} MB',mb(u),mb(q)))+(pc>.8?` <b style="color:var(--danger)">⚠ ${escH(T('储存空间快满了，请清理自动棋谱或删除旧棋谱'))}</b>`:'')+(lsLight?` <span title="${escH(T('棋谱正文存在 IndexedDB'))}">· IDB</span>`:'')}catch(x){}},300)}
 function libSetFolder(id,name){ // 把文件夹名写进棋谱的 XF 属性（跟着 Drive 同步）
   const rec=store.games[id];if(!rec)return;const apply=r=>{if(name)r.props.XF=[name];else delete r.props.XF};
   if(G&&G.id===id){apply(G.root);rec.sgf=toSGF(G.root)}else{try{const r=parseSGF(rec.sgf);apply(r);rec.sgf=toSGF(r)}catch(e){return}}
@@ -4861,6 +4912,7 @@ function libBarClick(e){const b=e.target.closest('[data-l]');if(!b||b.tagName===
   if(a==='all'){document.querySelectorAll('#libList .li[data-id]').forEach(x=>libSel.add(x.dataset.id));renderLib();return}
   if(a==='none'){libSel.clear();renderLib();return}
   if(a==='up'){libFolder='';renderLib();return}
+  if(a==='autoclr'){const k=autoIds().length;armed(b,T('再点一次：删除 {0} 盘自动棋谱（放进文件夹的不删）',k),()=>{const n=pruneAuto(false,true);flash(T('已清理 {0} 盘自动棋谱',n))});return}
   if(a==='newf'){const n=libAskName();if(!n)return;store.libFolders=[...new Set([...(store.libFolders||[]),n])];libSave();return}
   if(a==='ren'){const n=libAskName(libFolder);if(!n||n===libFolder)return;const old=libFolder;
     for(const id in store.games)if(metaOf(store.games[id]).folder===old)libSetFolder(id,n);
@@ -5498,7 +5550,7 @@ function startNewGame2(forceCol){
   s+=')';
   const r=parseSGF(s);const id=newId();store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};
   if(scoring)stopScoring();if(train)stopTrain();
-  openRoot(r,{id});closeNew();if(typeof setMode==='function')setMode(ng.opp==='self'?'record':'play');
+  openRoot(r,{id});if(ng.opp!=='self')markAuto();closeNew();if(typeof setMode==='function')setMode(ng.opp==='self'?'record':'play');
   if(lad&&judging){judging=false;$('#judgeToggle').setAttribute('aria-pressed','false')}
   if(ng.opp!=='self'){vs={id,pc:prefs.vsPc!==false&&PC.on(),ai:color==='B'?2:1,level:lv,auto:!lad&&ng.auto!==false,ladder:lad,low:0,over:false,thinking:false,msg:'',endMsg:''};tool='play';
     document.querySelectorAll('.tool[data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool==='play'));
@@ -6467,7 +6519,7 @@ function picScoreApply(){const P=picP,{n,B,W}=picStonesSgf();
   const r=parseSGF(`(;GM[1]FF[4]CA[UTF-8]SZ[${n}]KM[${n===19?7.5:5.5}]RU[Chinese]XP[1]DT[${day}]GN[${T('拍照数子')} ${day} ${tm}])`);if(B.length)r.props.AB=B;if(W.length)r.props.AW=W;
   const id=newId();store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};picLast=P;picTrainSave(P);picClose();
   if(vs)vsStop();if(typeof cg!=='undefined'&&cg){cg=null;$('#cgBox').hidden=true}closeNew();
-  setMode('play');document.body.dataset.sub='snap';if(scoring)stopScoring();openRoot(r,{id});startScoring();$('#snapBox').hidden=false;$('#scoreBox').scrollIntoView({block:'nearest',behavior:'smooth'})} // 留在原地：显示数子结果和选择
+  setMode('play');document.body.dataset.sub='snap';if(scoring)stopScoring();openRoot(r,{id});markAuto();startScoring();$('#snapBox').hidden=false;$('#scoreBox').scrollIntoView({block:'nearest',behavior:'smooth'})} // 留在原地：显示数子结果和选择
 let picLast=null; // 上一次拍照数子的照片（「调整辨认」用）
 function snapAct(a){if(a==='again'){snapPick();return}
   if(a==='adjust'){if(!picLast)return;picP=picLast;picUi();return}
@@ -6570,8 +6622,106 @@ function picGridScore(corners,n){ // 格线上要暗、格子中间要亮：分�
   // 最外圈再往外一格：真正的棋盘边外面没有格线；如果还有，表示路数算少了
   let out=0,oc=0;for(const i of[-1,n])for(let t=0.2;t<n-1;t+=0.5){const[x1,y1]=mp(i,t),[x3,y3]=mp(t,i);out+=at(V,x1,y1)+at(H,x3,y3);oc+=2}
   const o=oc?out/oc:0,base=off/cnt;return(on-off)/cnt-1.5*Math.max(0,o-base)}
+/* 第 41b 项：用 73 张真实照片调出来的找棋盘方法
+   板子颜色（色相）→ 板子四条边（直线）→ 拉正成正方形 → 格线间距（自相关）→ 几路 → 对准格线 → 微调四个角 */
+function picAutoGrid(forceN){const P=picP;try{
+  const sc0=Math.min(1,700/Math.max(P.cv.width,P.cv.height)),W=Math.round(P.cv.width*sc0),H=Math.round(P.cv.height*sc0);
+  const c0=document.createElement('canvas');c0.width=W;c0.height=H;c0.getContext('2d').drawImage(P.cv,0,0,W,H);const d=c0.getContext('2d').getImageData(0,0,W,H).data;
+  const lin=new Float32Array(256);for(let v=0;v<256;v++){const t=v/255;lin[v]=t<=0.04045?t/12.92:Math.pow((t+0.055)/1.055,2.4)}
+  const fl=t=>t>0.008856?Math.cbrt(t):7.787*t+16/116;
+  const lab=(r,g,b,o,L,A,B)=>{const R=lin[r],G=lin[g],Bb=lin[b],X=(0.4124*R+0.3576*G+0.1805*Bb)/0.95047,Y=0.2126*R+0.7152*G+0.0722*Bb,Z=(0.0193*R+0.1192*G+0.9505*Bb)/1.08883;
+    const fx=fl(X),fy=fl(Y),fz=fl(Z);L[o]=116*fy-16;A[o]=500*(fx-fy);B[o]=200*(fy-fz)};
+  const med=a=>{if(!a.length)return 0;const s=Float32Array.from(a).sort();return s[s.length>>1]},pct=(a,p)=>{const s=Float32Array.from(a).sort();return s[Math.min(s.length-1,Math.floor(s.length*p))]};
+  const morph=(m,w,h,r,dil)=>{if(r<1)return m;const t=new Uint8Array(w*h),o=new Uint8Array(w*h),K=2*r+1; // 正方形的膨胀/侵蚀（逐列、逐行）
+    for(let y=0;y<h;y++){let c=0;for(let x=-r;x<w+r;x++){if(x+r<w&&x+r>=0)c+=m[y*w+x+r];const xo=x-r-1;if(xo>=0)c-=m[y*w+xo];else if(dil?0:xo>=-K)c+=0;
+      if(x>=0&&x<w){const lo=Math.max(0,x-r),hi=Math.min(w-1,x+r),n=hi-lo+1;t[y*w+x]=dil?(c>0?1:0):(c===n?1:0)}}}
+    for(let x=0;x<w;x++){let c=0;for(let y=-r;y<h+r;y++){if(y+r<h&&y+r>=0)c+=t[(y+r)*w+x];const yo=y-r-1;if(yo>=0)c-=t[yo*w+x];
+      if(y>=0&&y<h){const lo=Math.max(0,y-r),hi=Math.min(h-1,y+r),n=hi-lo+1;o[y*w+x]=dil?(c>0?1:0):(c===n?1:0)}}}
+    return o};
+  // 1) 板子：颜色（色相）和照片中间一样的一大块
+  const L=new Float32Array(W*H),A=new Float32Array(W*H),B=new Float32Array(W*H);for(let i=0;i<W*H;i++)lab(d[i*4],d[i*4+1],d[i*4+2],i,L,A,B);
+  const cx=W>>1,cy=H>>1,rr=Math.min(W,H)>>2,ss=[],cc=[],chs=[];
+  for(let y=cy-rr;y<cy+rr;y+=2)for(let x=cx-rr;x<cx+rr;x+=2){const i=y*W+x,ch=Math.hypot(A[i],B[i]);if(L[i]>50&&ch>10){const h=Math.atan2(B[i],A[i]);ss.push(Math.sin(h));cc.push(Math.cos(h));chs.push(ch)}}
+  if(ss.length<100)return null;
+  const h0=Math.atan2(med(ss),med(cc)),cb=med(chs);
+  let m=new Uint8Array(W*H);for(let i=0;i<W*H;i++){const ch=Math.hypot(A[i],B[i]);if(ch<=Math.max(7,0.35*cb)||L[i]<=25)continue;let dh=Math.abs(Math.atan2(B[i],A[i])-h0);if(dh>Math.PI)dh=2*Math.PI-dh;if(dh<0.45)m[i]=1}
+  m=morph(morph(m,W,H,1,false),W,H,1,true);const k=Math.max(3,Math.floor(Math.min(W,H)/45));m=morph(morph(m,W,H,k,true),W,H,k,false);
+  const lb=new Int32Array(W*H),areas=[0],q=new Int32Array(W*H);let nl=0;
+  for(let s=0;s<W*H;s++){if(!m[s]||lb[s])continue;nl++;let qh=0,qt=0,a=0;q[qt++]=s;lb[s]=nl;while(qh<qt){const p=q[qh++];a++;const x=p%W,y=(p-x)/W;
+      for(const n of[x>0?p-1:-1,x<W-1?p+1:-1,y>0?p-W:-1,y<H-1?p+W:-1])if(n>=0&&m[n]&&!lb[n]){lb[n]=nl;q[qt++]=n}}areas.push(a)}
+  let best=0,bs=0;for(let i=1;i<=nl;i++){if(areas[i]<0.04*W*H)continue;const s=areas[i]*(lb[cy*W+cx]===i?2:1);if(s>bs){bs=s;best=i}}
+  if(!best)return null;
+  const comp=new Uint8Array(W*H);for(let i=0;i<W*H;i++)if(lb[i]===best)comp[i]=1;
+  { // 补洞（棋子）：从照片外框灌水，灌不到的就是洞
+    const out=new Uint8Array(W*H);let qt=0,qh=0;const push=p=>{if(!comp[p]&&!out[p]){out[p]=1;q[qt++]=p}};
+    for(let x=0;x<W;x++){push(x);push((H-1)*W+x)}for(let y=0;y<H;y++){push(y*W);push(y*W+W-1)}
+    while(qh<qt){const p=q[qh++],x=p%W,y=(p-x)/W;if(x>0)push(p-1);if(x<W-1)push(p+1);if(y>0)push(p-W);if(y<H-1)push(p+W)}
+    for(let i=0;i<W*H;i++)if(!out[i])comp[i]=1}
+  // 2) 板子的四条边：边缘点做 Hough，上下左右各取最强的一条
+  const ths=[];for(let t=0;t<180;t+=0.5){if(t<35||t>145||t>55&&t<125)ths.push(t*Math.PI/180)}
+  const R=Math.ceil(Math.hypot(W,H)),LL=2*R+1,acc=new Float32Array(ths.length*LL),cs=ths.map(Math.cos),sn=ths.map(Math.sin);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(!comp[i])continue;if(x>0&&x<W-1&&y>0&&y<H-1&&comp[i-1]&&comp[i+1]&&comp[i-W]&&comp[i+W])continue;
+    for(let t=0;t<ths.length;t++)acc[t*LL+Math.round(x*cs[t]+y*sn[t])+R]++}
+  const thr=Math.min(W,H)*0.12,side={};
+  for(let t=0;t<ths.length;t++){const deg=ths[t]*180/Math.PI,vert=deg<35||deg>145;for(let r=0;r<LL;r++){const v=acc[t*LL+r];if(v<thr)continue;const rho=r-R;let key;
+      if(vert){const x=(rho-cy*sn[t])/cs[t];key=x<cx?'l':'r'}else{const y=(rho-cx*cs[t])/sn[t];key=y<cy?'t':'b'}
+      if(!side[key]||v>side[key].v)side[key]={v,rho,c:cs[t],s:sn[t]}}}
+  if(!side.t||!side.b||!side.l||!side.r)return null;
+  const X=(a,b)=>{const det=a.c*b.s-a.s*b.c;if(Math.abs(det)<1e-6)return null;return[(a.rho*b.s-b.rho*a.s)/det,(a.c*b.rho-b.c*a.rho)/det]};
+  const bq=[X(side.t,side.l),X(side.t,side.r),X(side.b,side.r),X(side.b,side.l)];if(bq.some(p=>!p))return null;
+  const S=600,mp=(Hx,u,v)=>{const[a,b,c,e,f,g,kk,l]=Hx,z=kk*u+l*v+1;return[(a*u+b*v+c)/z,(e*u+f*v+g)/z]};
+  const run=(bq,nFix)=>{
+  // 3) 拉正成 S×S
+  const Hm=picHomo([[0,0],[S,0],[S,S],[0,S]],bq),mp=(Hx,u,v)=>{const[a,b,c,e,f,g,kk,l]=Hx,z=kk*u+l*v+1;return[(a*u+b*v+c)/z,(e*u+f*v+g)/z]};
+  const wr=new Float32Array(S*S*3);for(let v=0;v<S;v++)for(let u=0;u<S;u++){const[x,y]=mp(Hm,u+0.5,v+0.5),x0=Math.floor(x-0.5),y0=Math.floor(y-0.5),fx=x-0.5-x0,fy=y-0.5-y0,o=(v*S+u)*3;
+    if(x0<0||y0<0||x0>=W-1||y0>=H-1){const xi=Math.min(W-1,Math.max(0,Math.round(x))),yi=Math.min(H-1,Math.max(0,Math.round(y))),j=(yi*W+xi)*4;wr[o]=d[j];wr[o+1]=d[j+1];wr[o+2]=d[j+2];continue}
+    for(let c=0;c<3;c++){const p=(y0*W+x0)*4+c;wr[o+c]=(d[p]*(1-fx)+d[p+4]*fx)*(1-fy)+(d[p+W*4]*(1-fx)+d[p+W*4+4]*fx)*fy}}
+  // 4) 棋子、格线
+  const wL=new Float32Array(S*S),wA=new Float32Array(S*S),wB=new Float32Array(S*S),g=new Float32Array(S*S);
+  for(let i=0;i<S*S;i++){const r=Math.round(wr[i*3]),gg=Math.round(wr[i*3+1]),b=Math.round(wr[i*3+2]);lab(r,gg,b,i,wL,wA,wB);g[i]=0.299*wr[i*3]+0.587*wr[i*3+1]+0.114*wr[i*3+2]}
+  const c1=S/6|0,c2=S-c1,chc=[];for(let y=c1;y<c2;y+=2)for(let x=c1;x<c2;x+=2){const i=y*S+x;chc.push(Math.hypot(wA[i],wB[i]))}
+  const chB=pct(chc,0.75),lbs=[];for(let y=c1;y<c2;y+=2)for(let x=c1;x<c2;x+=2){const i=y*S+x;if(Math.hypot(wA[i],wB[i])>0.6*chB)lbs.push(wL[i])}const LB=med(lbs);
+  let stn=new Uint8Array(S*S);for(let i=0;i<S*S;i++){const ch=Math.hypot(wA[i],wB[i]),blk=wL[i]<Math.min(LB-40,LB*0.6);if(blk||ch<0.4*chB&&wL[i]>LB-25)stn[i]=1}
+  stn=morph(morph(stn,S,S,2,false),S,S,2,true);const near=morph(stn,S,S,3,true);
+  const V=new Float32Array(S*S),Hh=new Float32Array(S*S);
+  for(let y=3;y<S-3;y++)for(let x=3;x<S-3;x++){const i=y*S+x;if(near[i])continue;let v=0,h=0;for(const D of[2,3]){v=Math.max(v,Math.min(g[i-D],g[i+D])-g[i]);h=Math.max(h,Math.min(g[i-D*S],g[i+D*S])-g[i])}V[i]=Math.min(40,v);Hh[i]=Math.min(40,h)}
+  const lx=new Float32Array(S),ly=new Float32Array(S),sx=new Float32Array(S),sy=new Float32Array(S),ex=new Float32Array(S),ey=new Float32Array(S),ecx=new Float32Array(S),ecy=new Float32Array(S);
+  for(let y=0;y<S;y++)for(let x=0;x<S;x++){const i=y*S+x;lx[x]+=V[i];ly[y]+=Hh[i];if(!near[i]){ecx[x]++;ecy[y]++}if(stn[i]){sx[x]++;sy[y]++}
+    if(x>0&&x<S-1&&y>0&&y<S-1){const gx=Math.abs(g[i-S+1]+2*g[i+1]+g[i+S+1]-g[i-S-1]-2*g[i-1]-g[i+S-1]),gy=Math.abs(g[i+S-1]+2*g[i+S]+g[i+S+1]-g[i-S-1]-2*g[i-S]-g[i-S+1]);ex[x]+=gx;ey[y]+=gy}}
+  for(let i=0;i<S;i++){lx[i]/=ecx[i]+20;ly[i]/=ecy[i]+20}
+  const nz=p=>{const md=med(Array.from(p)),ab=Array.from(p,v=>Math.abs(v-md)),s=pct(ab,0.9)+1e-6;return Float32Array.from(p,v=>Math.max(-2,Math.min(2,(v-md)/s)))};
+  const Lx=nz(lx),Ly=nz(ly),Sx=nz(sx),Sy=nz(sy),Ex=nz(ex),Ey=nz(ey);
+  const spacing=sig=>{let mu=0;for(const v of sig)mu+=v;mu/=sig.length;const a=Array.from(sig,v=>v-mu),lo=Math.floor(S/23),hi=Math.floor(S/7.5),ac=new Float32Array(hi+2);
+    for(let l=0;l<=hi+1;l++){if(l>0&&l<lo-1)continue;let s=0;for(let i=0;i+l<a.length;i++)s+=a[i]*a[i+l];ac[l]=s}const a0=ac[0]||1;for(let l=0;l<=hi+1;l++)ac[l]/=a0;
+    const pk=[];for(let l=lo;l<=hi;l++)if(ac[l]>=ac[l-1]&&ac[l]>=ac[l+1]&&ac[l]>0.05)pk.push(l);if(!pk.length)return null;const mx=Math.max(...pk.map(l=>ac[l]));
+    for(const l of pk)if(ac[l]>=0.55*mx){const y0=ac[l-1],y1=ac[l],y2=ac[l+1];return l+0.5*(y0-y2)/(y0-2*y1+y2||1e-9)}return null};
+  const add=(a,b,c,wb=1,wc=1)=>Float32Array.from(a,(v,i)=>v+wb*b[i]+(c?wc*c[i]:0));
+  let stx=spacing(add(Ex,Lx,Sx)),sty=spacing(add(Ey,Ly,Sy));
+  const fit=(sig,line,n,st0,lo,hi,step)=>{let bst=null;for(let f=lo;f<=hi+1e-9;f+=step){const st=st0*f,span=st*(n-1);if(span>S-3)continue;
+      for(let x0=1;x0<=S-2-span;x0+=0.5){let on=0,off=0;for(let k=0;k<n;k++){on+=sig[Math.round(x0+k*st)];if(k<n-1)off+=sig[Math.round(x0+k*st+st/2)]}on/=n;off/=n-1;
+        let o=0,oc=0;for(const xo of[x0-st,x0+span+st])if(xo>=1&&xo<=S-2){o+=line[Math.round(xo)];oc++}const sc=on-off-0.4*Math.max(0,oc?o/oc:0)-0.3*Math.abs(x0-(S-x0-span))/st; // 格线通常在板子正中间
+        if(!bst||sc>bst.sc)bst={sc,a:x0,b:x0+span}}}return bst};
+  let n=nFix||forceN||0;if(nFix){stx=sty=S/(nFix-1+1.2)} // 第二次：范围就是格线外多 0.6 格
+  if(!n&&(stx||sty)){const st=((stx||sty)+(sty||stx))/2,kk=S/st;let bc=1e9;for(const nn of[9,13,19]){const mm=(kk-(nn-1))/2;if(mm>=0.1&&mm<=(nn===9?3:3.5)&&Math.abs(mm-0.8)<bc){bc=Math.abs(mm-0.8);n=nn}}}
+  let bx,by;
+  if(n&&(stx||sty)&&!(forceN&&!stx)){stx=stx||sty;sty=sty||stx;bx=fit(add(Lx,Sx,null,0.25),Lx,n,stx,0.94,1.06,0.005);by=fit(add(Ly,Sy,null,0.25),Ly,n,sty,0.94,1.06,0.005)}
+  if(!bx||!by){let bc=null;for(const nn of nFix||forceN?[nFix||forceN]:[9,13,19]){const lo=S/(nn-1+7),hi=S/(nn-1+0.2),c=(lo+hi)/2,fx=fit(add(Lx,Sx,null,0.25),Lx,nn,c,lo/c,hi/c,0.01),fy=fit(add(Ly,Sy,null,0.25),Ly,nn,c,lo/c,hi/c,0.01);
+      if(fx&&fy&&(!bc||fx.sc+fy.sc>bc.sc))bc={sc:fx.sc+fy.sc,n:nn,fx,fy}}if(!bc)return null;n=bc.n;bx=bc.fx;by=bc.fy}
+  // 5) 微调四个角：让格线贴着看得到的暗线（板子印歪、照片有点弯也跟得上）
+  let gc=[[bx.a,by.a],[bx.b,by.a],[bx.b,by.b],[bx.a,by.b]];const g0=gc.map(p=>p.slice()),cell=(bx.b-bx.a)/(n-1);
+  const at=(M,x,y)=>{x=Math.round(x);y=Math.round(y);if(x<1||y<1||x>=S-1||y>=S-1)return 0;const i=y*S+x;return Math.max(M[i],M[i-1],M[i+1],M[i-S],M[i+S])};
+  const score=c=>{const Hg=picHomo([[0,0],[n-1,0],[n-1,n-1],[0,n-1]],c);let s=0;for(let i=0;i<n;i++)for(let t=0;t<=n-1;t+=0.25){const[x1,y1]=mp(Hg,i,t),[x2,y2]=mp(Hg,t,i);s+=at(V,x1,y1)+at(Hh,x2,y2)}return s};
+  let cur=score(gc);for(const step of[4,2,1,0.5])for(let it=0;it<8;it++){let imp=false;for(let k=0;k<4;k++)for(let ax=0;ax<2;ax++)for(const sg of[-1,1]){const nc=gc.map(p=>p.slice());nc[k][ax]+=sg*step;if(Math.abs(nc[k][ax]-g0[k][ax])>0.45*cell)continue;const s=score(nc);if(s>cur){cur=s;gc=nc;imp=true}}if(!imp)break}
+  const Hg=picHomo([[0,0],[n-1,0],[n-1,n-1],[0,n-1]],gc),toImg=(u,v)=>mp(Hm,...mp(Hg,u,v));
+  return{n,g:toImg,sc:cur}};
+  const r1=run(bq,0);if(!r1)return null;
+  const e=0.6,r2=run([r1.g(-e,-e),r1.g(r1.n-1+e,-e),r1.g(r1.n-1+e,r1.n-1+e),r1.g(-e,r1.n-1+e)],r1.n)||r1,n=r2.n; // 再做一次：用第一次的格线当范围，透视、板子边不准都修得掉
+  const corners=[[0,0],[n-1,0],[n-1,n-1],[0,n-1]].map(([u,v])=>{const[x,y]=r2.g(u,v);return[x/sc0,y/sc0]});
+  P.agDbg={bq:bq.map(([x,y])=>[x/sc0,y/sc0]),n};
+  return{n,corners}}catch(e){console.warn('picAutoGrid',e);return null}}
 function picAutoCorners(forceN){ // 成功：设好四个角和几路，回传 true
-  const P=picP;try{const cands=[];const q=picBoardQuad();if(q)cands.push(q);const lq=picLineQuad();
+  const P=picP;const ag=picAutoGrid(forceN);
+  try{const cands=[];const q=picBoardQuad();if(q)cands.push(q);const lq=picLineQuad();
     if(lq)for(const m of[0.12,0.3]){const c=lq.q,cx=c.reduce((s,p)=>s+p[0],0)/4,cy=c.reduce((s,p)=>s+p[1],0)/4;cands.push(c.map(([x,y])=>[x+(x-cx)*m,y+(y-cy)*m]))} // 最外圈的线被棋子盖住时，往外多拉一点
     let best=null;
     for(const qq of cands){let g=picGridIn(qq,forceN);if(!g||!g.n)continue;
@@ -6584,8 +6734,10 @@ function picAutoCorners(forceN){ // 成功：设好四个角和几路，回传 t
         const L=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[1]),wd=(L(cs[0],cs[1])+L(cs[3],cs[2]))/2,ht=(L(cs[0],cs[3])+L(cs[1],cs[2]))/2;
         if(!(wd>0&&ht>0&&wd/ht<2.2&&ht/wd<2.2&&wd*ht>P.cv.width*P.cv.height*0.04))continue; // 太扁、太小：不是棋盘（例如把木纹当成格线）
         const sc=picGridScore(cs,n)*(n===g.n?1.02:1);if(!best||sc>best.sc)best={sc,n,corners:cs}}}
+    if(ag){const sa=picGridScore(ag.corners,ag.n);P.agCmp=[sa,best&&best.sc,best&&(()=>{const ar=c=>Math.abs(c.reduce((s,p,k)=>{const q=c[(k+1)%4];return s+p[0]*q[1]-q[0]*p[1]},0))/2;return ar(best.corners)/ar(ag.corners)})(),best&&best.n];const ar=c=>Math.abs(c.reduce((s,p,k)=>{const q=c[(k+1)%4];return s+p[0]*q[1]-q[0]*p[1]},0))/2;
+      if(!best||sa>=best.sc||ar(best.corners)<0.55*ar(ag.corners)){best={sc:Math.max(sa,1.01),n:ag.n,corners:ag.corners}}} // 两种方法都试：旧方法只有在范围差不多大、格线分数又更高时才用（旧方法常常只框到棋盘的一角）
     if(!best||best.sc<=1)return false;
-    P.corners=best.corners;P.cols=P.rows=best.n;P.auto=true;picSetH();return true}catch(e){console.warn(e);return false}}
+    P.corners=best.corners;P.cols=P.rows=best.n;P.auto=true;P.agWon=!!ag&&best.corners===ag.corners;picSetH();return true}catch(e){console.warn(e);if(ag){P.corners=ag.corners;P.cols=P.rows=ag.n;P.auto=true;picSetH();return true}return false}}
 function picReadColor(){ // 照片模式：每个交叉点分成黑子、白子、空；P.unsure 记下没把握的点
   const P=picP,d=picRGB(),w=P.cv.width,h=P.cv.height,[nc,nr]=picDims();picSetH();
   const samp=(cx,cy,r)=>{const R=[],G=[],B=[];const st=Math.max(1,Math.round(r/6));for(let y=Math.round(cy-r);y<=cy+r;y+=st)for(let x=Math.round(cx-r);x<=cx+r;x+=st){if(x<0||y<0||x>=w||y>=h||(x-cx)**2+(y-cy)**2>r*r)continue;const i=(y*w+x)*4;R.push(d[i]);G.push(d[i+1]);B.push(d[i+2])}
@@ -7087,7 +7239,7 @@ async function duelRun(){
   for(;duel.gi<duel.games&&!duel.stop;duel.gi++){
     const aBlack=!o.swap||duel.gi%2===0,n=o.n,LB=levelObj(aBlack?o.a:o.b,n),LW=levelObj(aBlack?o.b:o.a,n);
     const r=parseSGF(`(;GM[1]FF[4]CA[UTF-8]SZ[${n}]KM[${KOMI_DEF[n]}]RU[Chinese]DT[${new Date().toISOString().slice(0,10)}]GN[${T('AI 对战')} ${duel.gi+1}]PB[${lvName(LB)}]PW[${lvName(LW)}])`);
-    const id=newId();store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};openRoot(r,{id});
+    const id=newId();store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};openRoot(r,{id});markAuto();
     let passes=0,k=0,re=null;
     while(!duel.stop&&k<n*n*2){const col=nextColor(cur),lv=col==='B'?LB:LW;let p;
       try{p=await engineMove(cur,lv)}catch(e){duel.last=T('AI 出错：{0}',e.message||e);p=-1}
@@ -8859,7 +9011,8 @@ async function bugSend(){const f=bugV;if(!f.text.trim()&&!f.img)throw new Error(
   const db=await Shared.db(),u=firebase.auth().currentUser;if(!u)throw new Error(T('连不上云端，请稍后再试'));
   const ctx={...f.ctx};if(!f.att){delete ctx.sgf;delete ctx.cur}
   const doc={type:f.type,text:f.text.trim().slice(0,3000),img:f.img||'',name:typeof exName==='function'?exName():'',uid:u.uid,st:'new',reply:'',t:Date.now(),where:(ctx.where||'').slice(0,200),sgf:JSON.stringify(ctx)};
-  const r=await db.collection('bugs').add(doc);bugQuota(true);
+  const r=db.collection('bugs').doc(),bt=db.batch();bt.set(r,doc);bt.set(db.collection('bugrate').doc(u.uid),{t:firebase.firestore.FieldValue.serverTimestamp(),bid:r.id});
+  try{await bt.commit()}catch(e){if(/permission/i.test(e.code||e.message))throw new Error(T('回报太快了，请等一分钟再送'));throw e}bugQuota(true);
   let m=[];try{m=JSON.parse(localStorage.getItem('goReview.bugMine')||'[]')}catch(e){}m.unshift(r.id);try{localStorage.setItem('goReview.bugMine',JSON.stringify(m.slice(0,50)))}catch(e){}
   bugV={...bugV,view:'mine',text:'',img:'',msg:T('谢谢！已经送出，管理员会尽快处理。')};await bugLoad()}
 async function bugLoad(){const v=bugV;if(!v)return;v.list=null;bugUi();
@@ -9941,7 +10094,7 @@ function qFight(){const st=qStep(),B=st.battle;qBattle={ch:qs.ch,i:qs.i,over:fal
     if(cg){cg.quest=true;const r=root();r.props.PW=[B.opp];r.props.PB=[Q.name||T('我')];r.props.GN=[T('小棋士之旅：对 {0}',B.opp)];changed();renderInfo()}renderCg();qOppStart(B);$('#cgBox').scrollIntoView({block:'nearest'});return}
   const n=B.n,lv=levelObj(B.lv,n),d=new Date().toISOString().slice(0,10),esc=s=>String(s).replace(/([\]\\])/g,'\\$1');
   const r=parseSGF(`(;GM[1]FF[4]CA[UTF-8]SZ[${n}]KM[${KOMI_DEF[n]}]RU[Chinese]DT[${d}]GN[${esc(T('小棋士之旅：对 {0}',B.opp))}]PB[${esc(Q.name||T('我'))}]PW[${esc(B.opp)}])`),id=newId();
-  store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};openRoot(r,{id});
+  store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};openRoot(r,{id});markAuto();
   vs={id,pc:false,ai:2,level:lv,auto:false,ladder:null,low:0,over:false,thinking:false,msg:'',endMsg:'',quest:true};tool='play';
   $('#vsBox').hidden=false;if(lv.gg||lv.stu)GG.warm();else AI.load().catch(()=>{});renderVs();render();qOppStart(B);vsAiMove();$('#vsBox').scrollIntoView({block:'nearest'})}
 function qBattleEnd(win){if(!qBattle)return;qBattle.over=true;qBattle.win=!!win;if(!win)qBattle.hintI++;qMoodEnd(!!win);
@@ -10420,7 +10573,7 @@ function cgNew(){const o=cgOpt,name=(olName()||'').trim()||T('我');
   const pb=o.opp==='self'?T('黑方'):col==='B'?name:ai,pw=o.opp==='self'?T('白方'):col==='W'?name:ai;
   const r=parseSGF(cgRootSgf({n:o.n,goal:o.goal,pb,pw})),id=newId();
   store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};
-  if(scoring)stopScoring();if(train)stopTrain();if(vs)vsStop();openRoot(r,{id});
+  if(scoring)stopScoring();if(train)stopTrain();if(vs)vsStop();openRoot(r,{id});markAuto();
   cg={id,n:o.n,goal:o.goal,opp:o.opp,ai:o.opp==='ai'?(col==='B'?2:1):0,lvl:o.lvl,over:false,thinking:false,msg:''};tool='play';
   renderCg();render();cgAi()}
 async function cgOnline(){const name=olName();if(!name){cg=null;cgMsg=T('请先在「线上对弈」输入你的名字');renderCg();return}
@@ -13839,8 +13992,9 @@ if('serviceWorker' in navigator&&/github\.io$|^localhost$|^127\.0\.0\.1$/.test(l
   $('#installBtn').onclick=async()=>{if(!deferred)return;deferred.prompt();try{await deferred.userChoice}catch(e){}deferred=null;$('#installBtn').hidden=true};
   window.addEventListener('appinstalled',()=>{$('#installBtn').hidden=true;flash(T('已安装，可以从桌面打开'))});
 }
-(function boot(){
+(async function boot(){
   document.body.dataset.mode='review';
+  await gdbBoot();
   Drive.init();
   // 从下载工具传来的棋谱：网址 #sgf=...
   const h=location.hash;

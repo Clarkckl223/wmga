@@ -281,6 +281,12 @@ body.cl-proj header,body.cl-proj #playMenu,body.cl-proj main>.players,body.cl-pr
 .gcard label{font-size:13px;margin-top:4px}.bzscore{font-size:28px!important}
 .fxpop{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);font-size:56px;font-weight:800;color:#e0a800;text-shadow:0 2px 10px rgba(0,0,0,.35);pointer-events:none;animation:fxpop .9s ease-out forwards;z-index:9999;white-space:nowrap}
 .fxpop.bad{color:#d33;font-size:40px}
+
+#camBox{position:fixed;inset:0;z-index:65;background:#000;display:flex;align-items:center;justify-content:center}#camBox .camin{width:100%;max-width:900px;padding:10px;color:#fff;text-align:center}
+#camBox .camv{position:relative;width:min(100%,70vh);margin:0 auto;aspect-ratio:1;overflow:hidden;border-radius:10px;background:#111}#camBox video{width:100%;height:100%;object-fit:cover;display:block}
+#camBox .camg{position:absolute;left:50%;top:50%;width:86%;aspect-ratio:1;transform:translate(-50%,-50%);border:2px dashed rgba(255,255,255,.7);border-radius:4px;box-shadow:0 0 0 2000px rgba(0,0,0,.25)}
+#camBox .camg i{position:absolute;width:28px;height:28px;border:4px solid #ffd23f}#camBox .camg i:nth-child(1){left:-4px;top:-4px;border-right:0;border-bottom:0}#camBox .camg i:nth-child(2){right:-4px;top:-4px;border-left:0;border-bottom:0}#camBox .camg i:nth-child(3){right:-4px;bottom:-4px;border-left:0;border-top:0}#camBox .camg i:nth-child(4){left:-4px;bottom:-4px;border-right:0;border-top:0}
+#camBox .camtip{margin:10px 0;font-size:15px}#camBox .btn{color:#1d2b3a}#camBox .btn.pri{color:#fff}#camBox .row{justify-content:center}
 #syncBadge{position:fixed;left:12px;bottom:12px;z-index:70;background:#fff8e1;color:#5a4300;border:1px solid #e0b84a;border-radius:10px;padding:6px 12px;font-size:14px;box-shadow:0 2px 8px #0003}#syncBadge.bad{background:#fde2e2;color:#8a1f1f;border-color:#d9534f}
 @keyframes fxpop{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-110%) scale(1)}}
 @media (prefers-reduced-motion:reduce){.fxpop{animation-duration:.01s}}
@@ -2690,6 +2696,16 @@ const EN={
 ,"△ 还没被吃！":"△ not captured yet!"
 ,"记录上传中":"Uploading records"
 ,"记录未上传，稍后重试":"Records not uploaded, will retry"
+,"把棋盘的四个角对准方框的四个角，棋盘要平放、光线均匀，再按「拍照」。":"Line up the four board corners with the frame corners. Keep the board flat and evenly lit, then tap Take photo."
+,"拍照":"Take photo"
+,"从相册选":"Choose from album"
+,"打不开相机，改用相册选照片":"Camera unavailable; choose a photo instead"
+,"没有自动找到棋盘：先用方框的位置，请拖红点对准最外圈格线的四个角。":"Board not found automatically: using the frame position. Drag the red dots onto the four outer grid corners."
+,"导出训练资料":"Export training data"
+,"导出训练资料（{0} 张）":"Export training data ({0} photos)"
+,"还没有训练资料":"No training data yet"
+,"已导出 {0} 张照片的训练资料":"Exported training data from {0} photos"
+,"导出失败：{0}":"Export failed: {0}"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -6344,14 +6360,15 @@ function picUi(){
       ${photo&&score?`<button class="btn" data-i="auto">${T('自动找角')}</button>`:''}${P.unsure&&P.unsure.some(r=>r.some(v=>v))?`<button class="btn" data-i="allok">${T('黄圈全部没问题')}</button>`:''}${photo?`<button class="btn" data-i="reset">${T('重点四个角')}</button>`:''}
       ${score?'':`<span>${T('这是棋盘的')}</span><select id="picCorner">${Object.keys(cn).map(k=>`<option value="${k}"${k===P.corner?' selected':''}>${cn[k]}</option>`).join('')}</select>`}
       <button class="btn" data-i="mode">${photo?T('改用截图模式'):T('认错了？改用照片模式')}</button></div>
-    <div class="row"><button class="btn pri" data-i="ok"${P.stones?'':' disabled'}>${score?T('开始数子'):picMulti?T('完成'):T('用这个')}</button><button class="btn" data-i="cancel">${picMulti?T('返回'):T('取消')}</button></div></div>`;
+    <div class="row"><button class="btn pri" data-i="ok"${P.stones?'':' disabled'}>${score?T('开始数子'):picMulti?T('完成'):T('用这个')}</button><button class="btn" data-i="cancel">${picMulti?T('返回'):T('取消')}</button>${score?`<button class="btn" data-i="train" id="picTrainBtn" hidden>📦 ${T('导出训练资料')}</button>`:''}</div></div>`;
+  if(score)picTrainCount().then(n=>{const b=$('#picTrainBtn');if(b&&n){b.hidden=false;b.textContent='📦 '+T('导出训练资料（{0} 张）',n)}});
   picDraw();picBind(o);
 }
 function picBind(o){const P=picP,cv=$('#picCv');cv.style.touchAction='none';
   const pos=e=>{const rc=cv.getBoundingClientRect();return[(e.clientX-rc.left)*cv.width/rc.width,(e.clientY-rc.top)*cv.height/rc.height]};
   const near=()=>cv.width*0.05,thr=()=>cv.width*0.012;
   const ptAt=(x,y)=>{const[nc,nr]=picDims();let bi=-1,bj=-1,bd=1e9;for(let j=0;j<nr;j++)for(let i=0;i<nc;i++){const[px,py]=picPt(i,j),d=(px-x)**2+(py-y)**2;if(d<bd){bd=d;bi=i;bj=j}}return[bi,bj]};
-  const toggle=(x,y)=>{if(!P.stones)return;const[bi,bj]=ptAt(x,y);if(bi<0)return;P.stones[bj][bi]=(P.stones[bj][bi]+1)%3;if(P.unsure)P.unsure[bj][bi]=0;picDraw();picCount()};
+  const toggle=(x,y)=>{if(!P.stones)return;const[bi,bj]=ptAt(x,y);if(bi<0)return;P.stones[bj][bi]=(P.stones[bj][bi]+1)%3;(P.edited=P.edited||{})[bj+','+bi]=1;if(P.unsure)P.unsure[bj][bi]=0;picDraw();picCount()};
   const clearU=(x,y)=>{if(!P.stones||!P.unsure)return false;const[bi,bj]=ptAt(x,y);if(bi<0||!P.unsure[bj][bi])return false;P.unsure[bj][bi]=0;picDraw();picCount();return true};
   cv.oncontextmenu=e=>e.preventDefault();
   cv.onpointerdown=e=>{const[x,y]=pos(e);
@@ -6370,6 +6387,7 @@ function picBind(o){const P=picP,cv=$('#picCv');cv.style.touchAction='none';
   o.onclick=e=>{const b=e.target.closest('[data-i],[data-sz]');if(!b)return;
     if(b.dataset.sz){const n=+b.dataset.sz;P.cols=P.rows=n;if(P.auto&&picAutoCorners(n))picRead();else if(P.corners.length===4)picRead();picUi();return}
     const a=b.dataset.i;
+    if(a==='train'){picTrainExport();return}
     if(a==='cancel'){if(picMulti){picMultiUi();return}picClose()}else if(a==='ok'){if(picMulti){picMultiSave();return}picApply()}else if(a==='allok'){P.unsure=null;picUi()}else if(a==='reset'){P.corners=[];P.stones=null;P.H=null;P.auto=false;P.unsure=null;picUi()}else if(a==='auto'){if(picAutoCorners())picRead();else flash(T('找不到棋盘，请自己点四个角'));picUi()}
     else if(a==='mode'){if(P.mode==='photo'){if(!picDetect())flash(T('找不到格线，请用照片模式'))}else{P.mode='photo';P.corners=[];P.stones=null;P.H=null}picUi()}};
   const sel=$('#picCorner');if(sel)sel.onchange=()=>{P.corner=sel.value};
@@ -6437,12 +6455,12 @@ async function picMultiAdd(){const M=picMulti;let b=tsBook(M.bookId);
   flash(T('加了 {0} 题。题目还没有答案，可以按「AI 补上没有答案的题」。',added))}
 
 /* ---- 拍照数子 ---- */
-function snapPick(){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files[0];if(f)picOpen(f,{purpose:'score'})};i.click()}
+function snapPick(){camOpen()} // 第 41 项：先开相机拍照框；不能用相机时改成选照片
 function picScoreApply(){const P=picP,{n,B,W}=picStonesSgf();
   if(![9,13,19].includes(n)){flash(T('请选 9、13 或 19 路'));return}
   const d=new Date(),z=x=>String(x).padStart(2,'0'),day=`${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`,tm=`${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`;
   const r=parseSGF(`(;GM[1]FF[4]CA[UTF-8]SZ[${n}]KM[${n===19?7.5:5.5}]RU[Chinese]XP[1]DT[${day}]GN[${T('拍照数子')} ${day} ${tm}])`);if(B.length)r.props.AB=B;if(W.length)r.props.AW=W;
-  const id=newId();store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};picLast=P;picClose();
+  const id=newId();store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};picLast=P;picTrainSave(P);picClose();
   if(vs)vsStop();if(typeof cg!=='undefined'&&cg){cg=null;$('#cgBox').hidden=true}closeNew();
   setMode('play');document.body.dataset.sub='snap';if(scoring)stopScoring();openRoot(r,{id});startScoring();$('#snapBox').hidden=false;$('#scoreBox').scrollIntoView({block:'nearest',behavior:'smooth'})} // 留在原地：显示数子结果和选择
 let picLast=null; // 上一次拍照数子的照片（「调整辨认」用）
@@ -6456,10 +6474,17 @@ document.addEventListener('click',e=>{const t=e.target.closest('#snapBox [data-s
    棋盘（木、绒布、黄板）有颜色，棋子（黑、白）几乎没有颜色：先看「颜色像不像棋盘」分有没有棋子，再看亮度分黑白。
    影子只会让颜色变暗，不会改变颜色的比例，所以用 r:g:b 的比例来比。 */
 function picRGB(){const P=picP;if(!P.rgb)P.rgb=P.cv.getContext('2d').getImageData(0,0,P.cv.width,P.cv.height).data;return P.rgb}
-function picBoardMask(){ // 像棋盘的像素：暖色（橘、黄、木色）而且有一点颜色
+function picBoardMask(){ // 像棋盘的像素：先从照片中间估计棋盘本身的颜色（r:g:b 比例），再找颜色接近的像素（第 41 项：桌子是别的木色也分得开；影子、偏黄的灯光只改亮度，比例差不多）
   const P=picP,d=picRGB(),w=P.cv.width,h=P.cv.height,S=Math.max(2,Math.round(Math.max(w,h)/400)),W=Math.ceil(w/S),H=Math.ceil(h/S),m=new Uint8Array(W*H);
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=((y*S)*w+x*S)*4,r=d[i],g=d[i+1],b=d[i+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b),c=mx-mn;
-    if(c<35||mx<70||r<b||r+0<g*0.85)continue;let hu=mx===r?((g-b)/c)*60:mx===g?(2+(b-r)/c)*60:(4+(r-g)/c)*60;if(hu<0)hu+=360;if(hu>=8&&hu<=72)m[y*W+x]=1}
+  const warm=(r,g,b)=>{const mx=Math.max(r,g,b),mn=Math.min(r,g,b),c=mx-mn;if(c<25||mx<50||r<b||r<g*0.85)return false;let hu=mx===r?((g-b)/c)*60:mx===g?(2+(b-r)/c)*60:(4+(r-g)/c)*60;if(hu<0)hu+=360;return hu>=8&&hu<=72};
+  if(!P.bcol){const cs=[[],[],[]];for(let y=Math.round(H*0.3);y<H*0.7;y+=2)for(let x=Math.round(W*0.3);x<W*0.7;x+=2){const i=((y*S)*w+x*S)*4,r=d[i],g=d[i+1],b=d[i+2];if(!warm(r,g,b))continue;const s=r+g+b+1;cs[0].push(r/s);cs[1].push(g/s);cs[2].push(b/s)}
+    P.bcol=cs[0].length>30?cs.map(a=>{a.sort((p,q)=>p-q);return a[a.length>>1]}):null}
+  const bc=P.bcol;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=((y*S)*w+x*S)*4,r=d[i],g=d[i+1],b=d[i+2];
+    if(bc){const s=r+g+b+1;if(s<90)continue;const dr=r/s-bc[0],dg=g/s-bc[1],db=b/s-bc[2];if(Math.hypot(dr,dg,db)<0.045&&r/s>0.36)m[y*W+x]=1}
+    else if(warm(r,g,b))m[y*W+x]=1}
+  // 补洞：棋子、格线把棋盘切成很多块；附近大部分是棋盘的点也算（两次）
+  for(let it=0;it<2;it++){const o=m.slice();for(let y=2;y<H-2;y++)for(let x=2;x<W-2;x++){if(m[y*W+x])continue;let c=0;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)c+=m[(y+dy)*W+x+dx];if(c>=13)o[y*W+x]=1}m.set(o)}
   return{m,W,H,S}}
 function picLargest(m,W,H){const lab=new Int32Array(W*H).fill(-1);let best=-1,bn=0,id=0;const st=[];
   for(let s=0;s<W*H;s++){if(!m[s]||lab[s]>=0)continue;let n=0;st.push(s);lab[s]=id;while(st.length){const p=st.pop();n++;const x=p%W,y=(p/W)|0;
@@ -6506,12 +6531,56 @@ function picGridIn(quad,forceN){ // 在板子里面找格线：细细的暗线�
   if(!bn)return{n:null};const n=bn.n,xs=LX.pos.slice(bn.kx,bn.kx+n),ys=LY.pos.slice(bn.ky,bn.ky+n);
   const mp=(x,y)=>{const[a,b,c,e,f,g,k,l]=H,z=k*x+l*y+1;return[(a*x+b*y+c)/z,(e*x+f*y+g)/z]};
   return{n,corners:[mp(xs[0],ys[0]),mp(xs[xs.length-1],ys[0]),mp(xs[xs.length-1],ys[ys.length-1]),mp(xs[0],ys[ys.length-1])]}}
+/* ---- 第 41 项 a1：直接找格线（桌子也是木色、棋盘边被遮住时也找得到）----
+   细细的暗线：比左右（或上下）两边都暗、而两边是棋盘颜色。用 Hough 找直线，分成直的、横的两组，最外面那几条交出四个角。 */
+function picRidge(){const P=picP;if(P.ridge)return P.ridge;const d=picRGB(),w=P.cv.width,h=P.cv.height,S=Math.max(1,Math.max(w,h)/700),W=Math.round(w/S),H=Math.round(h/S);
+  const g=new Float32Array(W*H),bc=P.bcol;for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=((Math.round(y*S)*w+Math.round(x*S)))*4;g[y*W+x]=d[i]+d[i+1]+d[i+2]}
+  const boardish=new Uint8Array(W*H);for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=((Math.round(y*S)*w+Math.round(x*S)))*4,r=d[i],gg=d[i+1],b=d[i+2],s=r+gg+b+1;
+    if(bc){if(s>120&&Math.hypot(r/s-bc[0],gg/s-bc[1],b/s-bc[2])<0.06)boardish[y*W+x]=1}else if(r>b&&s>150)boardish[y*W+x]=1}
+  const V=new Float32Array(W*H),Hh=new Float32Array(W*H);
+  for(let y=3;y<H-3;y++)for(let x=3;x<W-3;x++){const i=y*W+x,v=g[i];
+    for(const D of[2,3]){const a=g[i-D],b=g[i+D];if(boardish[i-D]&&boardish[i+D]){const c=Math.min(a,b)-v;if(c>V[i])V[i]=c}
+      const p=g[i-D*W],q=g[i+D*W];if(boardish[i-D*W]&&boardish[i+D*W]){const c=Math.min(p,q)-v;if(c>Hh[i])Hh[i]=c}}}
+  return P.ridge={V,H:Hh,W,Hgt:H,S}}
+function picHough(M,W,H,t0,t1){ // 回传直线 [{th,rho,sup}]
+  const ths=[];for(let t=t0;t<=t1;t+=0.5)ths.push(t*Math.PI/180);const R=Math.ceil(Math.hypot(W,H)),acc=new Float32Array(ths.length*(2*R+1));
+  const cs=ths.map(Math.cos),sn=ths.map(Math.sin);let mx=0;for(let i=0;i<W*H;i++)if(M[i]>mx)mx=M[i];const thr=Math.max(20,mx*0.18);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const v=M[y*W+x];if(v<thr)continue;const wv=Math.min(v,mx*0.6);for(let k=0;k<ths.length;k++){const r=Math.round(x*cs[k]+y*sn[k])+R;acc[k*(2*R+1)+r]+=wv}}
+  const L=2*R+1,peaks=[];let am=0;for(let i=0;i<acc.length;i++)if(acc[i]>am)am=acc[i];
+  for(let k=0;k<ths.length;k++)for(let r=0;r<L;r++){const v=acc[k*L+r];if(v<am*0.2)continue;let ok=true;
+    for(let dk=-4;dk<=4&&ok;dk++)for(let dr=-3;dr<=3;dr++){const kk=k+dk,rr=r+dr;if(kk<0||kk>=ths.length||rr<0||rr>=L||(!dk&&!dr))continue;const u=acc[kk*L+rr];if(u>v||u===v&&(dk<0||dk===0&&dr<0)){ok=false;break}}
+    if(ok)peaks.push({th:ths[k],rho:r-R,sup:v})}
+  return peaks}
+function picLineQuad(){const P=picP;try{picBoardMask();const{V,H,W,Hgt,S}=picRidge();
+  const lv=picHough(V,W,Hgt,-35,35),lh=picHough(H,W,Hgt,55,125);if(lv.length<5||lh.length<5)return null;
+  const atY=(l,y)=>(l.rho-y*Math.sin(l.th))/Math.cos(l.th),atX=(l,x)=>(l.rho-x*Math.cos(l.th))/Math.sin(l.th);
+  const ext=(ls,f,mid)=>{const med=[...ls].sort((a,b)=>a.sup-b.sup)[ls.length>>1].sup,good=ls.filter(l=>l.sup>=med*0.35);good.sort((a,b)=>f(a,mid)-f(b,mid));return[good[0],good[good.length-1],good.length]};
+  const[v0,v1,nv]=ext(lv,atY,Hgt/2),[h0,h1,nh]=ext(lh,atX,W/2);
+  const X=(a,b)=>{const d=Math.cos(a.th)*Math.sin(b.th)-Math.sin(a.th)*Math.cos(b.th);if(Math.abs(d)<1e-6)return null;return[(a.rho*Math.sin(b.th)-b.rho*Math.sin(a.th))/d*S,(b.rho*Math.cos(a.th)-a.rho*Math.cos(b.th))/d*S]};
+  const q=[X(v0,h0),X(v1,h0),X(v1,h1),X(v0,h1)];if(q.some(p=>!p))return null;return{q,nv,nh}}catch(e){console.warn(e);return null}}
+function picGridScore(corners,n){ // 格线上要暗、格子中间要亮：分数越高越像
+  const{V,H,W,Hgt,S}=picRidge(),Hm=picHomo([[0,0],[n-1,0],[n-1,n-1],[0,n-1]],corners),[a,b,c,e,f,g,k,l]=Hm,mp=(x,y)=>{const z=k*x+l*y+1;return[(a*x+b*y+c)/z/S,(e*x+f*y+g)/z/S]};
+  const at=(M,x,y)=>{x=Math.round(x);y=Math.round(y);return x<0||y<0||x>=W||y>=Hgt?0:Math.max(M[y*W+x],M[y*W+x+1]||0,M[y*W+x-1]||0,M[(y+1)*W+x]||0,M[(y-1)*W+x]||0)};
+  let on=0,off=0,cnt=0;for(let i=0;i<n;i++)for(let t=0.2;t<n-1;t+=0.5){const[x1,y1]=mp(i,t),[x2,y2]=mp(i+0.5,t),[x3,y3]=mp(t,i),[x4,y4]=mp(t,i+0.5);on+=at(V,x1,y1)+at(H,x3,y3);off+=at(V,x2,y2)+at(H,x4,y4);cnt+=2}
+  // 最外圈再往外一格：真正的棋盘边外面没有格线；如果还有，表示路数算少了
+  let out=0,oc=0;for(const i of[-1,n])for(let t=0.2;t<n-1;t+=0.5){const[x1,y1]=mp(i,t),[x3,y3]=mp(t,i);out+=at(V,x1,y1)+at(H,x3,y3);oc+=2}
+  const o=oc?out/oc:0,base=off/cnt;return(on-off)/cnt-1.5*Math.max(0,o-base)}
 function picAutoCorners(forceN){ // 成功：设好四个角和几路，回传 true
-  const P=picP;try{const q=picBoardQuad();if(!q)return false;let g=picGridIn(q,forceN);if(!g||!g.n)return false;
-    // 再找一次：这次只拉格线附近（外面多半格），板子厚度、边框不会影响格子的间距
-    for(let k=0;k<2;k++){const n=g.n,H=picHomo([[0,0],[n-1,0],[n-1,n-1],[0,n-1]],g.corners),[a,b,c,e,f,gg,kk,l]=H,mp=(x,y)=>{const z=kk*x+l*y+1;return[(a*x+b*y+c)/z,(e*x+f*y+gg)/z]};
-      const m=0.6,q2=[mp(-m,-m),mp(n-1+m,-m),mp(n-1+m,n-1+m),mp(-m,n-1+m)],g2=picGridIn(q2,n);if(!g2||!g2.n)break;g=g2}
-    P.corners=g.corners;P.cols=P.rows=g.n;P.auto=true;picSetH();return true}catch(e){console.warn(e);return false}}
+  const P=picP;try{const cands=[];const q=picBoardQuad();if(q)cands.push(q);const lq=picLineQuad();
+    if(lq)for(const m of[0.12,0.3]){const c=lq.q,cx=c.reduce((s,p)=>s+p[0],0)/4,cy=c.reduce((s,p)=>s+p[1],0)/4;cands.push(c.map(([x,y])=>[x+(x-cx)*m,y+(y-cy)*m]))} // 最外圈的线被棋子盖住时，往外多拉一点
+    let best=null;
+    for(const qq of cands){let g=picGridIn(qq,forceN);if(!g||!g.n)continue;
+      // 再找一次：这次只拉格线附近（外面多半格），板子厚度、边框不会影响格子的间距
+      for(let k=0;k<2;k++){const n=g.n,H=picHomo([[0,0],[n-1,0],[n-1,n-1],[0,n-1]],g.corners),[a,b,c,e,f,gg,kk,l]=H,mp=(x,y)=>{const z=kk*x+l*y+1;return[(a*x+b*y+c)/z,(e*x+f*y+gg)/z]};
+        const m=0.6,q2=[mp(-m,-m),mp(n-1+m,-m),mp(n-1+m,n-1+m),mp(-m,n-1+m)],g2=picGridIn(q2,n);if(!g2||!g2.n)break;g=g2}
+      // 几路再确认：同一个范围，9、13、19 哪个格线分数最高
+      for(const n of forceN?[g.n]:[9,13,19]){const H=picHomo([[0,0],[g.n-1,0],[g.n-1,g.n-1],[0,g.n-1]],g.corners),[a,b,c,e,f,gg,kk,l]=H,mp=(x,y)=>{const z=kk*x+l*y+1;return[(a*x+b*y+c)/z,(e*x+f*y+gg)/z]};
+        const cs=n===g.n?g.corners:(()=>{const g3=picGridIn([mp(-0.6,-0.6),mp(g.n-0.4,-0.6),mp(g.n-0.4,g.n-0.4),mp(-0.6,g.n-0.4)],n);return g3&&g3.n?g3.corners:null})();if(!cs)continue;
+        const L=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[1]),wd=(L(cs[0],cs[1])+L(cs[3],cs[2]))/2,ht=(L(cs[0],cs[3])+L(cs[1],cs[2]))/2;
+        if(!(wd>0&&ht>0&&wd/ht<2.2&&ht/wd<2.2&&wd*ht>P.cv.width*P.cv.height*0.04))continue; // 太扁、太小：不是棋盘（例如把木纹当成格线）
+        const sc=picGridScore(cs,n)*(n===g.n?1.02:1);if(!best||sc>best.sc)best={sc,n,corners:cs}}}
+    if(!best||best.sc<=1)return false;
+    P.corners=best.corners;P.cols=P.rows=best.n;P.auto=true;picSetH();return true}catch(e){console.warn(e);return false}}
 function picReadColor(){ // 照片模式：每个交叉点分成黑子、白子、空；P.unsure 记下没把握的点
   const P=picP,d=picRGB(),w=P.cv.width,h=P.cv.height,[nc,nr]=picDims();picSetH();
   const samp=(cx,cy,r)=>{const R=[],G=[],B=[];const st=Math.max(1,Math.round(r/6));for(let y=Math.round(cy-r);y<=cy+r;y+=st)for(let x=Math.round(cx-r);x<=cx+r;x+=st){if(x<0||y<0||x>=w||y>=h||(x-cx)**2+(y-cy)**2>r*r)continue;const i=(y*w+x)*4;R.push(d[i]);G.push(d[i+1]);B.push(d[i+2])}
@@ -6556,7 +6625,59 @@ function picReadColor(){ // 照片模式：每个交叉点分成黑子、白子�
     for(const[di,dj]of[[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,b=j+dj;if(a>=0&&b>=0&&a<nc&&b<nr&&out[b][a])continue;const[oi,oj]=off(i,j),[x,y]=picPt(i+oi+di*.35,j+oj+dj*.35),v=samp(x,y,s*.22);if(!v)continue;
       const q=((v.c[0]-1/3)*un[0]+(v.c[1]-1/3)*un[1]+(v.c[2]-1/3)*un[2])/pb,r=q/Math.max(0.2,L.q);if(r<0.3&&(v.V<120||q<0.15)&&(!best||r<best.r))best={r,v}}
     if(best){const t=best.v.V/L.V;out[j][i]=best.v.V>=165&&t>0.9?2:best.v.V<110?1:t>=1.15?2:1;uns[j][i]=1}}
-  P.stones=out;P.unsure=uns;P.feat=f;return true}
+  P.stones=out;P.unsure=uns;P.feat=f;picCheck(f);return true}
+/* 第 41 项 a4、a5：认完再检查一次
+   a4：把整张照片的点按「多亮、多像棋盘颜色」分成三群（黑、白、空），跟规则判断不一样的点标成没把握；
+   a5：围棋规则：没有气的整块棋不可能存在，整块标成没把握。 */
+function picCheck(f){const P=picP,st=P.stones,un=P.unsure,nr=st.length,nc=st[0].length,pts=[];
+  for(let j=0;j<nr;j++)for(let i=0;i<nc;i++){const v=f&&f[j]&&f[j][i];if(!v||v.t==null)continue;pts.push({i,j,x:[Math.log(Math.max(0.05,v.t)),Math.min(2,Math.max(-1,v.r))],c:st[j][i]})}
+  if(pts.length>=12){const cen=[0,1,2].map(c=>{const a=pts.filter(p=>p.c===c);return a.length?[a.reduce((s,p)=>s+p.x[0],0)/a.length,a.reduce((s,p)=>s+p.x[1],0)/a.length]:null});
+    if(cen.every(Boolean)){for(let it=0;it<6;it++){const g=[[],[],[]];for(const p of pts){let bk=0,bd=1e9;cen.forEach((c,k)=>{const d=(p.x[0]-c[0])**2+((p.x[1]-c[1])*0.7)**2;if(d<bd){bd=d;bk=k}});p.k=bk;g[bk].push(p)}
+        g.forEach((a,k)=>{if(a.length)cen[k]=[a.reduce((s,p)=>s+p.x[0],0)/a.length,a.reduce((s,p)=>s+p.x[1],0)/a.length]})}
+      const dd=(p,c)=>(p.x[0]-c[0])**2+((p.x[1]-c[1])*0.7)**2;
+      for(const p of pts)if(p.k!==p.c&&dd(p,cen[p.c])>2.25*dd(p,cen[p.k]))un[p.j][p.i]=1}} // 明显比较像另一群才标（避免太多黄圈）
+  const b=new Array(nr*nc);for(let j=0;j<nr;j++)for(let i=0;i<nc;i++)b[j*nc+i]=st[j][i];const seen=new Uint8Array(nr*nc);
+  for(let s=0;s<nr*nc;s++){if(!b[s]||seen[s])continue;const grp=[s],c=b[s];seen[s]=1;let lib=false;
+    for(let k=0;k<grp.length;k++){const p=grp[k],x=p%nc,y=(p/nc)|0;for(const[a,d]of[[x-1,y],[x+1,y],[x,y-1],[x,y+1]]){if(a<0||d<0||a>=nc||d>=nr)continue;const q=d*nc+a;if(!b[q])lib=true;else if(b[q]===c&&!seen[q]){seen[q]=1;grp.push(q)}}}
+    if(!lib)for(const p of grp)un[(p/nc)|0][p%nc]=1}}
+
+/* ===================== 第 41 项 a6：拍照框 =====================
+   打开相机，画面上有方框和四个角，把棋盘对准框再拍；自动找不到棋盘时，就先用方框的四个角，再拖一下对准。 */
+let camS=null;
+async function camOpen(){if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){snapFile();return}
+  let o=$('#camBox');if(!o){o=document.createElement('div');o.id='camBox';document.body.appendChild(o)}
+  o.innerHTML=`<div class="camin"><div class="camv"><video id="camV" playsinline autoplay muted></video><div class="camg"><i></i><i></i><i></i><i></i></div></div>
+    <p class="camtip">${T('把棋盘的四个角对准方框的四个角，棋盘要平放、光线均匀，再按「拍照」。')}</p>
+    <div class="row"><button class="btn pri" data-cam="shot">📷 ${T('拍照')}</button><button class="btn" data-cam="file">🖼️ ${T('从相册选')}</button><button class="btn" data-cam="close">${T('取消')}</button></div></div>`;
+  o.hidden=false;o.onclick=e=>{const b=e.target.closest('[data-cam]');if(!b)return;const a=b.dataset.cam;if(a==='close')camClose();else if(a==='file'){camClose();snapFile()}else if(a==='shot')camShot()};
+  try{camS=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1440}},audio:false});$('#camV').srcObject=camS}
+  catch(e){camClose();flash(T('打不开相机，改用相册选照片'));snapFile()}}
+function camClose(){if(camS){camS.getTracks().forEach(t=>t.stop());camS=null}const o=$('#camBox');if(o)o.hidden=true}
+function camShot(){const v=$('#camV');if(!v||!v.videoWidth)return;const vw=v.videoWidth,vh=v.videoHeight,sc=Math.min(1,PIC_MAX/Math.max(vw,vh)),cv=document.createElement('canvas');cv.width=Math.round(vw*sc);cv.height=Math.round(vh*sc);cv.getContext('2d').drawImage(v,0,0,cv.width,cv.height);
+  // 方框在画面上的位置（影片是 cover 显示：换算回照片的座标）
+  const rc=v.getBoundingClientRect(),g=$('#camBox .camg').getBoundingClientRect(),k=Math.max(rc.width/vw,rc.height/vh),ox=(rc.width-vw*k)/2,oy=(rc.height-vh*k)/2;
+  const tp=(x,y)=>[((x-rc.left-ox)/k)*sc,((y-rc.top-oy)/k)*sc],guide=[tp(g.left,g.top),tp(g.right,g.top),tp(g.right,g.bottom),tp(g.left,g.bottom)];
+  camClose();picNew(null,cv,'score');const P=picP;
+  if(P.mode==='photo'&&P.corners.length<4){const cx=cv.width/2,cy=cv.height/2,m=0.955;P.corners=guide.map(([x,y])=>[cx+(x-cx)*m,cy+(y-cy)*m]);P.auto=false;picSetH();picRead();flash(T('没有自动找到棋盘：先用方框的位置，请拖红点对准最外圈格线的四个角。'))}
+  picUi()}
+function snapFile(){const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files[0];if(f)picOpen(f,{purpose:'score'})};i.click()}
+
+/* ===================== 第 41 项 b1：收集训练资料（只存在这台机器） =====================
+   按「开始数子」时，把每个交叉点附近的小图（32×32）拼成一张图，和最后的答案（空 / 黑 / 白）一起存起来；
+   「导出训练资料」下载成一个 JSON 档，交给家里电脑的训练程序。 */
+const PT_DB='wmgaTrain',PT_MAX=300;
+function ptDb(){return new Promise((res,rej)=>{const r=indexedDB.open(PT_DB,1);r.onupgradeneeded=()=>r.result.createObjectStore('s',{keyPath:'t'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function picTrainSave(P){try{if(P.mode!=='photo'||!P.H||!P.stones)return;const[nc,nr]=picDims(),Z=32,cv=document.createElement('canvas');cv.width=nc*Z;cv.height=nr*Z;
+    const c=cv.getContext('2d'),img=c.createImageData(nc*Z,nr*Z),D=img.data,src=picRGB(),w=P.cv.width,h=P.cv.height;
+    for(let j=0;j<nr;j++)for(let i=0;i<nc;i++)for(let y=0;y<Z;y++)for(let x=0;x<Z;x++){const[px,py]=picPt(i+(x+0.5)/Z-0.5,j+(y+0.5)/Z-0.5),X=Math.round(px),Y=Math.round(py),o=((j*Z+y)*nc*Z+i*Z+x)*4;
+      if(X<0||Y<0||X>=w||Y>=h){D[o+3]=255;continue}const q=(Y*w+X)*4;D[o]=src[q];D[o+1]=src[q+1];D[o+2]=src[q+2];D[o+3]=255}
+    c.putImageData(img,0,0);const rec={t:Date.now(),n:nc,atlas:cv.toDataURL('image/jpeg',0.92),labels:P.stones.flat().join(''),edited:Object.keys(P.edited||{}),unsure:P.unsure?P.unsure.flat().join(''):''};
+    const db=await ptDb(),tx=db.transaction('s','readwrite'),st=tx.objectStore('s');st.put(rec);
+    const keys=await new Promise(r=>{const q=st.getAllKeys();q.onsuccess=()=>r(q.result)});if(keys.length>PT_MAX)for(const k of keys.slice(0,keys.length-PT_MAX))st.delete(k)}catch(e){console.warn('train save',e)}}
+async function picTrainCount(){try{const db=await ptDb();return await new Promise(r=>{const q=db.transaction('s').objectStore('s').count();q.onsuccess=()=>r(q.result);q.onerror=()=>r(0)})}catch(e){return 0}}
+async function picTrainExport(){try{const db=await ptDb(),all=await new Promise(r=>{const q=db.transaction('s').objectStore('s').getAll();q.onsuccess=()=>r(q.result)});if(!all.length){flash(T('还没有训练资料'));return}
+    const blob=new Blob([JSON.stringify({v:1,patch:32,labels:'0=空 1=黑 2=白',samples:all})],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`wmga-photo-train-${new Date().toISOString().slice(0,10)}.json`;a.click();
+    flash(T('已导出 {0} 张照片的训练资料',all.length))}catch(e){flash(T('导出失败：{0}',e.message))}}
 
 /* ===================== 线上对弈：邀请链接、计时、大厅、等级分 =====================
    对局：games/og_<id>/layers/state（sgf 栏位放 JSON）
@@ -9474,13 +9595,30 @@ function qSpriteGrid(o){const g=Array.from({length:16},()=>Array(16).fill(null))
   if(o.hs==='bob'){rect(5,1,10,1,H);rect(4,2,11,4,H);rect(3,3,3,9,H);rect(12,3,12,9,H);put(4,5,H);put(11,5,H)}
   if(o.hs==='side'){rect(5,2,10,2,H);rect(4,3,4,7,H);rect(11,3,11,7,H)}
   if(o.hat){rect(5,0,10,2,o.hat);rect(2,3,13,3,o.hat2||o.hat);put(5,2,'#9b6b2f');put(10,2,'#9b6b2f')}
-  put(6,6,'#222');put(9,6,'#222');
-  if(o.angry){put(5,5,'#222');put(6,5,'#222');put(9,5,'#222');put(10,5,'#222');put(6,4,null);put(9,4,null)}
+  // 表情（第 36 项）：normal 普通、smile 微笑、laugh 得意大笑、worry 皱眉冒汗、cry 快哭了、shock 震惊、cheer 欢呼、down 崩溃
+  const F=o.face||'normal',K='#222',M='#8a2a2a',TEAR='#6ec6f0';
+  if(o.gl&&F!=='shock'){put(6,6,K);put(9,6,K)}
+  else if(F==='laugh'||F==='cheer'){put(5,6,K);put(6,5,K);put(7,6,K);put(8,6,K);put(9,5,K);put(10,6,K)} // ^ ^
+  else if(F==='cry'||F==='down'){rect(5,6,6,6,K);rect(9,6,10,6,K)} // 闭眼
+  else if(F==='shock'){rect(5,5,6,6,'#fff');put(6,6,K);rect(9,5,10,6,'#fff');put(9,6,K)}
+  else{put(6,6,K);put(9,6,K)}
+  if(o.angry&&!['worry','cry','down','shock'].includes(F)){put(5,5,K);put(6,5,K);put(9,5,K);put(10,5,K);put(6,4,null);put(9,4,null)}
+  if(F==='worry'||F==='cry'){put(5,5,K);put(6,4,K);put(9,4,K);put(10,5,K)} // 眉头往上皱
   if(o.gl){rect(5,5,7,5,'#333');rect(8,5,10,5,'#333');put(5,6,'#bfe3f0');put(7,6,'#bfe3f0');put(8,6,'#bfe3f0');put(10,6,'#bfe3f0')}
-  put(5,8,o.blush||'#f3a6a0');put(10,8,o.blush||'#f3a6a0');
-  if(o.beard){rect(5,8,10,11,'#f1f1f1');rect(6,12,9,12,'#f1f1f1');rect(6,8,9,8,'#ddd');put(7,9,'#b55');put(8,9,'#b55')}
+  if(F!=='down'){put(5,8,o.blush||'#f3a6a0');put(10,8,o.blush||'#f3a6a0')}
+  if(o.beard){rect(5,8,10,11,'#f1f1f1');rect(6,12,9,12,'#f1f1f1');rect(6,8,9,8,'#ddd')}
+  if(F==='smile'){put(6,9,M);put(7,10,M);put(8,10,M);put(9,9,M)}
+  else if(F==='laugh'||F==='cheer'){rect(6,9,9,10,M);rect(7,10,8,10,'#e86a6a')}
+  else if(F==='worry'){put(6,10,M);put(7,9,M);put(8,10,M);put(9,9,M)}
+  else if(F==='cry'){put(6,10,M);put(7,9,M);put(8,9,M);put(9,10,M);put(5,7,TEAR);put(5,8,TEAR);put(10,7,TEAR);put(10,8,TEAR)}
+  else if(F==='shock'){rect(7,9,8,10,M)}
+  else if(F==='down'){put(6,10,M);put(7,9,M);put(8,10,M);put(9,9,M)}
   else if(o.grin){rect(6,9,9,9,'#fff');put(6,9,'#a33');put(9,9,'#a33')}
   else{put(7,9,'#b55');put(8,9,'#b55')}
+  if(F==='worry'){put(13,4,TEAR);put(13,5,TEAR);put(12,5,TEAR)} // 汗珠
+  if(F==='shock'){rect(14,1,14,3,'#e74c3c');put(14,5,'#e74c3c');put(1,1,'#e74c3c');put(1,2,'#e74c3c');put(1,4,'#e74c3c')} // ！
+  if(F==='cheer'){for(const[x,y]of[[1,1],[14,1],[0,5],[15,4],[2,0],[13,0]])put(x,y,'#ffd23f')} // 闪闪
+  if(F==='down'){for(const x of[4,7,10])rect(x,0,x,1,'#8e7cc3')} // 阴沉
   return g}
 function qSvg(o,cls){const g=qSpriteGrid(o);let r='';g.forEach((row,y)=>row.forEach((c,x)=>{if(c)r+=`<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${c}"/>`}));
   return`<svg class="${cls||'qspr'}" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
@@ -9497,6 +9635,7 @@ const Q_PPL={
   vicf:{n:'林小雨',s:{hs:'pig',hair:'#5a3a22',shirt:'#9fc9a8',bow:'#7ec8e3'}},
   shi:{n:'石伯',s:{hs:'side',hair:'#ddd',shirt:'#4a6f8a',collar:'#4a6f8a',beard:1,hat:'#e0c068',hat2:'#c9a24a',skin:'#d9a878'}},
   cls:{n:'同学们',s:null},nar:{n:'',s:null}};
+function qFace(w,f){return w&&w.s?{...w,s:{...w.s,face:f||'normal'}}:w}
 function qWho(k){if(k==='me')return{n:Q.name||T('我'),s:qMe()};if(k==='vic')return Q_PPL[Q.g==='f'?'vicf':'vicm'];return Q_PPL[k]||{n:k,s:null}}
 function qTxt(t){const f=Q.g==='f';return String(t).replace(/\{name\}/g,Q.name||T('我')).replace(/\{vic\}/g,f?'林小雨':'林小安').replace(/\{v\}/g,f?'小雨':'小安').replace(/\{ta\}/g,f?'她':'他')}
 
@@ -9566,22 +9705,22 @@ const Q_CH={
  {s:'zhong',t:'太棒了！今天就上到这里。下课以后，可以到操场玩一玩吃子棋。'},
  {bg:'play',cast:['dz','vic']},
  {s:'nar',t:'下课后，操场的长椅边围了一群同学。'},
- {s:'dz',t:'哈哈，又吃掉了！{v}，你已经连输三盘啦！'},
- {s:'vic',t:'……'},
- {s:'dz',t:'笨手笨脚的，连逃都不会逃，我看你学一百年也学不会！'},
+ {s:'dz',f:'laugh',t:'哈哈，又吃掉了！{v}，你已经连输三盘啦！'},
+ {s:'vic',f:'cry',t:'……'},
+ {s:'dz',f:'laugh',t:'笨手笨脚的，连逃都不会逃，我看你学一百年也学不会！'},
  {s:'nar',t:'{vic}低着头，眼眶红红的。'},
  {choice:[{t:'大壮，你太过分了！',then:[{s:'dz',t:'过分？下棋输了就是输了，我又没说错！'}]},{t:'（默默走过去）{v}，你没事吧？',then:[{s:'vic',t:'我……我没事。谢谢你。'},{s:'dz',t:'哟，来了个出头的？'}]}]},
  {s:'dz',t:'{name}，你不服气？那我们来一盘吃子棋，先吃三颗子的赢！'},
  {s:'dz',t:'你赢了，我就跟{v}道歉；你输了——放学帮我背书包！'},
- {s:'me',t:'好，一言为定！'},
+ {s:'me',f:'smile',t:'好，一言为定！'},
  {s:'nar',t:'9 路吃子棋，先吃 3 子赢。你执黑先下。'},
- {battle:{kind:'cg',n:9,goal:3,lvl:1,opp:'雷大壮',who:'zhong',hints:['先看哪颗子只剩一口气。','被叫吃的时候，往空的地方逃，不要往边上逃。','两颗子连在一起，气比较多，比较不容易被吃。']}},
+ {battle:{kind:'cg',n:9,goal:3,lvl:1,ok:'dz',opp:'雷大壮',who:'zhong',hints:['先看哪颗子只剩一口气。','被叫吃的时候，往空的地方逃，不要往边上逃。','两颗子连在一起，气比较多，比较不容易被吃。']}},
  {bg:'play',cast:['dz','vic']},
- {s:'dz',t:'怎么可能……我竟然输了……'},
- {s:'dz',t:'……{v}，对、对不起，我不该笑你。'},
+ {s:'dz',f:'shock',t:'怎么可能……我竟然输了……'},
+ {s:'dz',f:'worry',t:'……{v}，对、对不起，我不该笑你。'},
  {cast:['zhong','dz','vic']},
  {s:'nar',t:'这时，锺老师从走廊那边走了过来。'},
- {s:'zhong',t:'你们知道吗？古代的棋书《棋经十三篇》里有一句话：「胜不言，败不语。」意思是赢了不炫耀，输了不抱怨，这才是真正的棋手。'},
+ {s:'zhong',f:'smile',t:'你们知道吗？古代的棋书《棋经十三篇》里有一句话：「胜不言，败不语。」意思是赢了不炫耀，输了不抱怨，这才是真正的棋手。'},
  {s:'zhong',t:'大壮，你吃子很快，是有天分的。下次赢了，记得跟对手说一声「谢谢指教」。'},
  {s:'zhong',t:'{v}，每一盘输掉的棋，都在悄悄教你下一盘怎么赢。'},
  {s:'dz',t:'……哼，下次我一定赢回来！'},
@@ -9612,21 +9751,21 @@ const Q_CH={
  {s:'shi',t:'这块石盘是 7 路，一共 49 个点。7 路不贴目，黑 25 子胜，不到 25 子就是白棋赢。'},
  {s:'shi',t:'还有一句老话，你要记住：「棋从断处生」。棋子被切断的地方，就是战斗开始的地方。'},
  {s:'shi',t:'来，陪老头子下一盘吧。你执黑先下，下完了双方都停一手，就来数子。'},
- {battle:{kind:'vs',n:7,lv:'30k',opp:'石伯',who:'shi',teach:1,hints:['把自己的棋子连好，再去围地盘。','石伯的棋有断点，切下去看看！']}},
+ {battle:{kind:'vs',n:7,lv:'30k',ok:'shi',opp:'石伯',who:'shi',teach:1,hints:['把自己的棋子连好，再去围地盘。','石伯的棋有断点，切下去看看！']}},
  {bg:'river',cast:['shi']},
  {s:'shi',t:'好，好！你懂得把自己的棋连起来，也懂得找我的断点。'},
  {s:'shi',t:'常来玩吧，这块石盘，很久没有人陪我下了。'},
  {bg:'class',cast:['dz','vic']},
  {s:'nar',t:'第二天早上，{name}一走进教室，大壮就拦在门口。'},
- {s:'dz',t:'吃子棋只是小孩子玩的！我哥哥教了我真正的围棋，敢不敢用 7 路跟我比？输的人，帮赢的人值日一星期！'},
- {s:'vic',t:'{name}，加油！'},
- {s:'me',t:'好，我接受！'},
+ {s:'dz',f:'laugh',t:'吃子棋只是小孩子玩的！我哥哥教了我真正的围棋，敢不敢用 7 路跟我比？输的人，帮赢的人值日一星期！'},
+ {s:'vic',f:'smile',t:'{name}，加油！'},
+ {s:'me',f:'smile',t:'好，我接受！'},
  {s:'nar',t:'7 路围棋，不贴目，黑 25 子胜。你执黑先下。'},
- {battle:{kind:'vs',n:7,lv:'20k',opp:'雷大壮',who:'zhong',hints:['你的棋子被切成两块了，先连好再进攻。','大壮那里有断点，切下去！','下完要数子：黑棋要有 25 子才赢，别让大壮围太大的地。']}},
+ {battle:{kind:'vs',n:7,lv:'20k',ok:'dz',opp:'雷大壮',who:'zhong',hints:['你的棋子被切成两块了，先连好再进攻。','大壮那里有断点，切下去！','下完要数子：黑棋要有 25 子才赢，别让大壮围太大的地。']}},
  {bg:'class',cast:['dz','vic']},
  {s:'nar',t:'放学后，大壮拿着扫把，一边扫地，一边嘟囔。'},
- {s:'dz',t:'哼，7 路太小了，下次用 9 路，你就死定了！'},
- {s:'vic',t:'谢谢你，{name}！我也要好好练棋！'},
+ {s:'dz',f:'worry',t:'哼，7 路太小了，下次用 9 路，你就死定了！'},
+ {s:'vic',f:'smile',t:'谢谢你，{name}！我也要好好练棋！'},
  {bg:'river',cast:['shi']},
  {s:'shi',t:'听说你赢了？哈哈，好！'},
  {s:'shi',t:'顺着弯月河一直往下走，就是渔村码头。那里有很多会下棋的渔夫……等你准备好了，就去看看吧。'},
@@ -9666,6 +9805,9 @@ function qCss(){if($('#qCss'))return;const s=document.createElement('style');s.i
 #qBox input.qin{font:inherit;font-size:1rem;padding:6px 10px;border-radius:8px;border:2px solid #9bb8d6;width:12em}
 #qBox .qok{color:#2e7d32;font-weight:700}#qBox .qno{color:#c62828;font-weight:700}
 .qhint{background:#fff8e1;border-left:4px solid #ffb100;padding:6px 10px;border-radius:6px;margin:4px 0;color:#5a4300}
+#qOpp .qopp{display:flex;gap:10px;align-items:center;background:var(--panel,#fff);border:1px solid var(--line,#ddd);border-radius:12px;padding:8px 10px;margin:0 0 8px}#qOpp .qopps{width:72px;height:72px;flex:none;background:#e9f2f8;border-radius:10px}
+#qOpp .qbub{position:relative;margin-top:4px;background:#fffdf5;color:#222;border:2px solid #3b2a1a;border-radius:10px;padding:5px 10px;font-size:1.02rem;animation:qpop .25s}#qOpp .qbub:before{content:'';position:absolute;left:-8px;top:10px;border:6px solid transparent;border-right-color:#3b2a1a}
+@keyframes qpop{from{transform:scale(.8);opacity:.3}}
 @media (max-width:560px){#qBox .qdlg .qspr{width:48px;height:48px}#qBox .qdlg .qt{font-size:1rem}}`;document.head.appendChild(s)}
 function qOpen(){qCss();qLoad();let b=$('#qBox');if(!b){b=document.createElement('div');b.id='qBox';document.body.appendChild(b);b.addEventListener('click',qClick);b.addEventListener('input',qInput)}
   b.hidden=false;document.body.style.overflow='hidden';qs={view:Q.g?'map':'setup'};{const an=typeof acctName==='function'&&acctName();if(an)Q.name=an}qRender();qCloudLoad()}
@@ -9705,7 +9847,7 @@ function qMapHtml(){const unl=Q.unl||1;let m=`<rect width="200" height="150" fil
 function qState(ch,i){const S=Q_CH[ch].steps;let bg='class',cast=[];for(let j=0;j<=i&&j<S.length;j++){if(S[j].bg)bg=S[j].bg;if(S[j].cast)cast=S[j].cast}return{bg,cast}}
 function qStep(){return Q_CH[qs.ch].steps[qs.i]}
 function qSceneHtml(){const st=qStep(),{bg,cast}=qState(qs.ch,qs.i),line=qs.line||(st&&st.s?st:null),spk=line&&line.s;
-  let stage=qBg(bg)+`<div class="qcast">${cast.map(k=>{const w=qWho(k);return w.s?qSvg(w.s,'qspr'+(spk&&spk!=='nar'&&spk!==k&&!(spk==='vic'&&k==='vic')?' dim':'')):''}).join('')}</div>`;
+  let stage=qBg(bg)+`<div class="qcast">${cast.map(k=>{const w=qFace(qWho(k),line&&line.f&&(spk===k)?line.f:'normal');return w.s?qSvg(w.s,'qspr'+(spk&&spk!=='nar'&&spk!==k&&!(spk==='vic'&&k==='vic')?' dim':'')):''}).join('')}</div>`;
   let dlg='';
   if(st&&st.puzzle){const P=st.puzzle,r=qs.done&&qs.res;stage+=`<div class="qpz">${qBoardSvg(r?r.B:P.B,r?r.W:P.W,qs.done?qs.ans:null,qs.miss)}</div>`;
     const w=qWho('zhong');dlg=qDlg(w,qs.done?`✓ ${P.ex}`:(P.q||T('黑棋下，找出正确的一手。'))+(qs.wrong?`\n${qs.wmsg||T('不对哦，再想想。')}`+(qs.wrong>=1?`\n💡 ${P.hint}`:''):''),false,
@@ -9719,7 +9861,7 @@ function qSceneHtml(){const st=qStep(),{bg,cast}=qState(qs.ch,qs.i),line=qs.line
   else if(st&&st.reward){const C=Q_CH[qs.ch],w=Q_PPL[C.card.k];dlg=`<div class="qcard" style="margin:10px 8px"><h3>🎉 ${T('完成「{0}」！',C.t.replace(/^.*　/,''))}</h3>
       <div class="qrow">${qSvg(w.s)}<div><b>🃏 ${T('获得角色卡：{0}',C.card.n)}</b><br><small>${tsE(C.card.d)}</small><br>${qs.paid?`🍎 +${st.reward.ap}`:T('（这一章已经拿过奖励）')}</div></div>
       <p>${qs.ch<Q_TOP?T('地图上解锁了新的地点！'):T('下一章「渔村码头」正在准备中，敬请期待！')}</p><div class="qrow"><button class="qbtn pri" data-q="map">🗺️ ${T('回到地图')}</button></div></div>`}
-  else if(line)dlg=qDlg(qWho(line.s),qTxt(line.t),false,'',true);
+  else if(line)dlg=qDlg(qFace(qWho(line.s),line.f),qTxt(line.t),false,'',true);
   return`<div style="padding:0 8px"><div class="qstage">${stage}</div></div>${dlg}`}
 function qPraise(){return['答对了！','很好！','完全正确！','真厉害！'][Math.floor(Math.random()*4)]}
 function qDlg(w,text,raw,extra,typing){const name=w.n?`<div class="qn">${tsE(w.n)}</div>`:'';
@@ -9767,24 +9909,72 @@ function qFight(){const st=qStep(),B=st.battle;qBattle={ch:qs.ch,i:qs.i,over:fal
   if(vs)vsStop();if(typeof cg!=='undefined'&&cg){cg=null;$('#cgBox').hidden=true}if(scoring)stopScoring();if(train)stopTrain();
   setMode('play');document.body.dataset.sub='quest';closeNew();$('#duelBox').hidden=true;$('#certBox').hidden=true;if(!$('#olBox').hidden)olPanelClose();
   if(B.kind==='cg'){const save={...cgOpt};Object.assign(cgOpt,{n:B.n,goal:B.goal,opp:'ai',lvl:B.lvl,color:'B'});$('#cgBox').hidden=false;cgNew();Object.assign(cgOpt,save);
-    if(cg){cg.quest=true;const r=root();r.props.PW=[B.opp];r.props.PB=[Q.name||T('我')];r.props.GN=[T('小棋士之旅：对 {0}',B.opp)];changed();renderInfo()}renderCg();$('#cgBox').scrollIntoView({block:'nearest'});return}
+    if(cg){cg.quest=true;const r=root();r.props.PW=[B.opp];r.props.PB=[Q.name||T('我')];r.props.GN=[T('小棋士之旅：对 {0}',B.opp)];changed();renderInfo()}renderCg();qOppStart(B);$('#cgBox').scrollIntoView({block:'nearest'});return}
   const n=B.n,lv=levelObj(B.lv,n),d=new Date().toISOString().slice(0,10),esc=s=>String(s).replace(/([\]\\])/g,'\\$1');
   const r=parseSGF(`(;GM[1]FF[4]CA[UTF-8]SZ[${n}]KM[${KOMI_DEF[n]}]RU[Chinese]DT[${d}]GN[${esc(T('小棋士之旅：对 {0}',B.opp))}]PB[${esc(Q.name||T('我'))}]PW[${esc(B.opp)}])`),id=newId();
   store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};openRoot(r,{id});
   vs={id,pc:false,ai:2,level:lv,auto:false,ladder:null,low:0,over:false,thinking:false,msg:'',endMsg:'',quest:true};tool='play';
-  $('#vsBox').hidden=false;if(lv.gg||lv.stu)GG.warm();else AI.load().catch(()=>{});renderVs();render();vsAiMove();$('#vsBox').scrollIntoView({block:'nearest'})}
-function qBattleEnd(win){if(!qBattle)return;qBattle.over=true;qBattle.win=!!win;if(!win)qBattle.hintI++;
+  $('#vsBox').hidden=false;if(lv.gg||lv.stu)GG.warm();else AI.load().catch(()=>{});renderVs();render();qOppStart(B);vsAiMove();$('#vsBox').scrollIntoView({block:'nearest'})}
+function qBattleEnd(win){if(!qBattle)return;qBattle.over=true;qBattle.win=!!win;if(!win)qBattle.hintI++;qMoodEnd(!!win);
   if(vs&&vs.quest)renderVs();else if(typeof cg!=='undefined'&&cg&&cg.quest)renderCg()}
 function qEndHtml(){const b=qBattle;if(!b||!b.over)return'';const w=qWho(b.who);
   if(b.win)return`<span class="qok" style="flex-basis:100%">🎉 ${T('赢了！')}</span><button class="btn pri" data-qb="go">▶ ${T('继续剧情')}</button>`;
   return`<div class="qhint" style="flex-basis:100%">${tsE(w.n)}：💡 ${tsE(qTxt(b.hints[(b.hintI-1+b.hints.length)%b.hints.length]))}</div><button class="btn pri" data-qb="retry">${T('再挑战')}</button>`+
     (b.teach?`<button class="btn" data-qb="go">▶ ${T('继续剧情')}</button>`:'')+`<button class="btn" data-qb="map">🗺️ ${T('回到地图')}</button>`}
-function qBack(){if(vs)vsStop();if(typeof cg!=='undefined'&&cg){cg=null;$('#cgBox').hidden=true}if(scoring)stopScoring();delete document.body.dataset.sub;setMode('home');qCss();
+function qBack(){qOppStop();if(vs)vsStop();if(typeof cg!=='undefined'&&cg){cg=null;$('#cgBox').hidden=true}if(scoring)stopScoring();delete document.body.dataset.sub;setMode('home');qCss();
   const b=$('#qBox');if(b){b.hidden=false;document.body.style.overflow='hidden'}}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-qb]');if(!t||!qBattle)return;const a=t.dataset.qb,b=qBattle;
   if(a==='go'){qBattle=null;qBack();qs={view:'scene',ch:b.ch,i:b.i};qNext();return}
   if(a==='retry'){qs={view:'scene',ch:b.ch,i:b.i,hintI:b.hintI,lost:1};qFight();return}
   if(a==='map'){qBattle=null;qBack();qs={view:'map',loc:b.ch};Q.at={ch:b.ch,i:b.i};qSave();qRender()}});
+
+/* ===================== 第 36 项：对局中对手的表情和台词 =====================
+   平时：每一手后看形势（吃子棋看吃子数，7 路看简单数子），跨过门槛才换表情；
+   大事：吃子、叫吃、形势翻转、好棋 → 马上变脸并说一句，几秒后回到看形势的表情。台词每格用「 / 」分开，轮流说。 */
+const Q_LINES={
+  dz:{think:'Hmm……我想想…… / 等一下，让我想想！',surprise:'你这手棋，让我很惊讶。 / 咦？这样也行？',angry:'你这么下，别怪我不客气了！ / 可恶！看我的！',
+    proud:'哈哈，你逃不掉的！ / 太简单了吧！',atari_me:'叫吃！快逃啊！ / 看你往哪里逃！',atari_opp:'什么？！ / 糟了……',capture:'我的棋！…… / 不、不要吃我的子！',
+    turn:'不、不可能…… / 怎么会这样？',chat:'放学我还要去踢球，快点下！ / 你下棋怎么这么慢？',win:'哼，早就说了吧！',lose:'……下次我一定赢回来！'},
+  shi:{think:'嗯……让我想一想。 / 老头子要想久一点。',surprise:'哦？这一手不简单。 / 好棋！',angry:'年轻人，有气势！不过…… / 那我可要认真了。',
+    proud:'慢慢下，不要急。 / 看清楚再下哦。',atari_me:'这颗子，只剩一口气了哦。 / 小心，叫吃了。',atari_opp:'嗯，被你看到了。 / 哎呀。',capture:'棋从断处生，你切得好。 / 吃得好！',
+    turn:'局势变了啊。 / 嗯……有意思。',chat:'以前我在码头，也常这样跟人下棋…… / 河边的风，吹得人想下棋。',win:'承让了。下次再来。',lose:'好！谢谢指教。'}};
+let qMood=null; // {key, face, hold, line, lineT, last:{n,id}, lead, caps, quiet, idx:{}}
+function qLine(kind){const k=qMood&&qMood.key,L=(Q_LINES[k]||{})[kind];if(!L)return'';const a=L.split(' / ');qMood.idx[kind]=((qMood.idx[kind]??-1)+1)%a.length;return qTxt(a[qMood.idx[kind]])}
+function qSay(kind,face,force){if(!qMood)return;const now=Date.now();if(!force&&now-qMood.lineT<2500)return; // 不要说太快
+  qMood.line=qLine(kind);qMood.lineT=now;if(face){qMood.face=face;qMood.hold=now+3000}qMood.quiet=0;qOppRender()}
+function qOppStart(B){qMood={key:B.ok,name:B.opp,face:'normal',base:'normal',hold:0,line:'',lineT:0,last:null,lead:0,caps:{B:0,W:0},quiet:0,idx:{},thinkT:0};
+  let el=$('#qOpp');if(!el){el=document.createElement('div');el.id='qOpp'}const box=B.kind==='cg'?$('#cgBox'):$('#vsBox');box.prepend(el);el.hidden=false;
+  qSay('proud',null,true);clearInterval(qOppStart.t);qOppStart.t=setInterval(qMoodTick,600);qOppRender()}
+function qOppStop(){clearInterval(qOppStart.t);qMood=null;const el=$('#qOpp');if(el)el.hidden=true}
+function qOppRender(){const el=$('#qOpp');if(!el||!qMood)return;const w=Q_PPL[qMood.key]||{n:qMood.name,s:null},face=Date.now()<qMood.hold?qMood.face:qMood.base;
+  el.innerHTML=`<div class="qopp">${w.s?qSvg({...w.s,face},'qopps'):''}<div><b>${tsE(w.n)}</b>${qMood.line?`<div class="qbub">${tsE(qMood.line)}</div>`:''}</div></div>`}
+function qArea(b,n){ // 简单数子：棋子 + 只被一种颜色围住的空点
+  let sB=0,sW=0;const seen=new Uint8Array(n*n);for(let p=0;p<n*n;p++){if(b[p]===1)sB++;else if(b[p]===2)sW++;else if(!seen[p]){const st=[p],reg=[];let tB=false,tW=false;seen[p]=1;
+    while(st.length){const q=st.pop();reg.push(q);const x=q%n,y=(q/n)|0;for(const r of[x>0?q-1:-1,x<n-1?q+1:-1,y>0?q-n:-1,y<n-1?q+n:-1]){if(r<0)continue;if(b[r]===1)tB=true;else if(b[r]===2)tW=true;else if(!seen[r]){seen[r]=1;st.push(r)}}}
+    if(reg.length<=n*n*0.3){if(tB&&!tW)sB+=reg.length;else if(tW&&!tB)sW+=reg.length}}}return sB-sW} // 太大的空地还没围好，不算
+function qAtari(b,n,col){for(let p=0;p<n*n;p++)if(b[p]===col&&Cap.group(b,n,p).libs.length===1)return true;return false}
+function qMoodTick(){if(!qMood||!qBattle)return;const isCg=typeof cg!=='undefined'&&cg&&cg.quest,isVs=vs&&vs.quest;if(!isCg&&!isVs)return;
+  const now=Date.now();if(qBattle.over){qOppRender();return}
+  if(isVs&&vs.thinking){if(!qMood.thinkT)qMood.thinkT=now;else if(now-qMood.thinkT>1200&&Math.random()<.35&&now-qMood.lineT>6000)qSay('think','normal')}else qMood.thinkT=0;
+  const n=sizeOf(root()),k=moveNo(cur);if(qMood.last&&qMood.last.n===k&&qMood.last.id===G.id){if(now>qMood.hold)qOppRender();return}
+  const first=!qMood.last;qMood.last={n:k,id:G.id};if(first||k===0){qOppRender();return}
+  const b=capFlat(cur,n),m=moveOf(cur),byMe=m&&m[0]==='B'; // 玩家执黑
+  let base='normal',ev=null;
+  if(isCg){const c=cgCaps(cur),d=c.W-c.B;base=d>=2?'laugh':d===1?'smile':d===0?'normal':d===-1?'worry':'cry';if(cg.goal-c.B<=1&&c.B>c.W)base='cry';
+    if(c.B>qMood.caps.B)ev=['capture','shock'];else if(c.W>qMood.caps.W)ev=['proud','laugh'];qMood.caps=c}
+  else{const lead=-(qArea(b,n)-(KOMI_DEF[n]||0)),old=qMood.lead; // 对手（白）的领先
+    base=k<6?'normal':lead>=6?'laugh':lead>=2?'smile':lead>-2?'normal':lead>-6?'worry':'cry';
+    const capd=k>1&&byMe&&b.filter(v=>v===2).length<(qMood.wn??99);qMood.wn=b.filter(v=>v===2).length;
+    if(capd)ev=['capture','shock'];else if(Math.sign(lead)!==Math.sign(old)&&Math.abs(lead-old)>=4&&k>4)ev=['turn','shock'];else if(byMe&&old-lead>=4)ev=['surprise','shock'];
+    qMood.lead=lead}
+  if(!ev&&byMe&&qAtari(b,n,2))ev=['atari_opp','shock'];
+  if(!ev&&!byMe&&qAtari(b,n,1))ev=['atari_me','smile'];
+  if(!ev&&byMe&&(base==='worry'||base==='cry')&&Math.random()<.25)ev=['angry',null];
+  if(!ev&&byMe&&(base==='laugh')&&Math.random()<.2)ev=['proud',null];
+  qMood.base=base;
+  if(ev)qSay(ev[0],ev[1]);else{qMood.quiet++;if(qMood.quiet>=8&&now-qMood.lineT>8000)qSay('chat',null)}
+  qOppRender()}
+function qMoodEnd(win){if(!qMood)return;qMood.base=win?'down':'cheer';qMood.hold=0;qSay(win?'lose':'win',null,true);qOppRender()}
 
 /* ===================== 第 34 项：观战 AI 实时解说 =====================
    一台「解说机」（老师 / 管理员，默认用家里电脑）算每一手的胜率和目差，写进 olai/{对局}，观战者只负责显示。

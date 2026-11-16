@@ -82,11 +82,18 @@ button{cursor:pointer}
 .app{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
 @media (max-width:900px){.app{grid-template-columns:minmax(0,1fr)}}.app>aside,.app>main{min-width:0}@media (max-width:900px){.app>aside{align-self:stretch;max-width:100%}}
 /* 手机、平板直放：对局面板在棋盘上方，工具在棋盘下方，再来评论、棋谱树、整盘分析 */
+.olbar{display:flex;flex-direction:column;gap:8px;margin:8px 0;padding:8px 10px;border:2px solid var(--accent,#7cb7e8);border-radius:12px;background:var(--panel,#1f2630)}
+.olbar-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.olbar-msg{font-weight:700}.olbar-msg.my{color:var(--accent,#7cb7e8)}
+.olbar-clk{display:flex;gap:10px;flex-wrap:wrap;font-size:.9rem}.olbpl{padding:2px 6px;border-radius:8px}.olbpl.on{outline:2px solid var(--accent,#7cb7e8)}
+.olbar-conf{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.olbar-conf .btn.big{min-height:48px;font-size:1.1rem;padding:0 18px}.olbar-conf .btn.pri.big{flex:1}
+.olbar-act{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+details.olchat>summary{cursor:pointer;list-style:none}details.olchat>summary::-webkit-details-marker{display:none}details.olchat:not([open])>summary .sub::after{content:' ▸'}
 @media (max-width:900px){
   .app{display:flex;flex-direction:column;gap:12px}.app>main{display:contents}
   .app>header.top{order:0}#homeBox{order:1}#playMenu,#recBar{order:2}main>.players{order:3}
   #newBox,#duelBox,#certBox,#cgBox,#olBox,#vsBox{order:4}#judgeBar,#aiBar{order:5}
   main>.libback{order:6}main>.board-wrap{order:7}#revDots{order:8}main>.nav{order:9}main>.tools{order:10}
+  main>#olBar{order:8}body.olplay #olBox{order:11} /* 55：下棋时棋盘在上、面板在下 */
   #vars{order:11}#scoreBox,#trainBox,#imgBox,#shareBox,#helpBox{order:12}
   .app>aside{order:20}#revBox{order:30}
   #tsBox{order:4} /* 做题：题目面板在棋盘上方 */
@@ -538,6 +545,7 @@ body.pick #undoBtn,body.pick #redoBtn,body.pick #saveBtn,body.pick #shareBtn{dis
     <div class="libback"><button class="btn" id="libBackBtn">← 棋谱库</button></div>
     <div class="board-wrap"><svg id="board" viewBox="0 0 800 800" role="img" aria-label="棋盘"></svg></div>
     <div id="revDots" hidden></div>
+    <div id="olBar" class="olbar" hidden></div>
 
     <div class="nav">
       <div class="btns">
@@ -2874,6 +2882,32 @@ const EN={
 ,"（对局时间照样在算）":"(the game clock keeps running)"
 ,"继续":"Continue"
 ,"回主页":"Home"
+,"解说变化":"Commentary variation"
+,"这是实战的棋，不能删":"These are real game moves; can't delete"
+,"观众现在看得到这个变化":"Viewers can now see this variation"
+,"试下（退回去摆变化）":"Explore (go back and try variations)"
+,"已存 {0} 个解说变化（棋谱里看得到）":"{0} commentary variations saved (in the game record)"
+,"黑领先 {0} 目":"Black leads by {0}"
+,"白领先 {0} 目":"White leads by {0}"
+,"AI 分析中…":"AI analysing…"
+,"黑胜率 {0}%":"Black win {0}%"
+,"AI 推荐：{0}":"AI suggests: {0}"
+,"试下中：只有你看得到，对局者看不到":"Exploring: only you see this, not the players"
+,"对局已下到第 {0} 手":"Game is at move {0}"
+,"从第 {0} 手起的变化，{1} 手":"Variation from move {0}, {1} moves"
+,"在实战第 {0} 手":"At game move {0}"
+,"最新一手":"Latest move"
+,"删掉这个变化":"Delete this variation"
+,"在棋盘上点，摆出变化":"Click the board to play a variation"
+,"给观众的说明（可不填）":"Note for viewers (optional)"
+,"更新说明":"Update note"
+,"停止给观众看":"Stop showing viewers"
+,"给观众看这个变化":"Show viewers this variation"
+,"观众正在看你摆的变化，你继续摆，他们会跟着更新。":"Viewers are watching your variation; it updates as you play."
+,"{0} 在摆变化（从第 {1} 手起）":"{0} is showing a variation (from move {1})"
+,"看变化":"View variation"
+,"「停一手」「认输」在棋盘下方。":"Pass and Resign are below the board."
+,"点棋盘选好位置，再按「确认送出」":"Tap the board to choose, then press Confirm"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -7109,12 +7143,12 @@ async function olOpen(id){ // 打开对局（下棋或观战）
   }catch(e){olMsg=e.message||String(e);renderOl()}
 }
 function olSync(st){
-  const prev=ol.st;ol.st=st;ol.me=olIsMe(st.B)?'B':olIsMe(st.W)?'W':null;if(st.tour&&st.status==='end'&&ol.me&&typeof trGameLog==='function')trGameLog(st);if(ol.me&&(!prev||prev.seq!==st.seq))olIndex(st);if(ol.trial&&prev&&prev.moves.length!==st.moves.length)ol.trial=false;if(ol.trial){renderOl();return}ol.pend=null;
-  const r=olRoot(st);let lid=ol.lid;
+  const prev=ol.st;ol.st=st;ol.me=olIsMe(st.B)?'B':olIsMe(st.W)?'W':null;if(st.tour&&st.status==='end'&&ol.me&&typeof trGameLog==='function')trGameLog(st);if(ol.me&&(!prev||prev.seq!==st.seq))olIndex(st);if(ol.me)ol.trial=false;if(ol.vars===undefined)ol.vars=lvLoad(st.id);if(ol.trial||ol.varView){laOlSync();renderOl();return}ol.pend=null; // 54：解说员试下、观众看变化时，新的一手不拉回去
+  const r=olRoot(st);if(!ol.me)lvGraft(r,ol.vars);let lid=ol.lid;
   if(!lid||!store.games[lid]){lid=ol.lid='ol_'+st.id;store.games[lid]={sgf:toSGF(r),key:gameKey(r),title:titleOf(r),updated:Date.now()}}
   if(!G||G.id!==lid){if(scoring)stopScoring();if(train)stopTrain();openRoot(r,{id:lid});ol.lid=lid}
   else{G.root=r}
-  cur=G.root;while(cur.children.length)cur=cur.children[0];
+  cur=G.root;for(let i=0;i<st.moves.length&&cur.children.length;i++)cur=cur.children[0]; // 只走真的棋（后面可能接着解说变化）
   const rec=store.games[lid];rec.sgf=toSGF(G.root);rec.title=titleOf(G.root);rec.updated=Date.now();lsSet(store);
   tool='play';renderTree();render();renderInfo();
   if(prev&&st.moves.length>prev.moves.length){const nd=cur;if(moveOf(nd)&&moveOf(nd)[1])soundFor(nd)}
@@ -7218,7 +7252,7 @@ function olOptHtml(){const seg=(id,arr,v)=>`<span class="seg" data-o="${id}">${a
   <div class="score-opts"><span>${T('观战 AI 解说')}</span>${seg('ai',[['1',T('允许')],['0',T('不允许')]],String(olOpt.ai??'1'))}${String(olOpt.ai??'1')!=='0'?`<label>${T('延迟')} <select data-o="aiD">${[0,1,3,5,10].map(d=>`<option value="${d}"${d==(olOpt.aiD||0)?' selected':''}>${T('{0} 手',d)}</option>`).join('')}</select></label>`:''}</div>
   <p class="note" style="margin:0">${corr?T('通信对局：不用同时在线，轮到你时会有红点提醒；可以同时下好几盘。'):T('实时对局：双方要同时在线。')}</p>`}
 function renderOl(){
-  const box=$('#olBox');if(!box||box.hidden)return;const body=$('#olBody');let h='';const name=olName();
+  const box=$('#olBox');if(!box||box.hidden){renderOlBar();return}const body=$('#olBody');let h='';const name=olName();
   const nameRow=`<div class="score-opts"><label>${T('我的名字')} <input id="olName" maxlength="16" value="${tsE(name)}" placeholder="${T('必填')}" style="width:9em"${acctName()?` readonly title="${T('登入后用户口名字')}"`:''}></label><span id="olMyR" class="note" style="margin:0"></span></div>`;
   const tabs=`<div class="row" style="margin:0"><span class="seg"><button data-p="mine" aria-pressed="${olView==='mine'}">${T('我的对局')}${olTurnN?` <span class="bugdot">${olTurnN}</span>`:''}</button><button data-p="home" aria-pressed="${olView==='home'}">${T('开新对局')}</button><button data-p="lobby" aria-pressed="${olView==='lobby'}">${T('大厅')}</button>${olTeacher()?`<button data-p="pairv" aria-pressed="${olView==='pair'}">${T('帮学生开对局')}</button>`:''}<button data-p="tours">🏆 ${T('比赛和联赛')}</button>${laCan()?`<button data-p="desk">🎙 ${T('多场解说台')}</button>`:''}</span></div>`;
   if(olView==='home'){
@@ -7248,19 +7282,19 @@ function renderOl(){
       else if(st.status==='score')msg=ol.scoring?T('双方停一手，AI 正在算胜负…'):T('双方停一手，正在算胜负…');
       else msg=st.re==='Void'?T('对局已取消'):T('对局结束：{0}',resultText(st.re))+(st.why==='score'?T('（GNU Go 判断死子）'):'');
       if(st.cap){const k2=computeState(cur,st.n);h+=`<p class="note" style="margin:0"><b>${T('吃子棋（先吃 {0} 子）',st.cap)}</b> · ${T('黑吃 {0} / {1}',k2.capB,st.cap)} · ${T('白吃 {0} / {1}',k2.capW,st.cap)}</p>`}
-      h+=`<p class="big${st.status==='end'?' ok':''}">${msg}</p>`;if(!ol.me)h+=laOlHtml();if(ol.rateMsg)h+=`<p class="note" style="margin:0">${tsE(ol.rateMsg)}</p>`;
-      if(ol.pend&&!ol.trial)h+=`<div class="row" style="align-items:center"><b>${T('下在 {0}？',coordName(['B',ol.pend],st.n))}</b><button class="btn pri" data-p="confirm">✔ ${T('确认送出')}</button><button class="btn" data-p="unpend">${T('取消')}</button></div>`;
+      h+=`<p class="big${st.status==='end'?' ok':''}">${msg}</p>`;if(!ol.me)h+=lvHtml()+laOlHtml();if(ol.rateMsg)h+=`<p class="note" style="margin:0">${tsE(ol.rateMsg)}</p>`;
       if(st.status==='wait')h+=`<div class="row"><input readonly id="olLinkI" value="${tsE(olLink(st.id))}" style="flex:1;min-width:10em;height:34px"><button class="btn pri" data-p="copy">${T('复制链接')}</button><button class="btn" data-p="cancel">${T('取消对局')}</button></div>`;
-      else if(st.status==='play'&&ol.me)h+=`<div class="row"><button class="btn" data-p="pass">${T('停一手')}</button><button class="btn warn" data-p="resign">${T('认输')}</button>${ol.trial?`<button class="btn pri" data-p="trial">↩ ${T('回到对局')}</button>`:`<button class="btn" data-p="trial">🧪 ${T('试下')}</button>`}</div>${ol.trial?`<p class="note" style="margin:0">${T('试下中：自己摆变化，对手看不到；按「回到对局」回来。')}</p>`:''}`;
+      else if(st.status==='play'&&ol.me)h+=`<p class="note" style="margin:0">${T('「停一手」「认输」在棋盘下方。')}</p>`;
       h+=`<div class="row">${st.status!=='wait'?`<button class="btn" data-p="copy">${T('复制观战链接')}</button>`:''}${st.status==='end'?`<button class="btn pri" data-p="again">${T('再下一盘')}</button><button class="btn" data-p="count" aria-pressed="${!!scoring}">${T('数子 / 数目')}</button><button class="btn" data-p="torev">📖 ${T('进入这棋谱')}</button><button class="btn" data-p="review">${T('整盘分析')}</button>`:''}<button class="btn" data-p="leave">${st.status==='end'?T('我的对局'):T('离开')}</button>${st.status==='end'?`<button class="btn" data-p="gohome">🏠 ${T('回主页')}</button>`:''}</div>`;
-      h+=`<div class="olchat"><b class="sub">💬 ${T('留言')}</b><div class="olmsgs">${(st.chat||[]).map(m=>`<div><b>${m.c==='B'?'⚫':m.c==='W'?'⚪':''} ${tsE(m.n)}</b>：${tsE(m.m)} <span class="note" style="margin:0">${new Date(m.t).toLocaleString([], {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>`).join('')||`<span class="note">${T('还没有留言。')}</span>`}</div>
-        ${!ol.me?`<p class="note" style="margin:0">${ol.ai?T('开着 AI 解说：观战者请在下面的观战区聊天。'):T('观战者不能在对局里留言。')}</p>`:`<div class="row" style="margin:0"><input id="olSayI" maxlength="200" placeholder="${T('写几句话给对手…')}" style="flex:1;height:34px"><button class="btn" data-p="say">${T('发送')}</button></div>`}</div>`+laOlChatHtml();
+      const chN=(st.chat||[]).length,chOpen=ol.chatOpen!=null?ol.chatOpen:innerWidth>900;
+      h+=`<details class="olchat" id="olChatD"${chOpen?' open':''}><summary><b class="sub">💬 ${T('留言')}${chN?'（'+chN+'）':''}</b></summary><div class="olmsgs">${(st.chat||[]).map(m=>`<div><b>${m.c==='B'?'⚫':m.c==='W'?'⚪':''} ${tsE(m.n)}</b>：${tsE(m.m)} <span class="note" style="margin:0">${new Date(m.t).toLocaleString([], {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span></div>`).join('')||`<span class="note">${T('还没有留言。')}</span>`}</div>
+        ${!ol.me?`<p class="note" style="margin:0">${ol.ai?T('开着 AI 解说：观战者请在下面的观战区聊天。'):T('观战者不能在对局里留言。')}</p>`:`<div class="row" style="margin:0"><input id="olSayI" maxlength="200" placeholder="${T('写几句话给对手…')}" style="flex:1;height:34px"><button class="btn" data-p="say">${T('发送')}</button></div>`}</details>`+laOlChatHtml();
     }
   }
   if(olMsg)h+=`<p class="note" style="color:var(--bad,#C0392B)">${tsE(olMsg)}</p>`;
   const keep=['olSayI','laSayI'].map(id=>{const e=$('#'+id);return e?[id,e.value,document.activeElement===e]:null}).filter(Boolean);
   if(olView==='game')h=olSentHtml()+h;
-  body.innerHTML=h;renderOlClock();keep.forEach(([id,v,f])=>{const e=$('#'+id);if(e){e.value=v;if(f)e.focus()}});
+  body.innerHTML=h;renderOlBar();renderOlClock();keep.forEach(([id,v,f])=>{const e=$('#'+id);if(e){e.value=v;if(f)e.focus()}});
   const ni=$('#olName');if(ni)ni.onchange=()=>{if(acctName())return;ng.name=ni.value.trim();ngSave();if(olPending&&ng.name){const p=olPending;olPending=null;olMsg='';olOpen(p)}};
   body.querySelectorAll('select[data-o]').forEach(sel=>sel.onchange=()=>{const k=sel.dataset.o;olOpt[k]=k==='ha'||k==='aiD'?+sel.value:sel.value;olOptSave()});
   const ls=$('#laSayI');if(ls)ls.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();laOlSay(ls.value).then(()=>{ls.value=''}).catch(x=>flash(x.message))}};
@@ -7294,11 +7328,12 @@ function olPairHtml(){const us=tsCloud&&tsCloud.users?Object.values(tsCloud.user
   const sel=k=>`<select data-pr="${k}"><option value="">—</option>${us.map(n=>`<option${olPair[k]===n?' selected':''}>${tsE(n)}</option>`).join('')}</select>`;
   return`<p class="note" style="margin:0">${T('选两个本班学生；对局会出现在他们的「我的对局」里。')}</p><div class="score-opts"><span>${T('黑')}</span>${sel('a')}<span>${T('白')}</span>${sel('b')}</div>`+olOptHtml()+
     `<div class="row"><button class="btn pri" data-p="pair">${T('开对局')}</button></div>${us.length?'':`<p class="note">${T('先到「班级」载入本班学生。')}</p>`}`}
-function renderOlClock(){if(!ol||!ol.st)return;const st=ol.st;for(const c of['B','W']){const el=$('#olC'+c);if(!el)continue;const k=olClock(st,c);
-  el.textContent=!k?'':k.t>0?olFmt(k.t)+(st.clock.per&&st.clock.byo?(st.corr?'':` +${st.clock.per}×${st.clock.byo}s`):'')+(st.clock.inc?` +${olFmt(st.clock.inc*1000)}`:''):st.clock.byo?(st.corr?T('这手还剩 {0}',olFmt(k.b)):T('读秒 {0}（{1} 次）',olFmt(k.b),k.p)):'0:00';
+function renderOlClock(){if(!ol||!ol.st)return;const st=ol.st;for(const c of['B','W']){const el=$('#olC'+c),eb=$('#olbC'+c);if(!el&&!eb)continue;const k=olClock(st,c);
+  const tx=!k?'':k.t>0?olFmt(k.t)+(st.clock.per&&st.clock.byo?(st.corr?'':` +${st.clock.per}×${st.clock.byo}s`):'')+(st.clock.inc?` +${olFmt(st.clock.inc*1000)}`:''):st.clock.byo?(st.corr?T('这手还剩 {0}',olFmt(k.b)):T('读秒 {0}（{1} 次）',olFmt(k.b),k.p)):'0:00';if(el)el.textContent=tx;if(eb)eb.textContent=tx;
+  const pb=$('#olbP'+c);if(pb)pb.classList.toggle('on',st.status==='play'&&olToMove(st)===c);
   const p=$('#olP'+c);if(p)p.classList.toggle('on',st.status==='play'&&olToMove(st)===c)}}
 async function olAct(e){
-  const t=e.target.closest('[data-p],[data-o] button');if(!t||!$('#olBody').contains(t))return;
+  const t=e.target.closest('[data-p],[data-o] button');if(!t||!($('#olBody').contains(t)||($('#olBar')&&$('#olBar').contains(t))))return;
   const seg=t.closest('[data-o]');if(seg&&!t.dataset.p){const k=seg.dataset.o;olOpt[k]=k==='n'?+t.dataset.v:t.dataset.v;olOptSave();renderOl();return}
   if(t.closest('[data-pr]'))return;
   olMsg='';const a=t.dataset.p,need=()=>{if(!olName()){olMsg=T('请先输入你的名字');renderOl();return false}return true};
@@ -7313,7 +7348,12 @@ async function olAct(e){
     case'tours':olPanelClose();trPanelOpen();break;
     case'confirm':{const pt=ol.pend;ol.pend=null;if(pt)olMove(pt);break}
     case'unpend':ol.pend=null;render();renderOl();break;
-    case'trial':ol.trial=!ol.trial;ol.pend=null;if(!ol.trial)olSync(ol.st);else renderOl();break;
+    case'trial':if(ol.me)break;if(ol.trial){lvCollect();ol.trial=false;lvStop();if(ol.share)await lvShare(false);olSync(ol.st)}else{if(!laCan())break;ol.trial=true;ol.varView=false;lvStartT()}renderOl();break;
+    case'lvb':back(+t.dataset.k||1);break;case'lvf':fwd(+t.dataset.k||1);break;
+    case'lvlive':{let n=G.root;for(let i=0;i<ol.st.moves.length&&n.children.length;i++)n=n.children[0];cur=n;render();break}
+    case'lvshare':await lvShare(true);break;case'lvunshare':await lvShare(false);break;
+    case'lvdel':lvDelHere();break;
+    case'varview':ol.varView=true;lvShowVar();renderOl();break;case'varclose':ol.varView=false;olSync(ol.st);break;
     case'say':{const i=$('#olSayI');await olSay(i&&i.value);break}
     case'lasay':{const i=$('#laSayI');await laOlSay(i&&i.value);if(i)i.value='';break}
     case'cmstart':laOlStart();break;
@@ -7362,6 +7402,18 @@ async function olWatchCm(gid){await olOpen(gid);const t0=Date.now();
   while(Date.now()-t0<8000&&ol&&ol.id===gid&&!ol.st)await new Promise(r=>setTimeout(r,200));
   if(!ol||ol.id!==gid||!ol.st)return;if(ol.me){flash(T('你是这盘的对局者，不能解说'));return}
   if(!laOlAllowed(ol.st)||ol.st.cap){flash(T('这盘棋不开放 AI 解说。'));return}if(!ol.cm)laOlStart()}
+
+/* ---- 第 55 项：下棋的按钮放在棋盘正下方（确认送出、停一手、认输），手机上面板移到棋盘下面 ---- */
+function renderOlBar(){const bar=$('#olBar');if(!bar)return;const box=$('#olBox'),st=ol&&ol.st;
+  const on=!!(box&&!box.hidden&&st&&ol.me&&st.status==='play'&&olView==='game'&&!scoring);
+  document.body.classList.toggle('olplay',on);if(!on){bar.hidden=true;bar.innerHTML='';return}
+  const my=olToMove(st)===ol.me,nm=c=>tsE((st[c]&&st[c].name)||'?');
+  let h=`<div class="olbar-top"><span class="olbar-msg${my?' my':''}">${my?T('轮到你下'):T('等对手下…')}</span><span class="olbar-clk"><span id="olbPB" class="olbpl"><span class="dot b"></span>${nm('B')} <code id="olbCB"></code></span><span id="olbPW" class="olbpl"><span class="dot w"></span>${nm('W')} <code id="olbCW"></code></span></span></div>`;
+  if(ol.pend)h+=`<div class="olbar-conf"><b>${T('下在 {0}？',coordName(['B',ol.pend],st.n))}</b><button class="btn pri big" data-p="confirm">✔ ${T('确认送出')}</button><button class="btn big" data-p="unpend">${T('取消')}</button></div>`;
+  h+=`<div class="olbar-act"><button class="btn" data-p="pass">${T('停一手')}</button><button class="btn warn" data-p="resign">${T('认输')}</button>${st.corr?`<span class="note" style="margin:0">📮 ${T('点棋盘选好位置，再按「确认送出」')}</span>`:''}</div>`;
+  const had=bar.hidden;bar.innerHTML=h;bar.hidden=false;renderOlClock();
+  if(had&&innerWidth<=900&&!ol.barScrolled){ol.barScrolled=true;setTimeout(()=>{const b=$('.board-wrap');if(b)b.scrollIntoView({block:'start',behavior:'smooth'})},150)}}
+document.addEventListener('toggle',e=>{if(e.target&&e.target.id==='olChatD'&&ol)ol.chatOpen=e.target.open},true);
 
 /* ===================== 首页：选功能（做题、复盘、下棋、记谱、班级、设置） =====================
    body[data-mode]：home / ts / review / play / record —— CSS 依模式藏起用不到的部分 */
@@ -10577,29 +10629,32 @@ function laHtml(ev,mv,n,note){ev=ev||[];let last=-1;for(let k=0;k<ev.length;k++)
 
 /* ---- 线上对局：解说机 ---- */
 let laPubT=0;
-function laOlStart(){if(!ol||!ol.st||ol.me)return;ol.cm=true;laStart(()=>{laOlPub();renderOl()});laFeed(laMainLine());renderOl()}
+function laOlStart(){if(!ol||!ol.st||ol.me)return;ol.cm=true;laStart(()=>{laOlPub();renderOl()});laFeed(laLiveLine());renderOl()}
 function laOlStop(){if(ol)ol.cm=false;laStop();renderOl()}
-function laOlSync(){if(ol&&ol.cm&&la){laFeed(laMainLine());laOlPub()}}
+function laOlSync(){if(ol&&ol.cm&&la){laFeed(laLiveLine());laOlPub()}}
+function laLiveLine(){ // 54：只算真的对局（棋盘上可能有解说员摆的变化）
+  if(!ol||!ol.st)return laMainLine();const st=ol.st;if(ol._ll&&ol._ll.seq===st.seq&&ol._ll.n===st.moves.length)return ol._ll.L;
+  let n=olRoot(st);const L=[n];while(n.children.length){n=n.children[0];L.push(n)}ol._ll={seq:st.seq,n:st.moves.length,L};return L}
 async function laOlPub(force){if(!ol||!ol.cm||!la||!ol.st)return;const now=Date.now();if(!force&&now-laPubT<1500){clearTimeout(laOlPub.t);laOlPub.t=setTimeout(()=>laOlPub(true),1600);return}laPubT=now;
   const st=ol.st,d=st.status==='end'?0:(+st.aiD||0),lim=Math.max(0,la.line.length-d);let k=0;while(k<lim&&la.ev[k])k++;
   const seat=c=>st[c]&&(st[c].au||st[c].uid)||'-';
-  try{const db=await Shared.db();await db.collection('olai').doc(st.id).set({host:laAuth(),hn:olName()||T('老师'),pB:seat('B'),pW:seat('W'),eng:la.eng,d,ev:JSON.stringify(laRound(la.ev.slice(0,k))),n:k,t:now})}catch(e){la.err=e.message;renderOl()}}
+  try{const db=await Shared.db();await db.collection('olai').doc(st.id).set({host:laAuth(),hn:olName()||T('老师'),pB:seat('B'),pW:seat('W'),eng:la.eng,d,ev:JSON.stringify(laRound(la.ev.slice(0,k))),n:k,t:now,vr:ol.share?JSON.stringify(ol.share):''})}catch(e){la.err=e.message;renderOl()}}
 /* 观战者：订阅解说和观战区聊天 */
 async function laOlSub(){if(!ol||ol.me||ol.aiSub||!ol.st)return;const id=ol.st.id;ol.aiSub=true;
   try{const db=await Shared.db(),ref=db.collection('olai').doc(id);
-    const u1=ref.onSnapshot(d=>{if(!ol||ol.st&&ol.st.id!==id)return;const x=d.exists?d.data():null;ol.ai=x?{...x,ev:(()=>{try{return JSON.parse(x.ev||'[]')}catch(e){return[]}})()}:null;
+    const u1=ref.onSnapshot(d=>{if(!ol||ol.st&&ol.st.id!==id)return;const x=d.exists?d.data():null;ol.ai=x?{...x,ev:(()=>{try{return JSON.parse(x.ev||'[]')}catch(e){return[]}})(),vr:(()=>{try{return x.vr?JSON.parse(x.vr):null}catch(e){return null}})()}:null;if(ol.varView){if(ol.ai&&ol.ai.vr)lvShowVar();else{ol.varView=false;olSync(ol.st)}}
       if(x&&!ol.aiChatUnsub)ol.aiChatUnsub=ref.collection('chat').orderBy('t').limitToLast(60).onSnapshot(s=>{if(!ol)return;ol.aiChat=s.docs.map(q=>q.data());renderOl()},()=>{});renderOl()},()=>{});
     ol.aiUnsub=()=>{u1();if(ol&&ol.aiChatUnsub)ol.aiChatUnsub()}}catch(e){}}
 function laOlClose(o){if(!o)return;if(o.aiUnsub)try{o.aiUnsub()}catch(e){}if(o.cm)laStop()}
 async function laOlSay(txt){txt=(txt||'').trim().slice(0,200);if(!txt||!ol||!ol.st)return;const db=await Shared.db();
   await db.collection('olai').doc(ol.st.id).collection('chat').add({uid:laAuth(),n:olName()||T('观战'),m:txt,t:Date.now()})}
 function laOlAllowed(st){return st.ai!=null?!!st.ai:!st.tour}
-function laOlHtml(){const st=ol.st;if(ol.me||st.status==='wait')return'';const n=st.n,line=laMainLine();let h=`<b class="sub">🤖 ${T('AI 解说（对局者看不到）')}</b>`;
+function laOlHtml(){const st=ol.st;if(ol.me||st.status==='wait')return'';const n=st.n,line=laLiveLine();let h=`<b class="sub">🤖 ${T('AI 解说（对局者看不到）')}</b>`;
   if(!laOlAllowed(st))return h+`<p class="note" style="margin:0">${T('这盘棋不开放 AI 解说。')}</p>`;
   if(ol.cm&&la){h+=laHtml(la.ev,laMoves(line),n,(la.eng==='pc'?T('家里电脑'):T('这台电脑'))+(st.aiD&&st.status!=='end'?' · '+T('观战者延迟 {0} 手',st.aiD):''));
     h+=`<div class="row" style="margin:0;align-items:center"><span class="note" style="margin:0">🎙 ${T('你是解说机：已分析 {0} / {1} 个局面',la.ev.filter(Boolean).length,line.length)}</span><button class="btn" data-p="cmstop">${T('停止解说')}</button></div>`;
     if(la.err)h+=`<p class="note" style="margin:0;color:var(--bad,#C0392B)">${tsE(la.err)}</p>`;return h}
-  const A=ol.ai;
+  const A=ol.ai;if(A&&A.vr&&!ol.cm)h+=lvVarBanner(A);
   if(A&&A.ev&&A.ev.length){const d=st.status==='end'?0:A.d;h+=laHtml(A.ev,laMoves(line),n,`🎙 ${tsE(A.hn||'')}${d?' · '+T('延迟 {0} 手',d):''}`)}
   else if(A)h+=`<p class="note" style="margin:0">🎙 ${T('{0} 正在解说，AI 分析中…',tsE(A.hn||''))}${A.d?' '+T('（延迟 {0} 手）',A.d):''}</p>`;
   else h+=`<p class="note" style="margin:0">${T('还没有解说机。')}</p>`;
@@ -10718,6 +10773,59 @@ function dkCss(){if($('#dkCss'))return;const s=document.createElement('style');s
 #dkBox .dkz{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}#dkBox .dkz .dkbd{max-width:min(100%,70vh)}#dkBox .dkz .labox{color:#222}
 #dkBox:fullscreen .dkgrid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
 @media (max-width:700px){#dkBox .dkz{grid-template-columns:1fr}}`;document.head.appendChild(s)}
+
+/* ===================== 第 54 项：解说员退回去摆变化（只在自己屏幕）、AI 分析变化、给观众看、存进棋谱 ===================== */
+let lvT=null,lvLast=null,lvTok=0;
+const lvKey=id=>'goReview.olv.'+id;
+function lvLoad(id){try{return JSON.parse(localStorage.getItem(lvKey(id))||'[]')}catch(e){return[]}}
+function lvSave(){if(!ol||!ol.st)return;try{if(ol.vars&&ol.vars.length)localStorage.setItem(lvKey(ol.st.id),JSON.stringify(ol.vars));else localStorage.removeItem(lvKey(ol.st.id))}catch(e){}}
+function lvMain(){const st=ol.st;let n=G.root;const M=[n];for(let i=0;i<st.moves.length&&n.children.length;i++){n=n.children[0];M.push(n)}return M}
+function lvPathOf(nd){const P=[];for(let x=nd;x;x=x.parent)P.unshift(x);return P}
+function lvSplit(nd){ // 这个节点是第几手离开实战，后面摆了哪些 → {k, mv:[[c,pt]...]}
+  const M=lvMain(),P=lvPathOf(nd);let i=0;while(i<P.length&&i<M.length&&P[i]===M[i])i++;
+  return{k:i-1,mv:P.slice(i).map(x=>moveOf(x)).filter(Boolean)}}
+function lvCollect(){if(!ol||!ol.st||!G||!G.root)return; // 试下结束：把棋盘上所有变化记下来（54d）
+  const out=[],seen=new Set(),walk=n=>{if(!n.children.length){const v=lvSplit(n);if(v.mv.length){const k=v.k+':'+v.mv.map(m=>m[0]+m[1]).join(',');if(!seen.has(k)){seen.add(k);out.push(v)}}return}n.children.forEach(walk)};
+  walk(G.root);ol.vars=out;lvSave()}
+function lvGraft(r,vars){if(!vars||!vars.length)return;const tag=T('解说变化');
+  for(const v of vars){let n=r;for(let i=0;i<v.k&&n;i++)n=n.children[0];if(!n)continue;let first=true;
+    for(const[c,p]of v.mv){let ch=n.children.find(x=>{const m=moveOf(x);return m&&m[0]===c&&m[1]===p});
+      if(!ch){ch={props:{[c]:[p]},children:[],parent:n};if(first)ch.props.C=[tag];n.children.push(ch)}first=false;n=ch}}}
+function lvDelHere(){const M=new Set(lvMain());let x=cur;if(M.has(x)){flash(T('这是实战的棋，不能删'));return}
+  while(x.parent&&!M.has(x.parent))x=x.parent;const p=x.parent;p.children.splice(p.children.indexOf(x),1);cur=p;lvCollect();render();renderTree();renderOl()}
+function lvStartT(){lvStop();lvLast=null;lvT=setInterval(lvTick,400);lvTick()}
+function lvStop(){clearInterval(lvT);lvT=null;lvLast=null;if(ol)ol.lvAi=null}
+function lvTick(){if(!ol||!ol.trial){lvStop();return}if(cur===lvLast)return;lvLast=cur;if(ol.share)lvShare(true,true);lvAnalyze(cur);renderOl()}
+async function lvAnalyze(nd){const tok=++lvTok,n=ol.st.n;ol.lvAi={nd,busy:true};
+  await new Promise(r=>setTimeout(r,350));if(tok!==lvTok||!ol||!ol.trial)return; // 连续点的时候只算最后一个
+  try{let w,l,best=[];
+    if(PC.on()){const t0=Date.now();while(la&&la.busy&&Date.now()-t0<60000)await new Promise(r=>setTimeout(r,300)); // 家里电脑一次只做一件事：等解说机这一步算完
+      if(tok!==lvTok)return;const L=la;if(L)L.busy=true;
+      try{const o=await pcMove(nd,400);w=o.w;l=o.l;best=(o.best||[]).slice(0,3)}finally{if(L){L.busy=false;if(la===L)laLoop()}}}
+    else{await AI.load();const it=AI.itemFor(nd),[o]=await AI.run([it]);const s=new Search(it);await s.run(Infinity,null,48);const R=s.results();
+      w=R[0]?R[0].winB:o.winB;l=R[0]?R[0].leadB:o.leadB;best=R.slice(0,3).map(x=>x.move)}
+    if(tok!==lvTok||!ol)return;ol.lvAi={nd,w,l,best:best.filter(i=>i>=0&&i<n*n).map(i=>coordName(['B',xyToPt(i%n,(i/n)|0)],n))}}
+  catch(e){if(tok===lvTok&&ol)ol.lvAi={nd,err:e.message||String(e)}}
+  if(ol&&ol.trial)renderOl()}
+async function lvShare(on,quiet){if(!ol||!ol.st)return;
+  if(!on){ol.share=null;if(la&&ol.cm)laOlPub(true);renderOl();return}
+  const v=lvSplit(cur),note=(($('#lvNote')&&$('#lvNote').value)||(ol.share&&ol.share.note)||'').trim().slice(0,120);
+  ol.share={k:Math.max(0,v.k),mv:v.mv,note,t:Date.now()};
+  if(!ol.cm||!la){if(quiet)return;laOlStart()}else laOlPub(true);if(!quiet)flash(T('观众现在看得到这个变化'));renderOl()}
+function lvHtml(){const st=ol.st;if(ol.me||st.status==='wait'||!laCan())return'';
+  if(!ol.trial)return`<div class="row" style="margin:0"><button class="btn" data-p="trial">🧪 ${T('试下（退回去摆变化）')}</button>${ol.vars&&ol.vars.length?`<span class="note" style="margin:0">${T('已存 {0} 个解说变化（棋谱里看得到）',ol.vars.length)}</span>`:''}</div>`;
+  const v=lvSplit(cur),A=ol.lvAi,lead=x=>x>=0?T('黑领先 {0} 目',x.toFixed(1)):T('白领先 {0} 目',(-x).toFixed(1));
+  let ai='';if(A&&A.nd===cur){if(A.err)ai=tsE(A.err);else if(A.busy)ai=T('AI 分析中…');else ai=`${T('黑胜率 {0}%',Math.round(A.w*100))} · ${lead(A.l)}${A.best.length?' · '+T('AI 推荐：{0}',A.best.join('、')):''}`}
+  return`<div class="olchal" style="flex-direction:column;align-items:stretch;gap:6px"><b>🧪 ${T('试下中：只有你看得到，对局者看不到')}</b>
+    <span class="note" style="margin:0">${T('对局已下到第 {0} 手',st.moves.length)} · ${v.mv.length?T('从第 {0} 手起的变化，{1} 手',v.k,v.mv.length):T('在实战第 {0} 手',v.k)}</span>
+    <div class="row" style="margin:0"><button class="btn" data-p="lvb" data-k="10">⏪</button><button class="btn" data-p="lvb" data-k="1">◀</button><button class="btn" data-p="lvf" data-k="1">▶</button><button class="btn" data-p="lvlive">⏭ ${T('最新一手')}</button>${v.mv.length?`<button class="btn" data-p="lvdel">🗑 ${T('删掉这个变化')}</button>`:''}<button class="btn pri" data-p="trial">↩ ${T('回到对局')}</button></div>
+    <p class="note" style="margin:0">🤖 ${ai||T('在棋盘上点，摆出变化')}</p>
+    <div class="row" style="margin:0"><input id="lvNote" maxlength="120" placeholder="${T('给观众的说明（可不填）')}" value="${tsE((ol.share&&ol.share.note)||'')}" style="flex:1;min-width:8em;height:34px">${ol.share?`<button class="btn pri" data-p="lvshare">📢 ${T('更新说明')}</button><button class="btn" data-p="lvunshare">${T('停止给观众看')}</button>`:`<button class="btn" data-p="lvshare">📢 ${T('给观众看这个变化')}</button>`}</div>
+    ${ol.share?`<span class="note" style="margin:0">📢 ${T('观众正在看你摆的变化，你继续摆，他们会跟着更新。')}</span>`:''}</div>`}
+function lvVarBanner(A){const v=A.vr;return`<div class="olchal"><span>📢 ${T('{0} 在摆变化（从第 {1} 手起）',tsE(A.hn||''),v.k)}${v.note?'：'+tsE(v.note):''}</span>${ol.varView?`<button class="btn pri" data-p="varclose">↩ ${T('回到对局')}</button>`:`<button class="btn pri" data-p="varview">👀 ${T('看变化')}</button>`}</div>`}
+function lvShowVar(){if(!ol||!ol.st||!ol.ai||!ol.ai.vr||!G)return;const v=ol.ai.vr,r=olRoot(ol.st);let n=r;for(let i=0;i<v.k&&n.children.length;i++)n=n.children[0];
+  for(const[c,p]of v.mv||[]){const ch={props:{[c]:[p]},children:[],parent:n};n.children.push(ch);n._sel=n.children.length-1;n=ch}
+  G.root=r;cur=n;renderTree();render();renderOl()}
 /* 第 47 项：自建定式库
    定式库 = 一种棋书（b.jos）：每一页是一个定式家族，从空棋盘开始下，分支就是各种下法。
    每一手可以标：定式／好手／骗着／错误／过时（SGF 的 JT 属性），也可以写说明（C）。
@@ -11797,7 +11905,7 @@ $('#homeBtn').onclick=goHome;$('#duelBody').addEventListener('click',duelAct);$(
 $('#vsCount').onclick=()=>{if(vs&&(vs.ladder||vs.cert)&&!vs.over)return;if(judging){judging=false;$('#judgeToggle').setAttribute('aria-pressed',false);$('#vsJudge').setAttribute('aria-pressed',false)}scoring?stopScoring():startScoring();if(vs)renderVs()};
 $('#vsJudge').onclick=()=>{if(vs&&(vs.ladder||vs.cert)&&!vs.over)return;judging=!judging;$('#judgeToggle').setAttribute('aria-pressed',judging);if(judging&&scoring)stopScoring();render();renderVs()};$('#vsAgain').onclick=()=>{if(vs&&vs.cert){const A=cert.active;vsStop();certOpen();if(A&&A.gamesOk)certStartExam();else if(A)certGame()}else if(vs&&vs.relay){vsStop();relayOpen({pick:true,mode:'me'})}else openNew()};$('#vsRevBtn').onclick=()=>{if(!vs)return;const uc=vs.ai===1?2:1;revOpen();revStart('std',uc)};$('#vsOpenRev').onclick=()=>{gotoReview()};$('#vsCertBack').onclick=()=>{vsStop();certOpen()};$('#vsHomeBtn').onclick=goHome;$('#homeBox').onclick=e=>{if(e.target.closest('[data-au]')){authAct(e);return}if(e.target.closest('[data-ck]')){ckDo();return}const b=e.target.closest('[data-h]');if(b)homeGo(b.dataset.h)};$('#homeBox').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){const f=e.target.closest('.authcard');const b=f&&f.querySelector('.btn.pri');if(b)b.click()}});
 $('#playMenu').onclick=e=>{const b=e.target.closest('[data-pk]');if(b)playPick(b.dataset.pk)};$('#recDone').onclick=recDone;
-$('#olToggle').onclick=()=>$('#olBox').hidden?olPanelOpen():olPanelClose();$('#olClose').onclick=()=>{olPanelClose();if(curMode()==='play'&&$('#olBox').hidden&&!vs)goHome()};$('#olBody').addEventListener('click',olAct);$('#cgBody').addEventListener('click',cgAct);$('#cgClose').onclick=()=>{cgClose();if(curMode()==='play')goHome()};
+$('#olToggle').onclick=()=>$('#olBox').hidden?olPanelOpen():olPanelClose();$('#olClose').onclick=()=>{olPanelClose();if(curMode()==='play'&&$('#olBox').hidden&&!vs)goHome()};$('#olBody').addEventListener('click',olAct);$('#olBar').addEventListener('click',olAct);$('#cgBody').addEventListener('click',cgAct);$('#cgClose').onclick=()=>{cgClose();if(curMode()==='play')goHome()};
 $('#tsToggle').onclick=()=>$('#tsBox').hidden?tsOpenPanel():tsClosePanel();$('#tsClose').onclick=()=>curMode()==='ts'?goHome():tsClosePanel();$('#tsBody').addEventListener('click',tsAct);
 $('#revEngine').onclick=e=>{const b=e.target.closest('button');if(!b)return;prefs.revEngine=b.dataset.e;try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(x){}renderRev()};
 $('#pcCode').onchange=e=>pcSetCode(e.target.value);$('#pcNew').onclick=pcNewCode;

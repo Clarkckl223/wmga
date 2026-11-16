@@ -2810,6 +2810,15 @@ const EN={
 ,"定式库":"Joseki library"
 ,"让 AI 自己长出定式：在家里电脑的 KataGo 文件夹执行 python joseki_gen.py 星位小飞挂（也可以写 星位、小目、三三，或 Q16,R14），产生的 .sgf 用上面的「导入 SGF」加进来。":"Let the AI grow joseki: in the KataGo folder on the home PC run python joseki_gen.py 星位小飞挂 (or 星位, 小目, 三三, or Q16,R14), then add the .sgf with \"Import SGF\" above."
 ,"有了第一页定式之后，这里会出现「KataGo 检查」的按钮。":"Once the library has its first page, the \"KataGo check\" buttons appear here."
+,"有 {0} 个档没有摆题目的棋子、只有一手一手的着法，看起来是定式或棋谱，练习册不收。请到练习册首页按「♟ 新定式库」或「📖 新棋书」，再在那里导入。":"{0} file(s) have no problem setup stones, only moves — they look like joseki or game records, which workbooks do not accept. Go to the Workbooks home, tap \"♟ New joseki library\" or \"📖 New book (reading)\", and import there."
+,"复制成 AI 定式指令":"Copy as AI joseki command"
+,"这几手不在同一个角，没办法换算。":"These moves are not in one corner, so they cannot be converted."
+,"先在棋盘上下几手":"Play a few moves on the board first"
+,"指令已复制，贴到家里电脑 KataGo 文件夹的 cmd 里执行":"Command copied — paste it into cmd in the KataGo folder on the home PC"
+,"手数太多（{0} 手），AI 自动结束。":"Too many moves ({0}); the AIs stopped automatically."
+,"删掉第 {0} 手以后的无意义小劫":"Delete the pointless ko fight from move {0}"
+,"（第 {0} 手以后是来回打无意义的小劫，已经删掉）":"(A pointless ko fight from move {0} on was deleted)"
+,"已删掉第 {0} 手以后的小劫。":"Deleted the ko fight from move {0}."
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -5182,7 +5191,7 @@ function aiIterLadders(b,n,f){
 // ---- 特征编码：网络固定 19×19；小棋盘放在左上角，棋盘外的点特征 0 = 0（遮罩） ----
 // boards: [{board, color(1/2 刚下的那方), move(-1 停一手, undefined = 摆子/开局), ko}] 由旧到新；最后一个 = 目前局面
 const AI_S=19;
-function aiEncode(n,boards,pla,komi,handicapBonus){
+function aiEncode(n,boards,pla,komi,handicapBonus,jp){
   const N=n*n,M=p=>((p/n)|0)*AI_S+(p%n),bin=new Float32Array(AI_S*AI_S*22),glob=new Float32Array(19),opp=3-pla;
   const set=(p,f)=>{bin[M(p)*22+f]=1};
   const cur=boards[boards.length-1],b=cur.board;
@@ -5206,6 +5215,7 @@ function aiEncode(n,boards,pla,komi,handicapBonus){
   if(cur.move===-1)glob[14]=1;
   const even=N%2===0;const kf=even?Math.floor(selfKomi/2)*2:Math.floor((selfKomi-1)/2)*2+1;
   const d=Math.max(0,Math.min(2,selfKomi-kf));glob[18]=d<0.5?d:d<1.5?1-d:d-2;
+  if(jp){glob[9]=1;glob[10]=1;glob[18]=0} // 第 48e 项：用日本规则（数目、双活不算）来想——在自己地里下子会损目
   return{bin,glob};
 }
 // 网络输出 → 以「黑方」来看的结果；policy 只留合法的点再归一
@@ -5319,7 +5329,7 @@ const AI=(()=>{
   }
   function run(items){
     const B=items.length,bin=new Float32Array(B*361*22),glob=new Float32Array(B*19);
-    items.forEach((it,i)=>{const e=aiEncode(it.n,it.boards,it.pla,it.komi,it.hb);bin.set(e.bin,i*361*22);glob.set(e.glob,i*19)});
+    items.forEach((it,i)=>{const e=aiEncode(it.n,it.boards,it.pla,it.komi,it.hb,it.jp);bin.set(e.bin,i*361*22);glob.set(e.glob,i*19)});
     const job=queue.then(async()=>{
       let arr;
       if(sess)arr=await runOnnx(items,bin,glob);
@@ -5330,10 +5340,12 @@ const AI=(()=>{
     });
     queue=job.catch(()=>{});return job;
   }
-  function itemFor(node){const n=sizeOf(root());return{n,boards:aiHistory(node,n),pla:nextColor(node)==='B'?1:2,...aiKomi()}}
+  function itemFor(node,jp){const n=sizeOf(root());return{n,boards:aiHistory(node,n),pla:nextColor(node)==='B'?1:2,...aiKomi(),...(jp?{jp:true}:{})}}
   const keyOf=node=>{const k=aiKomi();return k.komi+'|'+k.hb+'|'+nextColor(node)+'|'+sizeOf(root())};
+  const cacheJ=new WeakMap();
   function cached(node){const c=cache.get(node);return c&&c.k===keyOf(node)?c:null}
-  async function analyze(node){await load();const c=cached(node);if(c)return c;const[res]=await run([itemFor(node)]);res.k=keyOf(node);cache.set(node,res);return res}
+  async function analyze(node,o){await load();const jp=!!(o&&o.jp),cm=jp?cacheJ:cache,c0=cm.get(node);if(c0&&c0.k===keyOf(node))return c0;
+    const[res]=await run([itemFor(node,jp)]);res.k=keyOf(node);if(jp)res.jp=true;cm.set(node,res);return res}
   return{load,run,analyze,cached,itemFor,reset,on:f=>subs.push(f),status:()=>status,prog:()=>prog,err:()=>err,
     net:()=>net||AI_NETS[aiNetId()],backend:()=>sess?'wasm':window.tf?tf.getBackend():''};
 })();
@@ -5353,7 +5365,7 @@ function renderAiNet(){
 /* ---- 搜索：蒙地卡罗树搜索（MCTS / PUCT，和 KataGo 同一种方法），一边算一边显示 ---- */
 class SNode{constructor(move,parent){this.move=move;this.parent=parent;this.N=0;this.W=0;this.WB=0;this.LB=0;this.vl=0;this.mv=null;this.pr=null;this.kids=null;this.st=null;this.pending=false;this.term=null}}
 class Search{
-  constructor(item){this.n=item.n;this.komi=item.komi;this.hb=item.hb;this.root=new SNode(-2,null);this.root.st={boards:item.boards,pla:item.pla};
+  constructor(item){this.n=item.n;this.komi=item.komi;this.hb=item.hb;this.jp=!!item.jp;this.root=new SNode(-2,null);this.root.st={boards:item.boards,pla:item.pla};
     this.visits=0;this.ms=0;this.running=false;this.stopReq=false;this.rate=0}
   state(nd){if(nd.st)return nd.st;const ps=this.state(nd.parent),last=ps.boards[ps.boards.length-1];let e;
     if(nd.move<0)e={board:last.board,ko:-1,move:-1,color:ps.pla};
@@ -5382,7 +5394,7 @@ class Search{
       if(lf.term!==null){this.backup(path,lf.term);continue}
       if(lf.pending)break;lf.pending=true;for(const nd of path)nd.vl++;batch.push(path)}
     if(!batch.length)return;
-    const items=batch.map(p=>{const st=this.state(p[p.length-1]);return{n:this.n,boards:st.boards,pla:st.pla,komi:this.komi,hb:this.hb}});
+    const items=batch.map(p=>{const st=this.state(p[p.length-1]);return{n:this.n,boards:st.boards,pla:st.pla,komi:this.komi,hb:this.hb,jp:this.jp}});
     let outs;try{outs=await AI.run(items)}catch(e){for(const p of batch){for(const nd of p)nd.vl--;p[p.length-1].pending=false}throw e}
     const N=this.n*this.n;
     batch.forEach((path,i)=>{const lf=path[path.length-1],o=outs[i],st=lf.st;for(const nd of path)nd.vl--;lf.pending=false;
@@ -5656,7 +5668,7 @@ function aiDeep(node,n){ // 来回打劫（最近 30 手有点下过两次），
   if(moveNo(node)>n*n*0.886)return true;const seen=new Set();let k=0;
   for(let x=node;x&&x.parent&&k<30;x=x.parent,k++){const q=revPt(x,n);if(q==null||q<0)continue;if(seen.has(q))return true;seen.add(q)}return false}
 async function aiChoose(node,res,lv){
-  const n=sizeOf(root()),N=n*n,P=res.policy,it=AI.itemFor(node),last=it.boards[it.boards.length-1],b=last.board,pla=it.pla;
+  const n=sizeOf(root()),N=n*n,P=res.policy,it=AI.itemFor(node,res.jp),last=it.boards[it.boards.length-1],b=last.board,pla=it.pla;
   const myLead=pla===1?res.leadB:-res.leadB;
   if(isPassNode(node,n)&&(myLead>0||P[N]>0.15||moveNo(node)>N*0.83))return -1; // 对方停一手：领先或已经没棋可下就跟着停
   if(moveNo(node)>N*1.5)return -1;
@@ -5664,11 +5676,11 @@ async function aiChoose(node,res,lv){
   const late=moveNo(node)>N*0.5,sg=pla===1?1:-1,ow=res.ownB;
   const cand=[];for(let p=0;p<N;p++)if(P[p]>0&&!nb[p].every(q=>b[q]===pla)&&!(late&&ow&&lv.rank!=null&&(ow[p]*sg>0.85&&!nb[p].some(q=>b[q]===3-pla)||ow[p]*sg<-0.85&&!nb[p].some(q=>b[q]===pla&&ow[q]*sg>0))))cand.push([p,P[p]]); // 不填自己的眼；收官后不填自己的地、不进对方确定的地（但对方碰过来、或要救自己的子，照样应）
   const wMe=res.winB==null?0.5:pla===1?res.winB:1-res.winB,ban=new Set();
-  if(late&&(wMe>0.95||wMe<0.05)){ // 胜负已分：不再打劫（最近 30 手里下过两次以上的点）
+  if(late&&(wMe>0.95||wMe<0.05||moveNo(node)>N*0.83)){ // 胜负已分，或已经收完官（19 路第 300 手后）：不再打劫（最近 30 手里下过两次以上的点）
     const cnt={};let k=0;for(let x=node;x&&x.parent&&k<30;x=x.parent,k++){const q=revPt(x,n);if(q!=null&&q>=0)cnt[q]=(cnt[q]||0)+1}
     for(const q in cnt)if(cnt[q]>=2)ban.add(+q);for(let i=cand.length-1;i>=0;i--)if(ban.has(cand[i][0]))cand.splice(i,1)}
   cand.sort((x,y)=>y[1]-x[1]);
-  if(!cand.length||P[N]>cand[0][1])return -1;
+  if(!cand.length||P[N]>cand[0][1]||moveNo(node)>N*0.83&&P[N]>0.3)return -1; // 第 48b 项：收完官、AI 也觉得可以停，就停
   const deep=aiDeep(node,n);
   if(lv.search||lv.visits||deep){ // 最强：想一段时间；4–9 段：算固定次数（最多 30 秒）。选算得最多次的那一手
     const s=new Search(it);if(vs)vs.search=s;const t=+(prefs.aiPlayTime??5);
@@ -7313,7 +7325,8 @@ function duelIds(n){return[...levelIds(n).filter(x=>x!=='max'),...GG_IDS]}
 async function engineMove(node,lv){ // 任何一种 AI 下一手：回传点（-1 = 停一手）
   if(lv.stu)return GG.student(node,lv.stu);
   if(lv.gg)return GG.genmove(node,lv.gg);
-  const res=await AI.analyze(node);return aiChoose(node,res,lv);
+  const n=sizeOf(root()),late=moveNo(node)>n*n*0.7; // 第 48e 项：收官后用日本规则来想，避免在自己地里乱找劫材（胜负照原规则数）
+  const res=await AI.analyze(node,{jp:late});return aiChoose(node,res,lv);
 }
 function renderDuel(){
   const box=$('#duelBox');if(!box||box.hidden)return;const o=duelOpt,ids=duelIds(o.n),sel=(k)=>`<select data-d="${k}">${ids.map(id=>`<option value="${id}"${id===o[k]?' selected':''}>${lvName(id)}</option>`).join('')}</select>`;
@@ -7880,17 +7893,19 @@ async function tsCapSave(){ // 第 39f 项：引擎吃子题——引擎先检�
   flash(old&&old.cap&&old.cap.k!==k?T('已存好。注意：最少手数从 {0} 手变成 {1} 手',old.cap.k,k):T('已存好：最少 {0} 手可以吃掉',k));
   tsBookId=b.id;tsExit();tsView='book';renderTs()}
 async function tsImport(files,bookId){
-  const b=tsWork(tsBook(bookId));if(!tsCanEdit(b))return;let added=0,bad=0;
+  const b=tsWork(tsBook(bookId));if(!tsCanEdit(b))return;let added=0,bad=0,mv=0;
   for(const f of files){const text=await sgfText(f);for(const s of tsSplitSgf(text)){try{const r=parseSGF(s);
     if(b.read){if(b.jos&&sizeOf(r)!==19){bad++;continue}b.problems.push({id:tsId(),title:prop(r,'GN')||f.name.replace(/\.sgf$/i,'')+(added?' #'+(added+1):''),level:2,sgf:toSGF(r)});added++;continue} // 棋书／定式库：整个 SGF 当一页
-    if(!r.props.AB&&!r.props.AW){bad++;continue}tsNormalize(r);
+    if(!r.props.AB&&!r.props.AW){if(r.children.length)mv++;else bad++;continue}tsNormalize(r);
     if(!r.props.PL){const m=r.children[0]&&moveOf(r.children[0]);r.props.PL=[m?m[0]:'B']}
     // 只有一条主线、没有任何标记的题：主线最后一手算正解
     let has=false;(function w(nd){if(/RIGHT|正解|正确|Correct/i.test((nd.props.C||[''])[0]))has=true;nd.children.forEach(w)})(r);
     if(!has&&r.children.length){let nd=r;while(nd.children.length)nd=nd.children[0];nd.props.C=['RIGHT '+((nd.props.C||[''])[0])]}
     b.problems.push({id:tsId(),title:prop(r,'GN')||f.name.replace(/\.sgf$/i,'')+(added?' #'+(added+1):''),level:2,sgf:toSGF(r)});added++}catch(e){bad++}}}
+  const tip=mv?'⚠ '+T('有 {0} 个档没有摆题目的棋子、只有一手一手的着法，看起来是定式或棋谱，练习册不收。请到练习册首页按「♟ 新定式库」或「📖 新棋书」，再在那里导入。',mv):'';
+  if(!added){tsMsg=tip||T('导入了 {0} 题',0)+(bad?T('，{0} 个读不出来',bad):'');flash(tsMsg);renderTs();return} // 第 47j 项：讲清楚为什么没导入
   try{await tsSaveBook(b)}catch(e){flash(T('存不进去：{0}',e.message));return}
-  flash(T('导入了 {0} 题',added)+(bad?T('，{0} 个读不出来',bad):''));renderTs();
+  flash(T('导入了 {0} 题',added)+(bad?T('，{0} 个读不出来',bad):''));if(tip)tsMsg=tip;renderTs();
 }
 function tsDownloadBook(b){const t=b.problems.map(p=>p.sgf).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'application/x-go-sgf;charset=utf-8'}));a.download=(b.title||'练习册')+'.sgf';document.body.appendChild(a);a.click();a.remove()}
 
@@ -8026,7 +8041,7 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
       <div class="row" style="align-items:center"><span>${T('整题移动')}</span>${tsShiftBtns('shift')}<button class="btn" data-a="swapc" title="${T('黑白互换')}">⚫⇄⚪ ${T('黑白互换')}</button><span class="note" style="margin:0">${T('图片导入放错角落时用：箭头移一路，斜箭头贴到那个角。答案会一起移。')}</span></div>
       <div class="row"><label class="btn" style="cursor:pointer">${T('从图片导入（截图／照片）')}<input type="file" id="tsImg" accept="image/*" hidden></label></div>
       <div class="row">${ts.capT?`<button class="btn pri" data-a="savecap">${T('引擎检查并存进练习册')}</button>`:ts.read?`<button class="btn pri" data-a="toanswer">${T('下一步：摆变化')}</button><button class="btn" data-a="savep">${T('不摆变化，直接存')}</button>`:`<button class="btn pri" data-a="toanswer">${T('下一步：摆答案')}</button>`}<button class="btn" data-a="cancel">${T('取消')}</button></div>`;
-    else h+=`<div id="tsVarBox">${tsVarHtml()}</div><div class="score-opts" id="tsNoteRow"${cur===G.root?' hidden':''}><label style="flex:1;display:flex;gap:6px;align-items:center">${T('这一手的说明')} <input id="tsNodeNote" value="${tsE(cur===G.root?'':tsNote(cur))}" placeholder="${T('例如：白 2 断，黑棋不够气')}" style="flex:1;min-width:10em"></label><span id="tsNodeKind">${tsKindTag(cur)}</span></div>${ts.read?`<div class="score-opts" id="tsVNRow"${cur===G.root?' hidden':''}><label style="flex:1;display:flex;gap:6px;align-items:center">${T('变化名称')} <input id="tsVarName" value="${tsE(cur===G.root?'':(cur.props.N||[''])[0])}" placeholder="${T('例如：变化 A：小飞守角（变化的第一手才需要填）')}" style="flex:1;min-width:10em"></label></div>`:''}${ts.jos?`<div class="score-opts" id="tsJTRow"><span>${T('这一手')}</span><span class="seg">${Object.keys(JOS_TAGS).map(k=>`<button data-a="jtag" data-v="${k}" aria-pressed="${josTag(cur)===k}"${cur===G.root?' disabled':''}>${T(JOS_TAGS[k][0])}</button>`).join('')}</span><button class="btn" data-a="jpass">${T('脱先')}</button></div>`+josKAHtml(cur):''}
+    else h+=`<div id="tsVarBox">${tsVarHtml()}</div><div class="score-opts" id="tsNoteRow"${cur===G.root?' hidden':''}><label style="flex:1;display:flex;gap:6px;align-items:center">${T('这一手的说明')} <input id="tsNodeNote" value="${tsE(cur===G.root?'':tsNote(cur))}" placeholder="${T('例如：白 2 断，黑棋不够气')}" style="flex:1;min-width:10em"></label><span id="tsNodeKind">${tsKindTag(cur)}</span></div>${ts.read?`<div class="score-opts" id="tsVNRow"${cur===G.root?' hidden':''}><label style="flex:1;display:flex;gap:6px;align-items:center">${T('变化名称')} <input id="tsVarName" value="${tsE(cur===G.root?'':(cur.props.N||[''])[0])}" placeholder="${T('例如：变化 A：小飞守角（变化的第一手才需要填）')}" style="flex:1;min-width:10em"></label></div>`:''}${ts.jos?`<div class="score-opts" id="tsJTRow"><span>${T('这一手')}</span><span class="seg">${Object.keys(JOS_TAGS).map(k=>`<button data-a="jtag" data-v="${k}" aria-pressed="${josTag(cur)===k}"${cur===G.root?' disabled':''}>${T(JOS_TAGS[k][0])}</button>`).join('')}</span><button class="btn" data-a="jpass">${T('脱先')}</button><button class="btn" data-a="jcmd">🤖 ${T('复制成 AI 定式指令')}</button></div>`+josCmdHtml()+josKAHtml(cur):''}
       <p class="note" style="margin:0">${ts.read?T('「这条是正解／这条是错的」可以不按；有标正解的页，之后可以一键变成练习题。'):T('错的变化：把对方的应手也摆出来，再按「这条是错的」，并在「这一手的说明」写原因。学生下错时会看到整个失败图和这段说明。')}</p>
       <div class="row"><button class="btn" data-a="eback" title="${T('右键点棋盘，或按 ←')}">◀ ${T('退一手')}</button><button class="btn" data-a="efwd" title="→">▶</button><button class="btn warn" data-a="edel" title="Delete">✕ ${T('删掉这一手')}</button><button class="btn" data-a="eundo" title="Ctrl+Z">↶ ${T('复原')}</button></div>
       <p class="note" style="margin:0">${T('电脑：右键或 ← 退一手、→ 前进、↑↓ 换变化、Delete 删掉这一手、Ctrl+Z 复原。')}</p>
@@ -8111,6 +8126,7 @@ async function tsAct(e){
   if(a==='josq'){josQStart(tsBookId);return}
   if(a==='josexp'){josExport(tsBook(tsBookId));return}
   if(a==='jtag'&&ts&&ts.mode==='edit'&&cur!==G.root){tsSnap();const v=t.dataset.v;if(v&&josTag(cur)!==v)cur.props.JT=[v];else delete cur.props.JT;renderTs();return}
+  if(a==='jcmd'&&ts&&ts.mode==='edit'){const seq=[];let nm='';for(let z=cur;z&&z.parent;z=z.parent){const mv=josMove(z);if(mv)seq.unshift(mv);if(!nm&&z.props.N)nm=z.props.N[0]}josCmdShow(seq,(($('#tsTitle')&&$('#tsTitle').value)||ts.title||'')+(nm?'_'+nm:''));return}
   if(a==='jpass'&&ts&&ts.mode==='edit'){const col=nextColor(cur);let c=cur.children.find(z=>(z.props[col]||[null])[0]==='');if(!c){tsSnap();c={props:{[col]:['']},children:[],parent:cur};cur.children.push(c)}cur=c;render();renderTs();return}
   if(await exAct(a,t,busy))return;
   if(await apAct(a,t,busy))return;
@@ -9631,7 +9647,7 @@ function renderRelay(){const box=$('#relayBox');if(!box||box.hidden)return;const
     el.innerHTML=`<p class="big">${T('黑 {0} vs 白 {1}',lvName(levelObj(r.b,r.n)),lvName(levelObj(r.w,r.n)))}</p>
       <p class="note" style="margin:0">${r.done?tsE(r.msg||T('下完了')):r.paused?T('暂停中：可以在棋盘上自己改一手，再按「继续」。'):T('AI 正在下… 第 {0} 手',moveNo(cur))}</p>
       <div class="score-opts"><span>${T('速度')}</span><span class="seg">${RELAY_SPD.map(([k,l])=>`<button data-rl="spd" data-v="${k}" aria-pressed="${r.spd===k}">${T(l)}</button>`).join('')}</span></div>
-      <div class="row">${r.done?'':r.paused?`<button class="btn pri" data-rl="resume">▶ ${T('继续')}</button>`:`<button class="btn" data-rl="pause">⏸ ${T('暂停')}</button>`}${r.done?'':`<button class="btn warn" data-rl="stop">${T('停止')}</button>`}${r.done?`<button class="btn pri" data-rl="again">${T('再看一盘')}</button><button class="btn" data-rl="torev">📖 ${T('进入这棋谱')}</button><button class="btn" data-rl="home">🏠 ${T('回主页')}</button>`:`<button class="btn" data-rl="close">${T('关闭')}</button>`}</div>`;return}
+      <div class="row">${r.done?'':r.paused?`<button class="btn pri" data-rl="resume">▶ ${T('继续')}</button>`:`<button class="btn" data-rl="pause">⏸ ${T('暂停')}</button>`}${r.done?'':`<button class="btn warn" data-rl="stop">${T('停止')}</button>`}${r.done&&r.koFrom?`<button class="btn warn" data-rl="trim">✂ ${T('删掉第 {0} 手以后的无意义小劫',moveNo(r.koFrom))}</button>`:''}${r.done?`<button class="btn pri" data-rl="again">${T('再看一盘')}</button><button class="btn" data-rl="torev">📖 ${T('进入这棋谱')}</button><button class="btn" data-rl="home">🏠 ${T('回主页')}</button>`:`<button class="btn" data-rl="close">${T('关闭')}</button>`}</div>`;return}
   const has=G&&store.games[G.id]&&G.id!=='__blank',n=has?sizeOf(root()):19,ids=relayIds(n),sel=(k,val)=>`<select data-ro="${k}">${ids.map(id=>`<option value="${id}"${id===val?' selected':''}>${lvName(id)}</option>`).join('')}</select>`;
   if(!ids.includes(o.lv))o.lv=ids[Math.min(ids.length-1,Math.floor(ids.length/2))];if(!ids.includes(o.b))o.b=o.lv;if(!ids.includes(o.w))o.w=o.lv;
   let h='';
@@ -9656,8 +9672,10 @@ function relayMark(){const R=vs&&vs.relay;if(!R||R.done)return;const nk=R.from.c
 async function relayAi(){const o=relayOpt,n=sizeOf(root()),LB=levelObj(o.b,n),LW=levelObj(o.w,n);if(vs)vsStop();
   relay={b:o.b,w:o.w,n,spd:o.spd,running:true,paused:false,stop:false,first:null,gid:G.id,msg:''};renderRelay();
   if(!(LB.gg||LB.stu)||!(LW.gg||LW.stu))AI.load().catch(()=>{});
-  let passes=0;const note=T('（以下：黑 {0} vs 白 {1} 接着下）',lvName(LB),lvName(LW));
+  let passes=0,capped=false;const note=T('（以下：黑 {0} vs 白 {1} 接着下）',lvName(LB),lvName(LW));
+  const CAP=n===19?400:n===13?220:n===9?110:Math.round(n*n*1.1); // 第 48c 项：手数上限
   while(!relay.stop&&moveNo(cur)<n*n*2){
+    if(moveNo(cur)>=CAP){capped=true;break}
     if(relay.paused){await new Promise(z=>setTimeout(z,250));continue}
     if(!G||G.id!==relay.gid){relay.stop=true;break}
     const node=cur,col=nextColor(node),lv=col==='B'?LB:LW;let p;
@@ -9669,9 +9687,20 @@ async function relayAi(){const o=relayOpt,n=sizeOf(root()),LB=levelObj(o.b,n),LW
     cur=nd;changed();render();renderRelay();
     passes=p<0?passes+1:0;if(passes>=2)break;
     const d=(RELAY_SPD.find(s=>s[0]===relay.spd)||[0,0,600])[2];await new Promise(z=>setTimeout(z,d||0))}
-  if(!relay.stop&&passes>=2){let re=null;try{re=await GG.score(cur)}catch(e){}relay.msg=re?T('下完了：{0}（原本的主线和结果没有改）',resultText(re)):T('下完了');if(re)relayNote(cur,T('【AI 对战结果】{0}',resultText(re)));changed()}
+  if(!relay.stop&&(passes>=2||capped)){let re=null;try{re=await GG.score(cur)}catch(e){}
+    const cp=capped?T('手数太多（{0} 手），AI 自动结束。',moveNo(cur))+' ':'';
+    relay.msg=cp+(re?T('下完了：{0}（原本的主线和结果没有改）',resultText(re)):T('下完了'));{const tx=cp+(re?T('【AI 对战结果】{0}',resultText(re)):'');if(tx.trim())relayNote(cur,tx)}changed()}
   else if(relay.stop)relay.msg=T('已停止。');
+  relay.koFrom=relay.stop?null:relayKoTail(n);
   relay.running=false;relay.done=true;renderRelay();renderTree();render()}
+function relayKoTail(n){ // 第 48d 项：最后一段如果是来回提同一个劫，找出那段的开头
+  if(!relay||!relay.first)return null;const L=[];for(let x=cur;x&&x!==relay.first.parent;x=x.parent)L.unshift(x);if(L.length<12)return null;
+  const N=n*n,pt=x=>{const q=revPt(x,n);return q!=null&&q>=0?q:null};let start=null;
+  for(let i=L.length-1;i>=0;i--){const q=pt(L[i]);if(q==null)continue;let rep=false;for(let j=Math.max(0,i-30);j<L.length&&j<=i+30;j++)if(j!==i&&pt(L[j])===q){rep=true;break}
+    if(rep&&moveNo(L[i])>N*0.6)start=i;else if(start!=null&&L.length-1-i>8)break}
+  if(start==null||L.length-start<10)return null;return L[start]}
+function relayTrim(){const k=relay&&relay.koFrom;if(!k||!k.parent)return;const p=k.parent,i=p.children.indexOf(k);if(i<0)return;
+  const no=moveNo(k);p.children.splice(i,1);p._sel=0;cur=p;relayNote(p,T('（第 {0} 手以后是来回打无意义的小劫，已经删掉）',no));relay.koFrom=null;relay.msg=T('已删掉第 {0} 手以后的小劫。',no);changed();renderRelay();renderTree();render()}
 document.addEventListener('click',async e=>{const t=e.target.closest('#relayBox [data-rl]');if(!t)return;const a=t.dataset.rl,o=relayOpt;
   if(a==='close'){relayClose();return}
   if(a==='again'){relay=null;relayOpen({pick:true,mode:'ai'});return}
@@ -9679,6 +9708,7 @@ document.addEventListener('click',async e=>{const t=e.target.closest('#relayBox 
   if(a==='home'){relay=null;relayClose();goHome();return}
   if(a==='mode'){relayV.mode=o.mode=t.dataset.v;relaySave();renderRelay();return}
   if(a==='me'){o.me=t.dataset.v;relaySave();renderRelay();return}
+  if(a==='trim'){relayTrim();return}
   if(a==='ospd'){o.spd=t.dataset.v;relaySave();renderRelay();return}
   if(a==='spd'){relay.spd=o.spd=t.dataset.v;relaySave();renderRelay();return}
   if(a==='pause'){relay.paused=true;renderRelay();return}
@@ -10611,11 +10641,12 @@ function josQHtml(){const b=tsBook(ts.bookId),jq=ts.jq||{all:[],cands:[]},seq=jo
       return`<div class="jrow"><div>${T('《{0}》',tsE(a.t.p.title||''))}${names.length?' · '+tsE(names[names.length-1]):''} ${josTagHtml(josTag(a.nd)||tag)}</div>${nt?`<div class="note" style="margin:2px 0 0">${tsE(nt.replace(/^(RIGHT|WRONG)\s*/,''))}</div>`:''}${josKAHtml(a.nd,a.s)}</div>`}).join('')+`</div>`}}
   if(jq.cands&&jq.cands.length)h+=`<div class="score-opts" style="flex-wrap:wrap"><span>${T('库里的下一手')}</span>`+jq.cands.slice(0,12).map((c,i)=>`<button class="btn" data-a="jqc" data-i="${i}">${c.c==='B'?'⚫':'⚪'} ${c.q?josGtp(c.q[0],c.q[1]):T('脱先')}${c.name?' · '+tsE(c.name):''} ${josTagHtml(c.tag)}</button>`).join('')+`</div>`;
   else if(seq.length&&jq.all.length)h+=`<p class="note">${T('这条变化在库里已经走完了。')}</p>`;
-  h+=`<div class="row"><button class="btn" data-a="jqback"${cur===G.root?' disabled':''}>◀ ${T('上一手')}</button><button class="btn" data-a="jqpass">${T('脱先')}</button><button class="btn" data-a="jqclr">${T('清空')}</button></div>`;
+  h+=`<div class="row"><button class="btn" data-a="jqback"${cur===G.root?' disabled':''}>◀ ${T('上一手')}</button><button class="btn" data-a="jqpass">${T('脱先')}</button><button class="btn" data-a="jqclr">${T('清空')}</button><button class="btn" data-a="jqcmd"${cur===G.root?' disabled':''}>🤖 ${T('复制成 AI 定式指令')}</button></div>`+josCmdHtml();
   return h}
 function josQAct(a,t){if(a==='jqc'){const c=(ts.jq.cands||[])[+t.dataset.i];if(c)josQPlay(c.c,c.q);return true}
   if(a==='jqback'){if(cur.parent){cur=cur.parent;josQRefresh();render();renderTs()}return true}
   if(a==='jqpass'){josQPlay(nextColor(cur),null);return true}
+  if(a==='jqcmd'){const m=(ts.jq&&ts.jq.all||[])[0];josCmdShow(josQSeq(),m?(m.t.p.title||'')+(josPathInfo(m.nd).names.slice(-1)[0]?'_'+josPathInfo(m.nd).names.slice(-1)[0]:''):'');return true}
   if(a==='jqclr'){cur=G.root;G.root.children=[];josQRefresh();render();renderTs();return true}
   return false}
 
@@ -10628,6 +10659,17 @@ async function josImportKA(b,file){const res=JSON.parse(await file.text());if(!r
     (function w(nd){if(nd.parent){const x=rows[josKey(nd)];if(x){nd.props.KA=[(Math.round(x.loss*10)/10)+';'+(x.sug||[]).slice(0,4).map(([m,p])=>String(m).replace(/[;,:\]]/g,'')+':'+Math.round((p||0)*100)).join(',')];hit++;ch=true;const t=josTag(nd);if((t==='joseki'||t==='good')&&x.loss>1.5)warn++}}nd.children.forEach(w)})(r);
     return ch?{...p,sgf:toSGF(r)}:p});
   await tsSaveBook(b);return{hit,warn}}
+
+/* ---- 47k-b：把盘面上的定式开头变成 joseki_gen.py 的指令（自动换到右上角） ---- */
+function josCmdOf(seq,title){const mv=seq.filter(m=>m.q);if(!mv.length)return null;
+  const loc=(x,y)=>x>=7&&y<=11;let best=null;
+  for(let s=0;s<8;s++){const ps=mv.map(m=>josSym(m.q[0],m.q[1],s));if(!ps.every(([x,y])=>loc(x,y)))continue;const[x0,y0]=ps[0],sc=(x0>=10&&y0<=8?2:0)+(x0>=18-y0?1:0);if(!best||sc>best.sc)best={s,sc}}
+  if(!best)return{err:T('这几手不在同一个角，没办法换算。')};
+  const toks=seq.map(m=>m.q?(()=>{const[x,y]=josSym(m.q[0],m.q[1],best.s);return josGtp(x,y)})():'pass');while(toks.length&&toks[0]==='pass')toks.shift();
+  const t=(title||'').replace(/["\s]+/g,'_').slice(0,30);return{cmd:`python joseki_gen.py ${toks.join(',')}${t?' --title '+t:''} --main-depth 30`}}
+function josCmdShow(seq,title){const r=josCmdOf(seq,title);if(!r){flash(T('先在棋盘上下几手'));return}if(r.err){flash(r.err);return}
+  ts.jcmd=r.cmd;try{navigator.clipboard.writeText(r.cmd).then(()=>flash(T('指令已复制，贴到家里电脑 KataGo 文件夹的 cmd 里执行')),()=>{})}catch(e){}renderTs()}
+const josCmdHtml=()=>ts&&ts.jcmd?`<div class="note" style="margin:4px 0;user-select:all;font-family:ui-monospace,monospace;word-break:break-all;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px">${tsE(ts.jcmd)}</div>`:'';
 /* ===================== 吃子关卡、限时挑战 ===================== */
 // 小型吃子计算：黑要在 k 手内吃掉目标白棋（t），白尽力逃。棋盘是一维数组：0 空、1 黑、2 白
 const Cap=(()=>{

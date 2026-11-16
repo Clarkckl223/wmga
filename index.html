@@ -2830,6 +2830,12 @@ const EN={
 ,"家里电脑：{0}。已暂停，开好家里电脑后按「继续」。":"Home PC: {0}. Paused — start the home PC and tap \"Continue\"."
 ,"家里电脑：{0}。已停止。":"Home PC: {0}. Stopped."
 ,"自定义…":"Custom…"
+,"次数只影响「家里电脑 KataGo」；「仿人类」只取那个棋力的人最常下的一手，最多算 400 次，填再多也不会更像人。":"Visits only affect \"Home PC KataGo\". \"Human-like\" plays the move most often chosen at that rank and uses at most 400 visits; more visits will not make it more human."
+,"这块改成：{0}":"This group is now: {0}"
+,"双活":"seki"
+,"贴 {0} 子 · 家里电脑 KataGo 判断":"komi {0} stones · home PC KataGo"
+,"家里电脑计算中…":"home PC working…"
+,"橙圈＝没把握、蓝圈＝双活，点棋子可改":"orange ring = unsure, blue ring = seki; tap a stone to change"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -2927,15 +2933,42 @@ let judging=false,estCache={node:null,res:null};
 let estT=null;
 // 快速翻棋谱时先不算，停下来约 0.1 秒再算，滚轮才不会卡
 // 有 AI 时，形势和死子都用 KataGo 的判断（准很多）；AI 还没载入时才用下面的简单估算
+/* 第 50 项：形势判断——AI 判死前先验算双活、家里电脑判断、没把握的标出来、点一下改「死／活／双活」 */
+let judgeFix={key:'',m:new Map()};const pcOwnC=new WeakMap();let pcOwnBusy=null;
+const judgeKey=node=>(G&&G.id||'')+'|'+moveNo(node)+'|'+(node.props.B||node.props.W||[''])[0];
+function jGroups(g,n){const gid=new Int32Array(n*n).fill(-1),gs=[];
+  for(let p=0;p<n*n;p++){const c=g[(p/n)|0][p%n];if(!c||gid[p]>=0)continue;const st=[p],libs=new Set();gid[p]=gs.length;
+    for(let i=0;i<st.length;i++){const q=st[i],x=q%n,y=(q/n)|0;for(const[a,b]of[[x-1,y],[x+1,y],[x,y-1],[x,y+1]]){if(a<0||b<0||a>=n||b>=n)continue;const r=b*n+a,v=g[b][a];
+      if(!v)libs.add(r);else if(v===c&&gid[r]<0){gid[r]=gs.length;st.push(r)}}}
+    gs.push({c,stones:st,libs})}
+  return{gid,gs}}
+function jSafeFill(g,n,p,X){ // X 下在 p：不是自杀、也不是自己送吃（叫吃）→ 可以放心填
+  const h=g.map(r=>r.slice());h[(p/n)|0][p%n]=X;let cap=false;const{gid,gs}=jGroups(h,n);
+  for(const gr of gs)if(gr.c!==X&&gr.libs.size===0)cap=true;if(cap)return true;return gs[gid[p]].libs.size>=2}
+function jSeki(g,n,gr){ // 对方要吃这块，每一口气都填不进去（填了就被吃或是自杀）→ 双活（或其实是活棋）
+  if(gr.libs.size<2)return false;for(const L of gr.libs)if(jSafeFill(g,n,L,3-gr.c))return false;return true}
 function aiEstimate(node,st){
-  const r=typeof AI!=='undefined'&&AI.cached(node);if(!r)return null;
-  const n=sizeOf(root()),dead=new Set(),own=new Array(n*n).fill(0);let aB=0,aW=0,tB=0,tW=0,dame=0;
-  for(let y=0;y<n;y++)for(let x=0;x<n;x++){const p=y*n+x,c=st.g[y][x],o=r.ownB[p],w=o>0.33?1:o<-0.33?2:0;own[p]=w===1?1:w===2?-1:0;
-    if(c){if(w&&w!==c){dead.add(p);w===1?tB++:tW++}else c===1?aB++:aW++}
-    else if(w===1)tB++;else if(w===2)tW++;else dame++}
-  return{dead,own,aB,aW,tB,tW,dame,ai:true};
+  const r=typeof AI!=='undefined'&&AI.cached(node),po=pcOwnC.get(node);if(!r&&!po)return null;
+  const ownB=po||r.ownB,n=sizeOf(root()),dead=new Set(),unsure=new Set(),seki=new Set(),own=new Array(n*n).fill(0);let aB=0,aW=0,tB=0,tW=0,dame=0;
+  const{gs}=jGroups(st.g,n),fx=judgeFix.key===judgeKey(node)?judgeFix.m:null,dameP=new Set();
+  for(const gr of gs){let s=0;for(const p of gr.stones)s+=ownB[p];const av=s/gr.stones.length*(gr.c===1?1:-1); // 正 = 这块是自己的
+    let st2=av<-0.33?'dead':'alive';const k=Math.min(...gr.stones),f=fx&&fx.get(k);
+    if(f)st2=f;else if(st2==='dead'&&jSeki(st.g,n,gr))st2='seki';
+    if(!f&&st2==='dead'&&av>-0.6)gr.stones.forEach(p=>unsure.add(p));
+    if(st2==='dead')gr.stones.forEach(p=>dead.add(p));
+    if(st2==='seki'){gr.stones.forEach(p=>seki.add(p));gr.libs.forEach(L=>dameP.add(L))}}
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){const p=y*n+x,c=st.g[y][x],o=ownB[p],w=dameP.has(p)?0:o>0.33?1:o<-0.33?2:0;
+    if(c){if(dead.has(p)){const ow=3-c;own[p]=ow===1?1:-1;ow===1?tB++:tW++}else c===1?aB++:aW++}
+    else{own[p]=w===1?1:w===2?-1:0;if(w===1)tB++;else if(w===2)tW++;else dame++}}
+  return{dead,own,unsure,seki,aB,aW,tB,tW,dame,ai:true,src:po?'pc':'nn'};
 }
+function judgeToggle(x,y){const n=sizeOf(root()),st=computeState(cur,n);if(!st.g[y][x])return false;const{gid,gs}=jGroups(st.g,n),gr=gs[gid[y*n+x]],k=Math.min(...gr.stones);
+  const e=aiEstimate(cur,st);if(!e)return false;const now=gr.stones.some(p=>e.dead.has(p))?'dead':gr.stones.some(p=>e.seki.has(p))?'seki':'alive';
+  if(judgeFix.key!==judgeKey(cur))judgeFix={key:judgeKey(cur),m:new Map()};judgeFix.m.set(k,now==='dead'?'alive':now==='alive'?'seki':'dead');
+  flash(T('这块改成：{0}',T({dead:'活',alive:'双活',seki:'死'}[now])));render();return true}
 function estimateFor(node,st,sync){
+  if(judging&&typeof PC!=='undefined'&&PC.on()&&prefs.judgePc!==false&&!pcOwnC.has(node)&&pcOwnBusy!==node){pcOwnBusy=node; // 50b：家里电脑开着就请 KataGo 判断
+    pcMove(node,400).then(o=>{if(o&&o.own){pcOwnC.set(node,pcOwnDec(o.own,sizeOf(root())));if(cur===node)render()}else pcOwnC.set(node,null)}).catch(()=>pcOwnC.set(node,null)).finally(()=>{if(pcOwnBusy===node)pcOwnBusy=null})}
   const a=aiEstimate(node,st);if(a)return a;
   if(typeof AI!=='undefined'&&(judging||scoring)){ // 叫 AI 来判断，算好再重画
     if(AI.status()==='ready')aiRequest(node);
@@ -4835,6 +4868,8 @@ function render(){
     if(e)for(let y=0;y<n;y++)for(let x=0;x<n;x++){const p=y*n+x,ow=e.own[p];if(!ow)continue;
       if(st.g[y][x]&&!e.dead.has(p))continue;
       o+=`<rect x="${X(x)-sq/2}" y="${X(y)-sq/2}" width="${sq}" height="${sq}" fill="${ow>0?'#151515':'#fafafa'}" stroke="${ow>0?'#000':'#6b6b6b'}" stroke-width="1"/>`}
+    if(e&&e.unsure)for(const p of e.unsure)o+=`<circle cx="${X(p%n)}" cy="${X((p/n)|0)}" r="${U*0.44}" fill="none" stroke="#f39c12" stroke-width="3" stroke-dasharray="4 3"/>`; // 50c：没把握
+    if(e&&e.seki)for(const p of e.seki)o+=`<circle cx="${X(p%n)}" cy="${X((p/n)|0)}" r="${U*0.44}" fill="none" stroke="#3498db" stroke-width="3"/>`; // 双活
   }
   // AI 提示
   if(aiHint&&!train&&!scoring&&!exporting)o+=aiOverlay(n,X);
@@ -4899,7 +4934,7 @@ function renderJudge(st){
   $('#jB').textContent=T('{0} 子',fmtQ(B));$('#jW').textContent=T('{0} 子',fmtQ(W));
   $('#jBcap').textContent=T('提 {0} 子',st.capB);$('#jWcap').textContent=T('提 {0} 子',st.capW);
   $('#jLead').textContent=lead>0?T('黑领先 {0} 目',fmtQ(lead)):lead<0?T('白领先 {0} 目',fmtQ(-lead)):T('双方相同');
-  $('#jKomi').textContent=e.ai?T('贴 {0} 子 · AI 判断',fmtQ(komi/2)):AI.status()==='loading'?T('贴 {0} 子 · 估算（AI 下载中 {1}%）',fmtQ(komi/2),Math.round(AI.prog()*100)):T('贴 {0} 子 · 估算',fmtQ(komi/2));
+  $('#jKomi').textContent=e.ai?(e.src==='pc'?T('贴 {0} 子 · 家里电脑 KataGo 判断',fmtQ(komi/2)):T('贴 {0} 子 · AI 判断',fmtQ(komi/2))+(pcOwnBusy===cur?' · '+T('家里电脑计算中…'):''))+(e.unsure&&e.unsure.size||e.seki&&e.seki.size?' · '+T('橙圈＝没把握、蓝圈＝双活，点棋子可改'):''):AI.status()==='loading'?T('贴 {0} 子 · 估算（AI 下载中 {1}%）',fmtQ(komi/2),Math.round(AI.prog()*100)):T('贴 {0} 子 · 估算',fmtQ(komi/2));
 }
 const RULE_KOMI={cn:7.5,jp:6.5,ing:8};
 function guessRule(){const ru=(prop(root(),'RU')||'').toLowerCase();if(/japan|korea|jp|kr/.test(ru))return'jp';if(/ing|goe/.test(ru))return'ing';return'cn'}
@@ -6405,7 +6440,7 @@ async function pcMove(node,visits,profile,opts){
   await PC.send(job);
   return new Promise((resolve,reject)=>{const to=setTimeout(()=>{PC.stop();reject(new Error(T('家里电脑没有回应')))},45000);
     PC.watch(job.id,o=>{if(o.state==='error'){clearTimeout(to);PC.stop();reject(new Error(o.msg||'KataGo'))}
-      else if(o.state==='done'){clearTimeout(to);PC.stop();resolve({policy:Float32Array.from((o.policy||[]).map(v=>v<0?0:v)),best:o.best||[],w:o.w,l:o.l,hp:o.hp?Float32Array.from(o.hp.map(v=>v<0?0:v)):null})}})});
+      else if(o.state==='done'){clearTimeout(to);PC.stop();resolve({policy:Float32Array.from((o.policy||[]).map(v=>v<0?0:v)),best:o.best||[],w:o.w,l:o.l,hp:o.hp?Float32Array.from(o.hp.map(v=>v<0?0:v)):null,own:o.own||null})}})});
 }
 /* ---- 图片认棋：截图自动找格线；照片点四个角（可拖动、有放大镜、透视校正）；一页多题；拍照数子 ----
    认子：黑子 = 中间很暗；白子 = 中间没有格线穿过，而且外面有一圈边（书上的空心白子）或比棋盘亮（真的棋子）；其他 = 空点 */
@@ -7336,7 +7371,7 @@ const duelSave=()=>{try{localStorage.setItem('goReview.duel',JSON.stringify(duel
 const PC_IDS=['pc',...['5k','1d','3d','5d','9d','pro'].map(r=>'pch_'+r)]; // 第 49 项：家里电脑（KataGo／仿人类）
 let pcPlayV=1000;try{pcPlayV=+localStorage.getItem('goReview.pcv')||1000}catch(e){}
 const PCV_OPTS=[400,1000,3000];let pcvCustom=!PCV_OPTS.includes(pcPlayV);
-const pcvHtml=on=>on?`<label>${T('家里电脑每手算')} <select data-pcv>${PCV_OPTS.map(v=>`<option value="${v}"${!pcvCustom&&v===pcPlayV?' selected':''}>${v} ${T('次')}</option>`).join('')}<option value="c"${pcvCustom?' selected':''}>${T('自定义…')}</option></select></label>${pcvCustom?`<label><input type="number" data-pcvn min="1" max="100000" step="100" value="${pcPlayV}" style="width:7em"> ${T('次')}</label>`:''}`:'';
+const pcvHtml=on=>on?`<label>${T('家里电脑每手算')} <select data-pcv>${PCV_OPTS.map(v=>`<option value="${v}"${!pcvCustom&&v===pcPlayV?' selected':''}>${v} ${T('次')}</option>`).join('')}<option value="c"${pcvCustom?' selected':''}>${T('自定义…')}</option></select></label>${pcvCustom?`<label><input type="number" data-pcvn min="1" max="100000" step="100" value="${pcPlayV}" style="width:7em"> ${T('次')}</label>`:''}<span class="note" style="margin:0;flex-basis:100%">${T('次数只影响「家里电脑 KataGo」；「仿人类」只取那个棋力的人最常下的一手，最多算 400 次，填再多也不会更像人。')}</span>`:'';
 function pcvSave(){try{localStorage.setItem('goReview.pcv',pcPlayV)}catch(x){}}
 document.addEventListener('change',e=>{const t=e.target.closest('[data-pcv]');if(t){if(t.value==='c'){pcvCustom=true}else{pcvCustom=false;pcPlayV=+t.value;pcvSave()}if(typeof renderRelay==='function')renderRelay();renderDuel();return}
   const nI=e.target.closest('[data-pcvn]');if(nI){const v=Math.round(+nI.value);if(v>=1){pcPlayV=Math.min(100000,v);pcvSave()}nI.value=pcPlayV}});
@@ -11430,6 +11465,7 @@ function boardClick(ev){
   const p=pt.matrixTransform(svg.getScreenCTM().inverse());const n=sizeOf(root());
   const x=Math.round((p.x-PAD)/U),y=Math.round((p.y-PAD)/U);if(x<0||y<0||x>=n||y>=n)return;
   const pt2=xyToPt(x,y);
+  if(judging&&!scoring&&!(typeof ts!=='undefined'&&ts)&&judgeToggle(x,y))return; // 50d：形势画面点棋子改「死／活／双活」
   if(train){trainClick(x,y);return}
   if(G&&G.id==='__blank'){flash(T('先在下面选好，按「开始」'));return}
   if(ts){if(ts.mode==='solve'||ts.mode==='jq'){tsClick(x,y);return}if(ts.mode==='edit'&&tsEditClick(x,y))return}

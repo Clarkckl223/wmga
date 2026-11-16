@@ -2829,6 +2829,7 @@ const EN={
 ,"还没连上家里电脑：请先在设定里连线家里电脑，再开始。":"Home PC not connected: link it in settings first, then start."
 ,"家里电脑：{0}。已暂停，开好家里电脑后按「继续」。":"Home PC: {0}. Paused — start the home PC and tap \"Continue\"."
 ,"家里电脑：{0}。已停止。":"Home PC: {0}. Stopped."
+,"自定义…":"Custom…"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -7334,8 +7335,11 @@ let duelOpt={n:9,a:'g10',b:'10k',games:5,swap:true,delay:300};try{Object.assign(
 const duelSave=()=>{try{localStorage.setItem('goReview.duel',JSON.stringify(duelOpt))}catch(e){}};
 const PC_IDS=['pc',...['5k','1d','3d','5d','9d','pro'].map(r=>'pch_'+r)]; // 第 49 项：家里电脑（KataGo／仿人类）
 let pcPlayV=1000;try{pcPlayV=+localStorage.getItem('goReview.pcv')||1000}catch(e){}
-const pcvHtml=on=>on?`<label>${T('家里电脑每手算')} <select data-pcv>${[400,1000,3000].map(v=>`<option value="${v}"${v===pcPlayV?' selected':''}>${v} ${T('次')}</option>`).join('')}</select></label>`:'';
-document.addEventListener('change',e=>{const t=e.target.closest('[data-pcv]');if(!t)return;pcPlayV=+t.value;try{localStorage.setItem('goReview.pcv',pcPlayV)}catch(x){}});
+const PCV_OPTS=[400,1000,3000];let pcvCustom=!PCV_OPTS.includes(pcPlayV);
+const pcvHtml=on=>on?`<label>${T('家里电脑每手算')} <select data-pcv>${PCV_OPTS.map(v=>`<option value="${v}"${!pcvCustom&&v===pcPlayV?' selected':''}>${v} ${T('次')}</option>`).join('')}<option value="c"${pcvCustom?' selected':''}>${T('自定义…')}</option></select></label>${pcvCustom?`<label><input type="number" data-pcvn min="1" max="100000" step="100" value="${pcPlayV}" style="width:7em"> ${T('次')}</label>`:''}`:'';
+function pcvSave(){try{localStorage.setItem('goReview.pcv',pcPlayV)}catch(x){}}
+document.addEventListener('change',e=>{const t=e.target.closest('[data-pcv]');if(t){if(t.value==='c'){pcvCustom=true}else{pcvCustom=false;pcPlayV=+t.value;pcvSave()}if(typeof renderRelay==='function')renderRelay();renderDuel();return}
+  const nI=e.target.closest('[data-pcvn]');if(nI){const v=Math.round(+nI.value);if(v>=1){pcPlayV=Math.min(100000,v);pcvSave()}nI.value=pcPlayV}});
 function duelIds(n){return[...levelIds(n).filter(x=>x!=='max'),...PC_IDS,...GG_IDS]}
 async function pcEngineMove(node,lv){const n=sizeOf(root()),N=n*n,no=moveNo(node),late=no>N*0.7;
   if(!PC.on())throw new Error(T('还没连上家里电脑'));
@@ -9669,7 +9673,7 @@ function renderRelay(){const box=$('#relayBox');if(!box||box.hidden)return;const
   if(relay&&(relay.running||relay.done)){const r=relay;
     el.innerHTML=`<p class="big">${T('黑 {0} vs 白 {1}',lvName(levelObj(r.b,r.n)),lvName(levelObj(r.w,r.n)))}</p>
       <p class="note" style="margin:0">${r.done?tsE(r.msg||T('下完了')):r.paused?(r.msg?tsE(r.msg):T('暂停中：可以在棋盘上自己改一手，再按「继续」。')):T('AI 正在下… 第 {0} 手',moveNo(cur))}</p>
-      <div class="score-opts"><span>${T('速度')}</span><span class="seg">${RELAY_SPD.map(([k,l])=>`<button data-rl="spd" data-v="${k}" aria-pressed="${r.spd===k}">${T(l)}</button>`).join('')}</span></div>
+      <div class="score-opts"><span>${T('速度')}</span><span class="seg">${RELAY_SPD.map(([k,l])=>`<button data-rl="spd" data-v="${k}" aria-pressed="${r.spd===k}">${T(l)}</button>`).join('')}</span>${!r.done&&typeof pcvHtml==='function'?pcvHtml(/^pc/.test(r.b)||/^pc/.test(r.w)):''}</div>
       <div class="row">${r.done?'':r.paused?`<button class="btn pri" data-rl="resume">▶ ${T('继续')}</button>`:`<button class="btn" data-rl="pause">⏸ ${T('暂停')}</button>`}${r.done?'':`<button class="btn warn" data-rl="stop">${T('停止')}</button>`}${r.done&&r.koFrom?`<button class="btn warn" data-rl="trim">✂ ${T('删掉第 {0} 手以后的无意义小劫',moveNo(r.koFrom))}</button>`:''}${r.done?`<button class="btn pri" data-rl="again">${T('再看一盘')}</button><button class="btn" data-rl="torev">📖 ${T('进入这棋谱')}</button><button class="btn" data-rl="home">🏠 ${T('回主页')}</button>`:`<button class="btn" data-rl="close">${T('关闭')}</button>`}</div>`;return}
   const has=G&&store.games[G.id]&&G.id!=='__blank',n=has?sizeOf(root()):19,ids=relayIds(n),sel=(k,val)=>`<select data-ro="${k}">${ids.map(id=>`<option value="${id}"${id===val?' selected':''}>${lvName(id)}</option>`).join('')}</select>`;
   if(!ids.includes(o.lv))o.lv=ids[Math.min(ids.length-1,Math.floor(ids.length/2))];if(!ids.includes(o.b))o.b=o.lv;if(!ids.includes(o.w))o.w=o.lv;

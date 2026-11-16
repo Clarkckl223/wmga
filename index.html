@@ -2857,6 +2857,23 @@ const EN={
 ,"全部加入多场解说台":"Add all to commentary desk"
 ,"现在没有可以解说的对局":"No games available for commentary right now"
 ,"不开放解说":"no commentary"
+,"线上对局（对 {0}）":"Online game (vs {0})"
+,"观战（{0} vs {1}）":"Watching ({0} vs {1})"
+,"考试「{0}」第 {1} / {2} 题":"Exam “{0}” question {1} / {2}"
+,"「{0}」第 {1} 题":"“{0}” problem {1}"
+,"AI 接力（第 {0} 手）":"AI relay (move {0})"
+,"和 AI 接着下（第 {0} 手）":"Continuing vs AI (move {0})"
+,"和 AI 下棋（第 {0} 手）":"Game vs AI (move {0})"
+,"吃子棋（第 {0} 手）":"Capture Go (move {0})"
+,"上次在做 {0}，要继续吗？":"Last time you were on {0}. Continue?"
+,"已回到刚才的对局，接着下。":"Back to your game — carry on."
+,"刚才的接力中断了：从这一手按「开始」就能接着下":"The relay was interrupted: press Start from this move to continue"
+,"找不到这本练习册":"Can't find this workbook"
+,"找不到这盘棋谱":"Can't find this game record"
+,"连线中断，重新连接中…":"Connection lost, reconnecting…"
+,"（对局时间照样在算）":"(the game clock keeps running)"
+,"继续":"Continue"
+,"回主页":"Home"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -7087,7 +7104,7 @@ async function olOpen(id){ // 打开对局（下棋或观战）
     else if(d0.status==='wait'&&(!d0.B||!d0.W)&&!olIsMe(d0.B)&&!olIsMe(d0.W)){const name=olName();
       if(!name){olMsg=T('请先输入你的名字，再打开邀请链接');olPending=id;olView='home';ol=null;renderOl();return}
       const R=await olRating(uid);await olTx(id,st=>{if(st.status!=='wait')return false;const seat=!st.B?'B':!st.W?'W':null;if(!seat)return false;st[seat]={name,uid,r:R.r,au:laAuth()};st.status='play';st.turnT=Date.now()})}
-    ol.unsub=ref.onSnapshot(d=>{const st=olUnpack(d);if(!st||!ol||ol.id!==id)return;olSync(st)},e=>{olMsg=e.message;renderOl()});
+    ol.unsub=ref.onSnapshot(d=>{const st=olUnpack(d);if(!st||!ol||ol.id!==id)return;ol.dead=false;olSync(st)},e=>{if(ol&&ol.id===id)ol.dead=true;olMsg=e.message;renderOl()});
     ol.tick=setInterval(olTick,500);
   }catch(e){olMsg=e.message||String(e);renderOl()}
 }
@@ -7162,17 +7179,17 @@ const OL_CHAL_MS=5*60000,OL_ON_MS=150000;let olPres=null,olSent=null;const olInv
 function olMyCls(){try{const L=typeof tsLogin==='function'&&tsLogin();return(L&&L.cls)||''}catch(e){return''}}
 function olMyRole(){try{const L=typeof tsLogin==='function'&&tsLogin();return(L&&L.role)||''}catch(e){return''}}
 function olPresGame(){const st=ol&&ol.st,on=!!(st&&st.status==='play'&&ol.me);olPresGame.k=on?ol.id:''; // 52a：正在下哪一盘
-  return on?{busy:true,gid:ol.id,gm:{n:st.n,B:(st.B&&st.B.name)||'',W:(st.W&&st.W.name)||'',mv:st.moves.length,ai:laOlAllowed(st)&&!st.cap}}:{busy:false}}
+  return on?{busy:true,gid:ol.id,gm:{n:st.n,B:(st.B&&st.B.name)||'',W:(st.W&&st.W.name)||'',pB:(st.B&&st.B.uid)||'',pW:(st.W&&st.W.uid)||'',mv:st.moves.length,ai:laOlAllowed(st)&&!st.cap}}:{busy:false}}
 function olPresKick(){const st=ol&&ol.st,k=st&&st.status==='play'&&ol.me?ol.id:'';if(k!==(olPresGame.k||''))olPresBeat()}
 async function olPresBeat(){if(document.hidden||!olName())return;try{const db=await Shared.db(),uid=olUid(),R=await olRating(uid);
   await db.collection('games').doc('lobby').collection('layers').doc('p_'+uid).set({sgf:JSON.stringify({name:olName(),r:R.r,t:Date.now(),...olPresGame(),cls:olMyCls(),role:olMyRole(),lobby:olView==='lobby'&&!$('#olBox').hidden}),name:'p_'+uid,updated:Date.now()})}catch(e){}}
-async function olPresStart(){const uid=olUid();if(!olName()||!uid)return;if(olPres&&olPres.uid===uid)return;if(olPres){clearInterval(olPres.t);olPres.unsub&&olPres.unsub()}
+async function olPresStart(){try{await Shared.db()}catch(e){}const uid=olUid();if(!olName()||!uid)return;if(olPres&&olPres.uid===uid)return;if(olPres){clearInterval(olPres.t);olPres.unsub&&olPres.unsub()}
   olPres={uid,t:setInterval(olPresBeat,60000),unsub:null};olPresBeat();
   try{const db=await Shared.db();olPres.unsub=db.collection('games').doc('lobby').collection('layers').where('to','==',uid).onSnapshot(qs=>{const now=Date.now();
     qs.forEach(d=>{let c;try{c=JSON.parse(d.data().sgf)}catch(e){return}if(!d.id.startsWith('c_'+uid+'_'))return;
       if(c.done||now-(c.t||0)>OL_CHAL_MS){olInv.delete(d.id);return}if(!olInv.has(d.id)){olInv.set(d.id,c);try{clBeep()}catch(e){}}});olInvShow()},()=>{})}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)olPresBeat()});
-setTimeout(olPresStart,4000);setInterval(olPresStart,60000);try{firebase.auth().onAuthStateChanged(()=>setTimeout(olPresStart,800))}catch(e){}
+setTimeout(olPresStart,4000);setInterval(olPresStart,60000);
 function olInvShow(){let box=$('#olInvite');const now=Date.now();for(const[k,c]of olInv)if(now-(c.t||0)>OL_CHAL_MS)olInv.delete(k);
   if(!olInv.size){if(box)box.remove();return}
   if(!box){box=document.createElement('div');box.id='olInvite';box.style.cssText='position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:9999;max-width:calc(100vw - 32px);background:var(--panel,#1f2630);color:var(--ink,#eee);border:2px solid var(--accent,#7cb7e8);border-radius:12px;padding:10px 12px;box-shadow:0 6px 24px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:6px';document.body.appendChild(box)}
@@ -7253,7 +7270,7 @@ function renderOl(){
 /* ---- 我的对局（通信、实时都列出）：轮到我的排最上面 ---- */
 let olMine=null,olTurnN=0,olMineUnsub=[],olMineT=0;
 const olTeacher=()=>typeof clIsT==='function'&&clIsT()&&!!(tsLogin()&&tsLogin().cls);
-async function olWatchMine(){olMineUnsub.forEach(f=>f());olMineUnsub=[];const ids=[olAcct(),olLocal()].filter(Boolean);if(!ids.length)return;
+async function olWatchMine(){try{await Shared.db()}catch(e){}olMineUnsub.forEach(f=>f());olMineUnsub=[];const ids=[olAcct(),olLocal()].filter(Boolean);if(!ids.length)return;
   try{const db=await Shared.db(),col=db.collection('games').doc('lobby').collection('layers'),M={},L=tsLogin(),myN=(L&&L.name)||olName();
     const upd=(key,qs)=>{for(const k of Object.keys(M))if(M[k]._q===key)delete M[k];qs.forEach(d=>{const x=d.data();let o={};try{o=JSON.parse(x.sgf)}catch(e){}M[d.id]={...o,turn:x.turn,pB:x.pB,pW:x.pW,resvB:x.resvB,resvW:x.resvW,_q:key,upd:x.updated}});olMineSet(M,ids,myN)};
     for(const u of ids){olMineUnsub.push(col.where('pB','==',u).onSnapshot(qs=>upd('B'+u,qs),()=>{}));olMineUnsub.push(col.where('pW','==',u).onSnapshot(qs=>upd('W'+u,qs),()=>{}))}
@@ -7324,11 +7341,15 @@ async function olAct(e){
 function olPanelOpen(){if(typeof setMode==='function'&&curMode()!=='play')setMode('play');$('#olBox').hidden=false;$('#olToggle').setAttribute('aria-pressed','true');if(!ol&&olView==='home'&&olMine&&olMine.length)olView='mine';renderOl()}
 function olPanelClose(){if(ol&&ol.st&&ol.st.status==='play'&&ol.me&&!ol.st.corr){flash(T('对局还在进行，请先认输或下完'));return}olClose(true);olLobbyClose();olView='home';$('#olBox').hidden=true;$('#olToggle').setAttribute('aria-pressed','false')}
 document.addEventListener('change',e=>{const s=e.target.closest&&e.target.closest('#olBody [data-pr]');if(s)olPair[s.dataset.pr]=s.value});
-setTimeout(olWatchMine,2500);try{firebase.auth().onAuthStateChanged(()=>setTimeout(olWatchMine,500))}catch(e){}
+setTimeout(olWatchMine,2500);
+// 53 修正：firebase 是用到才载入的，一开网页就挂登录监听会失败（被 try 吃掉）→ 重新整理后「我的对局」用错代号去找。改成等 firebase 载入、登录还原后再挂
+let olAuthHooked=false;async function olAuthHook(){if(olAuthHooked)return;try{await Shared.db();olAuthHooked=true;let last=olAcct();
+  firebase.auth().onAuthStateChanged(()=>{const now=olAcct();if(now===last)return;last=now;setTimeout(olWatchMine,300);setTimeout(olPresStart,600)})}catch(e){}}
+setTimeout(olAuthHook,1500);
 {const b=$('#olTurnBtn');if(b)b.onclick=()=>{if(typeof setMode==='function')setMode('play');olView='mine';olPanelOpen()}}
 
 /* ---- 第 52 项：大厅直接观战、解说 ---- */
-function olWatchBtns(gid,gm){return`<button class="btn" data-p="watch" data-g="${tsE(gid)}">👀 ${T('观战')}</button>`+(laCan()&&(!gm||gm.ai!==false)?`<button class="btn" data-p="watchcm" data-g="${tsE(gid)}">🎙 ${T('解说')}</button>`:'')}
+function olWatchBtns(gid,gm){const me=[olAcct(),olLocal()].filter(Boolean);if(gm&&(me.includes(gm.pB)||me.includes(gm.pW)))return`<button class="btn pri" data-p="watch" data-g="${tsE(gid)}">▶ ${T('回到对局')}</button>`;return`<button class="btn" data-p="watch" data-g="${tsE(gid)}">👀 ${T('观战')}</button>`+(laCan()&&(!gm||gm.ai!==false)?`<button class="btn" data-p="watchcm" data-g="${tsE(gid)}">🎙 ${T('解说')}</button>`:'')}
 function olLiveGames(ps,myCls){const now=Date.now(),G={};
   for(const[u,p]of ps){if(!p.busy||!p.gid||!(p.t>now-OL_ON_MS))continue;const g=G[p.gid]||(G[p.gid]={gid:p.gid,...(p.gm||{}),mate:false});
     if(p.gm&&(p.gm.mv||0)>=(g.mv||0))Object.assign(g,p.gm);if(myCls&&p.cls===myCls)g.mate=true}
@@ -11481,6 +11502,78 @@ function renderAcctSet(){ // 设置页最上面：语言、账号
     <div class="acctrow"><span>${T('账号')}：${who}</span>${r==='stu'?`<button class="btn" data-au="pw">${T('改密码')}</button>`:''}${r==='none'||r==='guest'?`<button class="btn pri" data-au="tologin">${T('登录')}</button>`:`<button class="btn" data-au="logout">${T('登出')}</button>`}</div>`;
   if(r==='tea'||r==='adm'){el.insertAdjacentHTML('beforeend',certSetHtml());el.onchange=certSetChange}
 }
+/* ===================== 第 53 项：重新整理、断线后，回到原来的画面 =====================
+   每 5 秒（和离开网页时）记下「正在做什么」；正常离开（回主页、做完）就清掉。
+   重新打开网页时，2 小时内有没做完的，就问「上次在做 XX，要继续吗？」 */
+const RS_KEY='goReview.resume',RS_MAX=2*3600e3;
+let rsReady=false,rsAsked=false;
+function rsGet(){try{return JSON.parse(localStorage.getItem(RS_KEY)||'null')}catch(e){return null}}
+function rsPut(o){try{if(o)localStorage.setItem(RS_KEY,JSON.stringify(o));else localStorage.removeItem(RS_KEY)}catch(e){}}
+function rsPath(nd){const p=[];for(let x=nd;x&&x.parent;x=x.parent)p.unshift(x.parent.children.indexOf(x));return p}
+function rsWalk(r,p){let n=r;for(const i of p||[]){const c=n.children[i];if(!c)break;n=c}return n}
+function rsNow(){ // 现在在做什么（没有 → null）
+  try{
+    if(typeof ol!=='undefined'&&ol&&ol.id&&ol.st&&ol.st.status!=='end'){const st=ol.st,opp=ol.me?st[ol.me==='B'?'W':'B']:null;
+      return{k:'ol',id:ol.id,label:ol.me?T('线上对局（对 {0}）',(opp&&opp.name)||'?'):T('观战（{0} vs {1}）',(st.B&&st.B.name)||'?',(st.W&&st.W.name)||'?')}}
+    if(typeof ts!=='undefined'&&ts&&ts.mode==='solve'&&ts.bookId!=null&&!(typeof bzOn==='function'&&bzOn())&&!(tsQuiz&&tsQuiz.mode==='blitz')){
+      const b=tsBook(ts.bookId),q=tsQuiz,ex=q&&q.mode==='exam';
+      const label=ex?T('考试「{0}」第 {1} / {2} 题',(exRun&&exRun.title)||'',q.k+1,q.list.length):T('「{0}」第 {1} 题',(b&&b.title)||'',ts.idx+1);
+      return{k:'ts',b:ts.bookId,i:ts.idx,quiz:q?{...q,moving:false}:null,virt:tsVirt[ts.bookId]||null,ex:ex?exRun:null,label}}
+    if(typeof relay!=='undefined'&&relay&&relay.running&&G&&store.games[G.id])
+      return{k:'relay',id:G.id,path:rsPath(cur),mode:'ai',label:T('AI 接力（第 {0} 手）',rsPath(cur).length)}
+    if(typeof vs!=='undefined'&&vs&&!vs.over&&!vs.cert&&!vs.quest&&G&&G.id===vs.id&&store.games[vs.id]){const p=rsPath(cur);
+      if(vs.relay)return{k:'relay',id:vs.id,path:p,mode:'me',label:T('和 AI 接着下（第 {0} 手）',p.length)};
+      return{k:'vs',id:vs.id,path:p,vs:{id:vs.id,pc:vs.pc,ai:vs.ai,lv:vs.level&&vs.level.id,auto:vs.auto,ladder:vs.ladder,low:vs.low},label:T('和 AI 下棋（第 {0} 手）',p.length)}}
+    if(typeof cg!=='undefined'&&cg&&!cg.over&&G&&G.id===cg.id&&store.games[cg.id]){const p=rsPath(cur);
+      return{k:'cg',id:cg.id,path:p,cg:{...cg,thinking:false,msg:''},label:T('吃子棋（第 {0} 手）',p.length)}}
+    if(typeof qs!=='undefined'&&qs&&$('#qBox')&&!$('#qBox').hidden)return{k:'quest',label:T('小棋士之旅')}
+  }catch(e){}
+  return null}
+function rsTick(){const n=rsNow();
+  if(!rsReady){if(n&&rsAsked){rsReady=true;rsBar(null)}else return} // 没理会提示、自己开始做别的：提示收起来
+  rsPut(n?{...n,t:Date.now()}:null)}
+setInterval(rsTick,5000);
+addEventListener('pagehide',rsTick);document.addEventListener('visibilitychange',()=>{if(document.hidden)rsTick()});
+setTimeout(()=>{if(!rsAsked)rsReady=true},10000); // 用链接打开的（没有经过 rsBoot）
+
+function rsBar(o){let b=$('#rsBar');if(!o){if(b)b.remove();return}
+  if(!b){b=document.createElement('div');b.id='rsBar';b.style.cssText='position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:9998;max-width:calc(100vw - 32px);background:var(--panel,#1f2630);color:var(--ink,#eee);border:2px solid var(--accent,#7cb7e8);border-radius:12px;padding:10px 12px;box-shadow:0 6px 24px rgba(0,0,0,.4);display:flex;gap:8px;align-items:center;flex-wrap:wrap';document.body.appendChild(b)}
+  b.innerHTML=`<span>↩ ${T('上次在做 {0}，要继续吗？',`<b>${tsE(o.label||'')}</b>`)}</span><button class="btn pri" data-rs="go">▶ ${T('继续')}</button><button class="btn" data-rs="no">${T('回主页')}</button>`}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('#rsBar [data-rs]');if(!t)return;const o=rsGet();rsBar(null);rsReady=true;
+  if(t.dataset.rs==='go'&&o)rsGo(o).catch(x=>flash(x.message||String(x)));else rsPut(null)});
+function rsBoot(){if(rsAsked)return;rsAsked=true;const o=rsGet();
+  if(!o||!o.k||Date.now()-(o.t||0)>RS_MAX){rsPut(null);rsReady=true;return}
+  rsBar(o)}
+
+const rsSleep=ms=>new Promise(r=>setTimeout(r,ms));
+function rsOpenGame(id,path){const rec=store.games[id];if(!rec)throw new Error(T('找不到这盘棋谱'));
+  if(scoring)stopScoring();if(train)stopTrain();const r=parseSGF(rec.sgf);openRoot(r,{id});cur=rsWalk(r,path);
+  for(let x=cur;x&&x.parent;x=x.parent)x.parent._sel=x.parent.children.indexOf(x);renderTree();render();renderInfo();return r}
+async function rsGo(o){
+  if(o.k==='ol'){olPanelOpen();await olOpen(o.id);return}
+  if(o.k==='ts'){if(o.virt)tsVirt[o.b]=o.virt;if(o.ex)exRun=o.ex;
+    if(typeof setMode==='function')setMode('ts');tsOpenPanel();
+    for(let k=0;k<40&&!(tsBook(o.b)&&tsBook(o.b).problems[o.i]);k++)await rsSleep(250); // 班级、全站的练习册要等云端载入
+    if(!tsBook(o.b))throw new Error(T('找不到这本练习册'));
+    tsQuiz=o.quiz||null;if(tsQuiz)tsQuiz.moving=false;tsOpen(o.b,o.i);renderTs();return}
+  if(o.k==='vs'){if(vs)vsStop();setMode('play');const r=rsOpenGame(o.id,o.path),n=sizeOf(r);
+    vs={...o.vs,level:levelObj(o.vs.lv,n),over:false,thinking:false,msg:T('已回到刚才的对局，接着下。'),endMsg:''};tool='play';
+    document.querySelectorAll('.tool[data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool==='play'));
+    $('#vsBox').hidden=false;if(vs.level.gg||vs.level.stu)GG.warm();else AI.load().catch(()=>{});renderVs();vsAiMove();return}
+  if(o.k==='cg'){setMode('play');rsOpenGame(o.id,o.path);cg={...o.cg,over:false,thinking:false,msg:''};tool='play';cgOpen();render();cgAi();return}
+  if(o.k==='relay'){setMode('review');rsOpenGame(o.id,o.path);relayOpen({mode:o.mode});flash(T('刚才的接力中断了：从这一手按「开始」就能接着下'));return}
+  if(o.k==='quest'){qOpen();if(Q&&Q.at)qGo(Q.at.ch,Q.at.i);return}
+}
+
+/* 53c：网络断了 → 显示提示；恢复后，对局的监听如果断掉了就重新接上 */
+function rsNet(){const off=navigator.onLine===false;let b=$('#rsNet');if(!off){if(b)b.remove();return}
+  if(!b){b=document.createElement('div');b.id='rsNet';b.style.cssText='position:fixed;left:50%;top:8px;transform:translateX(-50%);z-index:9999;max-width:calc(100vw - 32px);background:#C0392B;color:#fff;border-radius:10px;padding:6px 12px;box-shadow:0 4px 16px rgba(0,0,0,.35)';document.body.appendChild(b)}
+  b.textContent='⚠ '+T('连线中断，重新连接中…')+(typeof ol!=='undefined'&&ol&&ol.st&&ol.st.status==='play'?' '+T('（对局时间照样在算）'):'')}
+addEventListener('offline',rsNet);
+addEventListener('online',()=>{rsNet();if(typeof ol!=='undefined'&&ol&&ol.id&&ol.dead){const id=ol.id;setTimeout(()=>{if(ol&&ol.id===id){olMsg='';olOpen(id)}},800)}
+  if(typeof olWatchMine==='function')setTimeout(olWatchMine,1500)});
+// 正常离开（回主页、离开对局、做完题）就马上更新，不用等 5 秒
+for(const f of['goHome','tsExit','olClose','vsStop','cgClose','qClose']){const o=window[f];if(typeof o==='function')window[f]=function(){const r=o.apply(this,arguments);setTimeout(rsTick,0);return r}}
 
 /* ===================== 存成图片 ===================== */
 let imgMode='now',imgBlob=null,imgUrl=null;
@@ -14470,6 +14563,7 @@ if('serviceWorker' in navigator&&/github\.io$|^localhost$|^127\.0\.0\.1$/.test(l
   if(/^#(g|sgf)=/.test(h)){handleHash(h,openLast);return}
   openLast();
   if(/[?&]mode=review/.test(location.search)){}else if(homePref.skip&&homePref.last&&homePref.last!=='home'&&authRole()!=='none')homeGo(homePref.last);else setMode('home');
+  setTimeout(()=>{if(typeof rsBoot==='function')rsBoot()},1200); // 第 53 项：上次没做完的，问要不要继续
   setTimeout(()=>authInit().then(authQLogin).then(tsGlobalLoad),0); // 等整个程序载入完（Shared 在后面才定义）；扫登录卡来的，接着自动登录
 })();
 </script>

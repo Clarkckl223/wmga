@@ -2819,6 +2819,16 @@ const EN={
 ,"删掉第 {0} 手以后的无意义小劫":"Delete the pointless ko fight from move {0}"
 ,"（第 {0} 手以后是来回打无意义的小劫，已经删掉）":"(A pointless ko fight from move {0} on was deleted)"
 ,"已删掉第 {0} 手以后的小劫。":"Deleted the ko fight from move {0}."
+,"家里电脑 KataGo":"Home PC KataGo"
+,"家里电脑·仿人类 {0}":"Home PC human-like {0}"
+,"家里电脑每手算":"Home PC visits per move"
+,"次":""
+,"还没连上家里电脑":"Home PC not connected"
+,"家里电脑没有回应：{0}。已停止。":"Home PC did not respond: {0}. Stopped."
+,"家里电脑没有回应：{0}。已暂停，开好家里电脑后按「继续」。":"Home PC did not respond: {0}. Paused — start the home PC and tap \"Continue\"."
+,"还没连上家里电脑：请先在设定里连线家里电脑，再开始。":"Home PC not connected: link it in settings first, then start."
+,"家里电脑：{0}。已暂停，开好家里电脑后按「继续」。":"Home PC: {0}. Paused — start the home PC and tap \"Continue\"."
+,"家里电脑：{0}。已停止。":"Home PC: {0}. Stopped."
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -5543,6 +5553,7 @@ const LV_MAP={
 function lvLerp(t,x){ // 分段直线；超出两端就照最后一段的斜率延长
   for(let i=0;i<t.length-1;i++){const[a,A]=t[i],[b,B]=t[i+1];if((x<=a&&x>=b)||i===t.length-2||(i===0&&x>a))return A+(B-A)*(x-a)/(b-a)}return t[0][1]}
 function levelObj(id,n){
+  if(id==='pc')return{id,pc:true};{const ph=/^pch_(\w+)$/.exec(id||'');if(ph)return{id,pc:true,prof:ph[1]==='pro'?'proyear_2023':'rank_'+ph[1]}} // 第 49 项：家里电脑
   if(id==='max')return{id,search:true};const g=/^g(\d+)$/.exec(id||'');if(g)return{id,gg:+g[1]};
   n=n||(typeof ng!=='undefined'&&ng.size)||19;const M=LV_MAP[n>=19?19:13];
   let k=rankKyu(id);if(k==null){id='10k';k=10}
@@ -5597,7 +5608,7 @@ const GG=(()=>{let w=null,seq=0;const pend={};
 })();
 const GG_IDS=Array.from({length:10},(_,i)=>'g'+(i+1));
 function oppIds(n,eng){return eng==='gnugo'?GG_IDS:levelIds(n)}
-function lvName(lv){const id=lv.id||lv;if(id==='max')return T('最强');const g=/^g(\d+)$/.exec(id);if(g)return T('GNU Go 等级 {0}',g[1]);const m=/^(\d+)([kd])$/.exec(id);return m?(m[2]==='k'?T('{0} 级',m[1]):T('{0} 段',m[1])):id}
+function lvName(lv){const id=lv.id||lv;if(id==='max')return T('最强');if(id==='pc')return'🖥 '+T('家里电脑 KataGo');{const ph=/^pch_(\w+)$/.exec(id);if(ph)return'🖥 '+T('家里电脑·仿人类 {0}',ph[1]==='pro'?T('职业'):lvName(ph[1]))}const g=/^g(\d+)$/.exec(id);if(g)return T('GNU Go 等级 {0}',g[1]);const m=/^(\d+)([kd])$/.exec(id);return m?(m[2]==='k'?T('{0} 级',m[1]):T('{0} 段',m[1])):id}
 function handicapPts(n,h){const d=n>=13?3:2,a=d,b=n-1-d,c=(n-1)/2,pts=[];
   if(h>=2)pts.push([b,a],[a,b]);if(h>=3)pts.push([b,b]);if(h>=4)pts.push([a,a]);
   if(h===5||h===7||h===9)pts.push([c,c]);if(h>=6)pts.push([a,c],[b,c]);if(h>=8)pts.push([c,a],[c,b]);return pts}
@@ -6387,9 +6398,9 @@ function pcSetCode(v){const c=(v||'').replace(/[^A-Za-z0-9]/g,'').slice(0,24);if
 function pcNewCode(){const a='abcdefghijkmnpqrstuvwxyz23456789',u=new Uint8Array(10);crypto.getRandomValues(u);pcSetCode([...u].map(x=>a[x%a.length]).join(''))}
 
 /* ---- 和 AI 对局：让家里电脑算这一手（网页按级位挑） ---- */
-async function pcMove(node,visits,profile){
+async function pcMove(node,visits,profile,opts){
   const r=root(),n=sizeOf(r),line=[];for(let x=node;x;x=x.parent)line.unshift(x);
-  const job=pcJob(line,n,visits);job.kind='move';if(profile)job.profile=profile;
+  const job=pcJob(line,n,visits);job.kind='move';if(profile)job.profile=profile;if(opts&&opts.rules)job.rules=opts.rules;
   await PC.send(job);
   return new Promise((resolve,reject)=>{const to=setTimeout(()=>{PC.stop();reject(new Error(T('家里电脑没有回应')))},45000);
     PC.watch(job.id,o=>{if(o.state==='error'){clearTimeout(to);PC.stop();reject(new Error(o.msg||'KataGo'))}
@@ -7321,8 +7332,20 @@ function recDone(){ // 记谱：存好，再记一盘
 let duel=null; // {b,w:等级 id, n, games, done, score:{a,b}, swap, delay, stop, gi}
 let duelOpt={n:9,a:'g10',b:'10k',games:5,swap:true,delay:300};try{Object.assign(duelOpt,JSON.parse(localStorage.getItem('goReview.duel')||'{}'))}catch(e){}
 const duelSave=()=>{try{localStorage.setItem('goReview.duel',JSON.stringify(duelOpt))}catch(e){}};
-function duelIds(n){return[...levelIds(n).filter(x=>x!=='max'),...GG_IDS]}
+const PC_IDS=['pc',...['5k','1d','3d','5d','9d','pro'].map(r=>'pch_'+r)]; // 第 49 项：家里电脑（KataGo／仿人类）
+let pcPlayV=1000;try{pcPlayV=+localStorage.getItem('goReview.pcv')||1000}catch(e){}
+const pcvHtml=on=>on?`<label>${T('家里电脑每手算')} <select data-pcv>${[400,1000,3000].map(v=>`<option value="${v}"${v===pcPlayV?' selected':''}>${v} ${T('次')}</option>`).join('')}</select></label>`:'';
+document.addEventListener('change',e=>{const t=e.target.closest('[data-pcv]');if(!t)return;pcPlayV=+t.value;try{localStorage.setItem('goReview.pcv',pcPlayV)}catch(x){}});
+function duelIds(n){return[...levelIds(n).filter(x=>x!=='max'),...PC_IDS,...GG_IDS]}
+async function pcEngineMove(node,lv){const n=sizeOf(root()),N=n*n,no=moveNo(node),late=no>N*0.7;
+  if(!PC.on())throw new Error(T('还没连上家里电脑'));
+  const o=await pcMove(node,lv.prof?Math.min(pcPlayV,400):pcPlayV,lv.prof||null,late?{rules:'japanese'}:null); // 收官后用日本规则来想（48e）
+  const ban=new Set();if(no>N*0.83){const cnt={};let k=0;for(let x=node;x&&x.parent&&k<30;x=x.parent,k++){const q=revPt(x,n);if(q!=null&&q>=0)cnt[q]=(cnt[q]||0)+1}for(const q in cnt)if(cnt[q]>=2)ban.add(+q)} // 48a：收官后不打小劫
+  if(lv.prof&&o.hp){const st=computeState(node,n);let bi=-1,bv=-1; // 仿人类：下这个棋力的人最常下的那手
+    for(let p=0;p<N;p++){const v=o.hp[p]||0;if(v>bv&&!st.g[(p/n)|0][p%n]&&!ban.has(p)){bv=v;bi=p}}return bi<0||(o.hp[N]||0)>bv?-1:bi}
+  for(const p of o.best||[]){if(p<0)return-1;if(!ban.has(p))return p}return-1}
 async function engineMove(node,lv){ // 任何一种 AI 下一手：回传点（-1 = 停一手）
+  if(lv.pc)return pcEngineMove(node,lv);
   if(lv.stu)return GG.student(node,lv.stu);
   if(lv.gg)return GG.genmove(node,lv.gg);
   const n=sizeOf(root()),late=moveNo(node)>n*n*0.7; // 第 48e 项：收官后用日本规则来想，避免在自己地里乱找劫材（胜负照原规则数）
@@ -7333,7 +7356,7 @@ function renderDuel(){
   let h=`<div class="score-opts"><span>${T('棋盘')}</span><span class="seg" data-dn>${[9,13,19].map(v=>`<button data-v="${v}" aria-pressed="${o.n===v}">${v}</button>`).join('')}</span>
     <label>${T('盘数')} <select data-d="games">${[1,5,10,20,50].map(v=>`<option${v===o.games?' selected':''}>${v}</option>`).join('')}</select></label>
     <label>${T('每手间隔')} <select data-d="delay">${[[0,T('最快')],[300,'0.3 s'],[1000,'1 s']].map(([v,l])=>`<option value="${v}"${v===o.delay?' selected':''}>${l}</option>`).join('')}</select></label></div>
-    <div class="score-opts"><label>${T('AI 甲')} ${sel('a')}</label><span>vs</span><label>${T('AI 乙')} ${sel('b')}</label><label class="chk" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-d="swap"${o.swap?' checked':''}> ${T('轮流执黑')}</label></div>`;
+    <div class="score-opts"><label>${T('AI 甲')} ${sel('a')}</label><span>vs</span><label>${T('AI 乙')} ${sel('b')}</label><label class="chk" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-d="swap"${o.swap?' checked':''}> ${T('轮流执黑')}</label>${pcvHtml(/^pc/.test(o.a)||/^pc/.test(o.b))}</div>`;
   if(duel){const d=duel;h+=`<p class="big">${T('甲 {0} : {1} 乙',d.score.a,d.score.b)}${d.draw?' · '+T('和 {0}',d.draw):''} · ${d.running?T('第 {0} / {1} 盘',d.gi+1,d.games):T('完成')}</p>${d.last?`<p class="note" style="margin:0">${tsE(d.last)}</p>`:''}`}
   h+=`<div class="row">${duel&&duel.running?`<button class="btn warn" data-dx="stop">${T('停止')}</button>`:`<button class="btn pri" data-dx="go">${duel&&!duel.running?T('再看一盘'):T('开始对战')}</button>`}${duel&&!duel.running?`<button class="btn" data-dx="torev">📖 ${T('进入这棋谱')}</button><button class="btn" data-dx="home">🏠 ${T('回主页')}</button>`:''}<button class="btn" data-dx="sgf">📂 ${T('从棋谱开始')}</button><button class="btn" data-dx="close">${T('关闭')}</button></div>
     <p class="note" style="margin:0">${T('棋谱会存进「我的棋谱」。大量对战（几百盘）请用家里电脑的 calibrate.py，比较快。')}</p>`;
@@ -7347,7 +7370,7 @@ async function duelRun(){
     const id=newId();store.games[id]={sgf:toSGF(r),key:id,title:titleOf(r),updated:Date.now()};openRoot(r,{id});markAuto();
     let passes=0,k=0,re=null;
     while(!duel.stop&&k<n*n*2){const col=nextColor(cur),lv=col==='B'?LB:LW;let p;
-      try{p=await engineMove(cur,lv)}catch(e){duel.last=T('AI 出错：{0}',e.message||e);p=-1}
+      try{p=await engineMove(cur,lv)}catch(e){if(lv.pc){duel.stop=true;duel.last=T('家里电脑：{0}。已停止。',e.message||e);renderDuel();break}duel.last=T('AI 出错：{0}',e.message||e);p=-1}
       if(duel.stop)break;const nd={props:{[col]:[p<0?'':xyToPt(p%n,(p/n)|0)]},children:[],parent:cur};cur.children.push(nd);cur=nd;changed();render();k++;
       passes=p<0?passes+1:0;if(passes>=2)break;if(o.delay)await new Promise(z=>setTimeout(z,o.delay))}
     if(duel.stop)break;
@@ -9645,7 +9668,7 @@ function relayClose(){if(relay&&relay.running){relay.stop=true}$('#relayBox').hi
 function renderRelay(){const box=$('#relayBox');if(!box||box.hidden)return;const el=$('#relayBody'),o=relayOpt,v=relayV||{};
   if(relay&&(relay.running||relay.done)){const r=relay;
     el.innerHTML=`<p class="big">${T('黑 {0} vs 白 {1}',lvName(levelObj(r.b,r.n)),lvName(levelObj(r.w,r.n)))}</p>
-      <p class="note" style="margin:0">${r.done?tsE(r.msg||T('下完了')):r.paused?T('暂停中：可以在棋盘上自己改一手，再按「继续」。'):T('AI 正在下… 第 {0} 手',moveNo(cur))}</p>
+      <p class="note" style="margin:0">${r.done?tsE(r.msg||T('下完了')):r.paused?(r.msg?tsE(r.msg):T('暂停中：可以在棋盘上自己改一手，再按「继续」。')):T('AI 正在下… 第 {0} 手',moveNo(cur))}</p>
       <div class="score-opts"><span>${T('速度')}</span><span class="seg">${RELAY_SPD.map(([k,l])=>`<button data-rl="spd" data-v="${k}" aria-pressed="${r.spd===k}">${T(l)}</button>`).join('')}</span></div>
       <div class="row">${r.done?'':r.paused?`<button class="btn pri" data-rl="resume">▶ ${T('继续')}</button>`:`<button class="btn" data-rl="pause">⏸ ${T('暂停')}</button>`}${r.done?'':`<button class="btn warn" data-rl="stop">${T('停止')}</button>`}${r.done&&r.koFrom?`<button class="btn warn" data-rl="trim">✂ ${T('删掉第 {0} 手以后的无意义小劫',moveNo(r.koFrom))}</button>`:''}${r.done?`<button class="btn pri" data-rl="again">${T('再看一盘')}</button><button class="btn" data-rl="torev">📖 ${T('进入这棋谱')}</button><button class="btn" data-rl="home">🏠 ${T('回主页')}</button>`:`<button class="btn" data-rl="close">${T('关闭')}</button>`}</div>`;return}
   const has=G&&store.games[G.id]&&G.id!=='__blank',n=has?sizeOf(root()):19,ids=relayIds(n),sel=(k,val)=>`<select data-ro="${k}">${ids.map(id=>`<option value="${id}"${id===val?' selected':''}>${lvName(id)}</option>`).join('')}</select>`;
@@ -9657,8 +9680,8 @@ function renderRelay(){const box=$('#relayBox');if(!box||box.hidden)return;const
   if(!has){el.innerHTML=h+`<p class="note">${T('先选一盘棋。')}</p><div class="row"><button class="btn" data-rl="close">${T('关闭')}</button></div>`;return}
   h+=`<p class="note" style="margin:0">${T('从棋盘上现在这一手（第 {0} 手，轮到{1}）开始，下出来的会存成这盘棋的一个变化。',moveNo(cur),nextColor(cur)==='B'?T('黑'):T('白'))}</p>
     <div class="score-opts"><span class="seg"><button data-rl="mode" data-v="me" aria-pressed="${v.mode==='me'}">${T('我和 AI 接着下')}</button><button data-rl="mode" data-v="ai" aria-pressed="${v.mode!=='me'}">${T('两个 AI 接着下')}</button></span></div>`;
-  if(v.mode==='me')h+=`<div class="score-opts"><span>${T('我执')}</span><span class="seg"><button data-rl="me" data-v="B" aria-pressed="${o.me==='B'}">${T('黑棋')}</button><button data-rl="me" data-v="W" aria-pressed="${o.me==='W'}">${T('白棋')}</button></span><label>${T('AI 棋力')} ${sel('lv',o.lv)}</label></div>`;
-  else h+=`<div class="score-opts"><label>${T('黑')} ${sel('b',o.b)}</label><span>vs</span><label>${T('白')} ${sel('w',o.w)}</label></div>
+  if(v.mode==='me')h+=`<div class="score-opts"><span>${T('我执')}</span><span class="seg"><button data-rl="me" data-v="B" aria-pressed="${o.me==='B'}">${T('黑棋')}</button><button data-rl="me" data-v="W" aria-pressed="${o.me==='W'}">${T('白棋')}</button></span><label>${T('AI 棋力')} <select data-ro="lv">${ids.filter(id=>!/^pc/.test(id)).map(id=>`<option value="${id}"${id===o.lv?' selected':''}>${lvName(id)}</option>`).join('')}</select></label></div>`;
+  else h+=`<div class="score-opts"><label>${T('黑')} ${sel('b',o.b)}</label><span>vs</span><label>${T('白')} ${sel('w',o.w)}</label>${typeof pcvHtml==='function'?pcvHtml(/^pc/.test(o.b)||/^pc/.test(o.w)):''}</div>
     <div class="score-opts"><span>${T('速度')}</span><span class="seg">${RELAY_SPD.map(([k,l])=>`<button data-rl="ospd" data-v="${k}" aria-pressed="${o.spd===k}">${T(l)}</button>`).join('')}</span></div>`;
   h+=`<div class="row"><button class="btn pri" data-rl="go">${T('开始')}</button><button class="btn" data-rl="close">${T('关闭')}</button></div>`;
   el.innerHTML=h}
@@ -9672,6 +9695,7 @@ function relayMark(){const R=vs&&vs.relay;if(!R||R.done)return;const nk=R.from.c
 async function relayAi(){const o=relayOpt,n=sizeOf(root()),LB=levelObj(o.b,n),LW=levelObj(o.w,n);if(vs)vsStop();
   relay={b:o.b,w:o.w,n,spd:o.spd,running:true,paused:false,stop:false,first:null,gid:G.id,msg:''};renderRelay();
   if(!(LB.gg||LB.stu)||!(LW.gg||LW.stu))AI.load().catch(()=>{});
+  if((LB.pc||LW.pc)&&!PC.on()){relay.running=false;relay.done=true;relay.msg=T('还没连上家里电脑：请先在设定里连线家里电脑，再开始。');renderRelay();return}
   let passes=0,capped=false;const note=T('（以下：黑 {0} vs 白 {1} 接着下）',lvName(LB),lvName(LW));
   const CAP=n===19?400:n===13?220:n===9?110:Math.round(n*n*1.1); // 第 48c 项：手数上限
   while(!relay.stop&&moveNo(cur)<n*n*2){
@@ -9679,7 +9703,8 @@ async function relayAi(){const o=relayOpt,n=sizeOf(root()),LB=levelObj(o.b,n),LW
     if(relay.paused){await new Promise(z=>setTimeout(z,250));continue}
     if(!G||G.id!==relay.gid){relay.stop=true;break}
     const node=cur,col=nextColor(node),lv=col==='B'?LB:LW;let p;
-    try{p=await engineMove(node,lv)}catch(e){relay.msg=T('AI 出错：{0}',e.message||e);p=-1}
+    try{p=await engineMove(node,lv)}catch(e){if(lv.pc){relay.paused=true;relay.msg=T('家里电脑：{0}。已暂停，开好家里电脑后按「继续」。',e.message||e);renderRelay();continue} // 49d：不偷偷换成浏览器 AI
+      relay.msg=T('AI 出错：{0}',e.message||e);p=-1}
     if(relay.stop)break;if(relay.paused||cur!==node)continue; // 暂停时有人改了棋：从新的局面接着下
     const pt=p<0?'':xyToPt(p%n,(p/n)|0),hit=node.children.find(c=>{const m=moveOf(c);return m&&m[0]===col&&m[1]===pt});
     let nd=hit;if(!nd){nd={props:{[col]:[pt]},children:[],parent:node};node.children.push(nd)}node._sel=node.children.indexOf(nd);
@@ -9712,7 +9737,7 @@ document.addEventListener('click',async e=>{const t=e.target.closest('#relayBox 
   if(a==='ospd'){o.spd=t.dataset.v;relaySave();renderRelay();return}
   if(a==='spd'){relay.spd=o.spd=t.dataset.v;relaySave();renderRelay();return}
   if(a==='pause'){relay.paused=true;renderRelay();return}
-  if(a==='resume'){relay.paused=false;renderRelay();return}
+  if(a==='resume'){relay.paused=false;relay.msg='';renderRelay();return}
   if(a==='stop'){relay.stop=true;relay.paused=false;renderRelay();return}
   if(a==='go'){if(relayV.mode==='me')relayMe();else{relayV=null;relayAi()}}});
 document.addEventListener('change',e=>{const t=e.target.closest('#relayBox [data-ro]');if(!t)return;const k=t.dataset.ro,o=relayOpt;

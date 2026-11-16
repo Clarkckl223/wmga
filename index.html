@@ -2852,6 +2852,11 @@ const EN={
 ,"{0} 没有回应，邀请过期了。":"{0} did not reply; the invitation expired."
 ,"取消邀请":"Cancel invitation"
 ,"对方":"opponent"
+,"解说":"Commentate"
+,"正在下的棋（{0} 盘）":"Games in progress ({0})"
+,"全部加入多场解说台":"Add all to commentary desk"
+,"现在没有可以解说的对局":"No games available for commentary right now"
+,"不开放解说":"no commentary"
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -7099,6 +7104,7 @@ function olSync(st){
   if(st.status==='end'&&(!prev||prev.status!=='end')){olRateAfter(st);renderLib()}
   if(st.status==='score'&&ol.me)setTimeout(olScore,ol.me==='B'?0:1500); // 两边都试，先算好的写进去
   renderOl();
+  olPresKick();
   if(!ol.me){laOlSync();if(st.status!=='wait'&&laOlAllowed(st))laOlSub()}else if(ol.cm)laOlStop();
 }
 function olTick(){if(!ol||!ol.st)return;const st=ol.st;if(st.status!=='play'){return}const c=olToMove(st),k=olClock(st,c);
@@ -7155,8 +7161,11 @@ async function olAnswer(cid,yes,cObj){const c=cObj||olLobby.chal[cid]||olInv.get
 const OL_CHAL_MS=5*60000,OL_ON_MS=150000;let olPres=null,olSent=null;const olInv=new Map();
 function olMyCls(){try{const L=typeof tsLogin==='function'&&tsLogin();return(L&&L.cls)||''}catch(e){return''}}
 function olMyRole(){try{const L=typeof tsLogin==='function'&&tsLogin();return(L&&L.role)||''}catch(e){return''}}
+function olPresGame(){const st=ol&&ol.st,on=!!(st&&st.status==='play'&&ol.me);olPresGame.k=on?ol.id:''; // 52a：正在下哪一盘
+  return on?{busy:true,gid:ol.id,gm:{n:st.n,B:(st.B&&st.B.name)||'',W:(st.W&&st.W.name)||'',mv:st.moves.length,ai:laOlAllowed(st)&&!st.cap}}:{busy:false}}
+function olPresKick(){const st=ol&&ol.st,k=st&&st.status==='play'&&ol.me?ol.id:'';if(k!==(olPresGame.k||''))olPresBeat()}
 async function olPresBeat(){if(document.hidden||!olName())return;try{const db=await Shared.db(),uid=olUid(),R=await olRating(uid);
-  await db.collection('games').doc('lobby').collection('layers').doc('p_'+uid).set({sgf:JSON.stringify({name:olName(),r:R.r,t:Date.now(),busy:!!(ol&&ol.st&&ol.st.status==='play'),cls:olMyCls(),role:olMyRole(),lobby:olView==='lobby'&&!$('#olBox').hidden}),name:'p_'+uid,updated:Date.now()})}catch(e){}}
+  await db.collection('games').doc('lobby').collection('layers').doc('p_'+uid).set({sgf:JSON.stringify({name:olName(),r:R.r,t:Date.now(),...olPresGame(),cls:olMyCls(),role:olMyRole(),lobby:olView==='lobby'&&!$('#olBox').hidden}),name:'p_'+uid,updated:Date.now()})}catch(e){}}
 async function olPresStart(){const uid=olUid();if(!olName()||!uid)return;if(olPres&&olPres.uid===uid)return;if(olPres){clearInterval(olPres.t);olPres.unsub&&olPres.unsub()}
   olPres={uid,t:setInterval(olPresBeat,60000),unsub:null};olPresBeat();
   try{const db=await Shared.db();olPres.unsub=db.collection('games').doc('lobby').collection('layers').where('to','==',uid).onSnapshot(qs=>{const now=Date.now();
@@ -7202,10 +7211,11 @@ function renderOl(){
   else if(olView==='lobby'){
     const uid=olUid(),now=Date.now(),ps=Object.entries(olLobby.players).filter(([u,p])=>u!==uid&&p.t>now-OL_ON_MS).sort((a,b)=>(b[1].r||0)-(a[1].r||0)),myCls=olMyCls();
     const mates=myCls?ps.filter(([u,p])=>p.cls===myCls):[],others=ps.filter(x=>!mates.includes(x));
-    const row=([u,p])=>`<div class="olp"><b>${tsE(p.name||'?')}</b><span>${p.role==='teacher'?T('老师'):olRankName(p.r||1000)+' · '+(p.r||1000)}</span><span class="note" style="margin:0">${p.busy?T('对局中'):p.lobby?T('在大厅'):T('在线')}</span>${p.busy?'':`<button class="btn" data-p="chal" data-u="${u}" data-n="${tsE(p.name||'')}">${T('邀请')}</button>`}</div>`;
+    const row=([u,p])=>`<div class="olp"><b>${tsE(p.name||'?')}</b><span>${p.role==='teacher'?T('老师'):olRankName(p.r||1000)+' · '+(p.r||1000)}</span><span class="note" style="margin:0">${p.busy?T('对局中'):p.lobby?T('在大厅'):T('在线')}</span>${p.busy?(p.gid?olWatchBtns(p.gid,p.gm):''):`<button class="btn" data-p="chal" data-u="${u}" data-n="${tsE(p.name||'')}">${T('邀请')}</button>`}</div>`;
     h=tabs+`<div class="row"><b>${T('大厅')}</b><span class="note" style="margin:0">${T('{0} 人在线',ps.length+1)}</span></div>`;
     for(const[cid,c]of Object.entries(olLobby.chal))if(!c.done&&c.t>now-OL_CHAL_MS&&!olInv.has(cid))h+=`<div class="olchal"><b>${tsE(c.name)}</b> ${T('邀请你下一盘（{0} 路，{1}）',c.n,olTimeLabel(c.time))}<button class="btn pri" data-p="yes" data-c="${cid}">${T('接受')}</button><button class="btn" data-p="no" data-c="${cid}">${T('不要')}</button></div>`;
     h+=olOptHtml();
+    h+=olLiveHtml(ps,myCls);
     if(mates.length)h+=`<b class="sub">👥 ${T('同班同学（{0} 人在线）',mates.length)}</b><div class="ollist">`+mates.map(row).join('')+`</div>`;
     if(others.length)h+=`<b class="sub">${mates.length?T('其他在线的人'):T('在线的人')}</b><div class="ollist">`+others.map(row).join('')+`</div>`;
     if(!ps.length)h+=`<p class="note">${T('现在没有其他人在线。把网址传给朋友，或改天再来。')}</p>`;
@@ -7290,6 +7300,9 @@ async function olAct(e){
     case'say':{const i=$('#olSayI');await olSay(i&&i.value);break}
     case'lasay':{const i=$('#laSayI');await laOlSay(i&&i.value);if(i)i.value='';break}
     case'cmstart':laOlStart();break;
+    case'watch':olOpen(t.dataset.g);break;
+    case'watchcm':await olWatchCm(t.dataset.g);break;
+    case'deskall':{const L=olLiveGames(Object.entries(olLobby.players),olMyCls()).filter(g=>g.ai!==false);if(!L.length)throw new Error(T('现在没有可以解说的对局'));const mine=L.filter(g=>g.mate);deskOpen((mine.length?mine:L).map(g=>g.gid));break}
     case'desk':deskOpen([]);break;
     case'deskadd':{const id=ol.id;olClose(true);olView='mine';renderOl();deskOpen([id]);break}
     case'cmstop':laOlStop();break;
@@ -7313,6 +7326,21 @@ function olPanelClose(){if(ol&&ol.st&&ol.st.status==='play'&&ol.me&&!ol.st.corr)
 document.addEventListener('change',e=>{const s=e.target.closest&&e.target.closest('#olBody [data-pr]');if(s)olPair[s.dataset.pr]=s.value});
 setTimeout(olWatchMine,2500);try{firebase.auth().onAuthStateChanged(()=>setTimeout(olWatchMine,500))}catch(e){}
 {const b=$('#olTurnBtn');if(b)b.onclick=()=>{if(typeof setMode==='function')setMode('play');olView='mine';olPanelOpen()}}
+
+/* ---- 第 52 项：大厅直接观战、解说 ---- */
+function olWatchBtns(gid,gm){return`<button class="btn" data-p="watch" data-g="${tsE(gid)}">👀 ${T('观战')}</button>`+(laCan()&&(!gm||gm.ai!==false)?`<button class="btn" data-p="watchcm" data-g="${tsE(gid)}">🎙 ${T('解说')}</button>`:'')}
+function olLiveGames(ps,myCls){const now=Date.now(),G={};
+  for(const[u,p]of ps){if(!p.busy||!p.gid||!(p.t>now-OL_ON_MS))continue;const g=G[p.gid]||(G[p.gid]={gid:p.gid,...(p.gm||{}),mate:false});
+    if(p.gm&&(p.gm.mv||0)>=(g.mv||0))Object.assign(g,p.gm);if(myCls&&p.cls===myCls)g.mate=true}
+  return Object.values(G).sort((a,b)=>(b.mate-a.mate)||((b.mv||0)-(a.mv||0)))}
+function olLiveHtml(ps,myCls){const L=olLiveGames(ps,myCls);if(!L.length)return'';
+  const anyAi=L.some(g=>g.ai!==false);
+  return`<div class="row" style="margin:0;align-items:center"><b class="sub" style="margin:0">♟ ${T('正在下的棋（{0} 盘）',L.length)}</b>${laCan()&&anyAi?`<button class="btn" data-p="deskall">🎙 ${T('全部加入多场解说台')}</button>`:''}</div><div class="ollist">`+
+    L.map(g=>`<div class="olp">${g.mate?'👥 ':''}<b>⚫ ${tsE(g.B||'?')}</b><span>vs</span><b>⚪ ${tsE(g.W||'?')}</b><span class="note" style="margin:0">${g.n||19} 路 · ${T('第 {0} 手',g.mv||0)}${g.ai===false?' · '+T('不开放解说'):''}</span>${olWatchBtns(g.gid,g)}</div>`).join('')+`</div>`}
+async function olWatchCm(gid){await olOpen(gid);const t0=Date.now();
+  while(Date.now()-t0<8000&&ol&&ol.id===gid&&!ol.st)await new Promise(r=>setTimeout(r,200));
+  if(!ol||ol.id!==gid||!ol.st)return;if(ol.me){flash(T('你是这盘的对局者，不能解说'));return}
+  if(!laOlAllowed(ol.st)||ol.st.cap){flash(T('这盘棋不开放 AI 解说。'));return}if(!ol.cm)laOlStart()}
 
 /* ===================== 首页：选功能（做题、复盘、下棋、记谱、班级、设置） =====================
    body[data-mode]：home / ts / review / play / record —— CSS 依模式藏起用不到的部分 */

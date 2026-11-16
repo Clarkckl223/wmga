@@ -2808,6 +2808,8 @@ const EN={
 ,"这条变化在库里已经走完了。":"This line ends here in the library."
 ,"清空":"Clear"
 ,"定式库":"Joseki library"
+,"让 AI 自己长出定式：在家里电脑的 KataGo 文件夹执行 python joseki_gen.py 星位小飞挂（也可以写 星位、小目、三三，或 Q16,R14），产生的 .sgf 用上面的「导入 SGF」加进来。":"Let the AI grow joseki: in the KataGo folder on the home PC run python joseki_gen.py 星位小飞挂 (or 星位, 小目, 三三, or Q16,R14), then add the .sgf with \"Import SGF\" above."
+,"有了第一页定式之后，这里会出现「KataGo 检查」的按钮。":"Once the library has its first page, the \"KataGo check\" buttons appear here."
 };
 let LANG='zh';try{const v=JSON.parse(localStorage.getItem('goReview.prefs')||'{}');if(v.lang==='en')LANG='en'}catch(e){}
 function T(zh,...a){let s=LANG==='en'&&EN[zh]!==undefined?EN[zh]:zh;a.forEach((v,i)=>{s=s.split('{'+i+'}').join(v)});return s}
@@ -7952,6 +7954,8 @@ function renderTs(){tsRoleCls();if(typeof layoutCls==='function')layoutCls();
       if(!b.problems.length)h+=`<p class="note">${T('还没有内容。按下面「新的一页」开始写。')}</p>`;
       if(b.jos)h+=`<div class="row"><button class="btn pri" data-a="josq">🔍 ${T('摆几手查定式')}</button></div>`;
       if(ed)h+=`<div class="row"><button class="btn${b.jos?'':' pri'}" data-a="newp">${b.jos?T('新的定式（一页）'):T('新的一页')}</button><label class="btn" style="cursor:pointer">${T('导入 SGF')}<input type="file" id="tsFile" accept=".sgf,text/plain" multiple hidden></label>${b.builtin?'':`<button class="btn warn" data-a="delbook">${b.jos?T('删除定式库'):T('删除棋书')}</button>`}</div>`;
+      if(ed&&b.jos)h+=`<p class="note" style="margin:0">🤖 ${T('让 AI 自己长出定式：在家里电脑的 KataGo 文件夹执行 python joseki_gen.py 星位小飞挂（也可以写 星位、小目、三三，或 Q16,R14），产生的 .sgf 用上面的「导入 SGF」加进来。')}</p>`;
+      if(ed&&b.jos&&!b.problems.length)h+=`<p class="note" style="margin:0">${T('有了第一页定式之后，这里会出现「KataGo 检查」的按钮。')}</p>`;
       if(ed&&b.jos&&b.problems.length)h+=`<div class="score-opts"><span>${T('KataGo 检查（家里电脑）')}</span><button class="btn" data-a="josexp">① ${T('导出定式库')}</button><label class="btn" style="cursor:pointer">② ${T('导入检查结果')}<input type="file" id="josKAf" accept=".json" hidden></label></div><p class="note" style="margin:0">${T('在家里电脑执行：python joseki_check.py 导出的档案.json，跑完会产生 …_checked.json，再按②导入。标成定式但 AI 认为亏很多的会打 ⚠，AI 常下但库里没有的下法也会列出来。')}</p>`;
       const chs=[...new Set(b.problems.map(p=>(p.ch||'').trim()).filter(Boolean))],nr=b.problems.filter(tsReadHasRight).length;
       if(ed&&nr&&!b.jos){const tg=tsBooks().filter(x=>!x.read&&!x.view&&!x.cap&&!x.wrong&&!x.virt&&x.id!=='__preview'&&tsCanEdit(x)&&!x.builtin);

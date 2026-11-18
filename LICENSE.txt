@@ -1,0 +1,14 @@
+Copyright (c) 2025-2026 黑白思弈馆 WEIQI & MIND GAME ACADEMY. All rights reserved.
+
+本程序（黑白思弈 · 围棋学堂）的源代码、介面设计、题库、图片与文字内容，
+版权均属黑白思弈馆所有。未经书面许可，不得复制、修改、散布、转载、
+架设镜像网站，或用于任何商业或非商业用途。
+
+This software, including its source code, interface design, problem
+collections, images and text, is proprietary. No licence is granted.
+You may not copy, modify, distribute, republish, mirror or use it, in
+whole or in part, without prior written permission from the copyright
+holder.
+
+Third-party components (e.g. KataGo, GNU Go, TensorFlow.js, Firebase,
+fonts under the SIL OFL) remain under their own licences.
